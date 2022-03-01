@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ReadOnly/HD_SharedStruct.h"
 #include "GameFramework/Actor.h"
 #include "HD_Object.generated.h"
 

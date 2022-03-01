@@ -15,11 +15,18 @@ class HDCLIENT_API UHD_GI : public UGameInstance
 {
 	GENERATED_BODY()
 	
+#pragma region Init
 protected:
 	UHD_GI();
+public:
+	void GIPostInit();
 
+	const TArray<FDataWeapon*>& GetDataWeapons();
 private:
 	UDataTable* _dt_game = nullptr;
 	UDataTable* _dt_wave = nullptr;
 	UDataTable* _dt_weapon = nullptr;
+
+	TArray<FDataWeapon*> _data_wps;
+#pragma endregion
 };

@@ -62,8 +62,8 @@ struct FDataWeapon : public FTableRowBase
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "General")
-		TSubclassOf<AHD_Weapon> _class_butter_fly;
+	UPROPERTY(EditAnywhere, Category = "General")
+		TSubclassOf<AHD_Weapon> _class_weapon;
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
 
@@ -71,5 +71,37 @@ protected:
 		UAnimMontage* _anim_start = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Animation")
 		UAnimMontage* _anim_attack_basic = nullptr;
+
+public:
+	FORCEINLINE const TSubclassOf<AHD_Weapon>& GetClassWeapon() const { return _class_weapon; }
+	FORCEINLINE const FString& GetCode() const { return _code; }
 };
 #pragma endregion
+
+USTRUCT(BlueprintType)
+struct FInfoPlayer
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		FString code_wp_equip = "WP00101";
+	UPROPERTY()
+		AHD_Weapon* wp_equip = nullptr;
+};
+
+
+USTRUCT(BlueprintType)
+struct FInfoWeapon
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		FString code = "0";
+
+	//UPROPERTY(EditAnywhere, Category = "Animation")
+	//	UAnimMontage* _anim_start = nullptr;
+	//UPROPERTY(EditAnywhere, Category = "Animation")
+	//	UAnimMontage* _anim_attack_basic = nullptr;
+};

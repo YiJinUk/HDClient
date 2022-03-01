@@ -3,13 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ReadOnly/HD_SharedStruct.h"
 #include "GameFramework/GameModeBase.h"
 #include "HD_GM.generated.h"
 
+class UHD_GI;
 class AHD_PC;
 class AHD_Hero;
 class AHD_MagicStone;
 class AHD_Companion;
+class AHD_Manager_Pool;
+class AHD_Manager_Weapon;
 
 /**
  * 
@@ -30,15 +34,32 @@ private:
 	void GMPostInit();
 private:
 	UPROPERTY()
+		UHD_GI* _hdgi = nullptr;
+
+	UPROPERTY()
 		bool _is_call_PostLogin = false;
 	UPROPERTY()
 		bool _is_call_BeginPlay = false;
+#pragma endregion
+
+#pragma region Manager
+private:
+	UPROPERTY()
+		AHD_Manager_Pool* _manager_pool = nullptr;
+	UPROPERTY()
+		AHD_Manager_Weapon* _manager_wp = nullptr;
 #pragma endregion
 
 #pragma region Player
 private:
 	UPROPERTY()
 		AHD_PC* _pc = nullptr;
+	UPROPERTY()
+		FInfoPlayer _info_player;
+#pragma endregion
+
+#pragma region Hero
+private:
 	UPROPERTY()
 		AHD_Hero* _hero = nullptr;
 #pragma endregion
@@ -47,8 +68,15 @@ private:
 private:
 	AHD_MagicStone* _ms = nullptr;
 #pragma endregion
+
 #pragma region Companion
 private:
 	AHD_Companion* _cpan = nullptr;
+#pragma endregion
+
+#pragma region Weapon
+public:
+	UFUNCTION(BlueprintCallable)
+		void ChangeWeaponStartByCode(const FString& str_code_wp);
 #pragma endregion
 };

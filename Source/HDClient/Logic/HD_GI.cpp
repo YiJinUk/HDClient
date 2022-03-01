@@ -12,3 +12,9 @@ UHD_GI::UHD_GI()
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_WEAPON(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Weapon.HDDT_Weapon"));
 	if (DT_WEAPON.Succeeded()) { _dt_weapon = DT_WEAPON.Object; }
 }
+void UHD_GI::GIPostInit()
+{
+	_dt_weapon->GetAllRows("0", _data_wps);
+}
+
+const TArray<FDataWeapon*>& UHD_GI::GetDataWeapons() { return _data_wps; }
