@@ -4,8 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "Runtime/CoreUObject/Public/Templates/SubclassOf.h"
 #include "UObject/NoExportTypes.h"
 #include "HD_SharedStruct.generated.h"
+
+class UAnimMontage;
+class AHD_Weapon;
 
 /**
  * 
@@ -51,5 +55,21 @@ protected:
 		uint8 _wave = 0;
 	UPROPERTY(EditAnywhere, Category = "General")
 		TArray<FDataWaveSpawnEnemy> _spawn_enemies;
+};
+USTRUCT(BlueprintType)
+struct FDataWeapon : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "General")
+		TSubclassOf<AHD_Weapon> _class_butter_fly;
+	UPROPERTY(EditAnywhere, Category = "General")
+		FString _code = "0";
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		UAnimMontage* _anim_start = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		UAnimMontage* _anim_attack_basic = nullptr;
 };
 #pragma endregion

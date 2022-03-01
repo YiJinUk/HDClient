@@ -7,6 +7,9 @@
 #include "HD_GM.generated.h"
 
 class AHD_PC;
+class AHD_Hero;
+class AHD_MagicStone;
+class AHD_Companion;
 
 /**
  * 
@@ -36,5 +39,16 @@ private:
 private:
 	UPROPERTY()
 		AHD_PC* _pc = nullptr;
+	UPROPERTY()
+		AHD_Hero* _hero = nullptr;
+#pragma endregion
+
+#pragma region MagicStone
+private:
+	AHD_MagicStone* _ms = nullptr;
+#pragma endregion
+#pragma region Companion
+private:
+	AHD_Companion* _cpan = nullptr;
 #pragma endregion
 };

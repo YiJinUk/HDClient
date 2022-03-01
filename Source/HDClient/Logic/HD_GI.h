@@ -21,4 +21,5 @@ protected:
 private:
 	UDataTable* _dt_game = nullptr;
 	UDataTable* _dt_wave = nullptr;
+	UDataTable* _dt_weapon = nullptr;
 };

@@ -11,16 +11,16 @@ class HDCLIENT_API AHD_Unit : public AActor
 {
 	GENERATED_BODY()
 	
+#pragma region Init
 public:	
-	// Sets default values for this actor's properties
 	AHD_Unit();
-
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere)
+		class USceneComponent* _root_scene = nullptr;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class USkeletalMeshComponent* _skeletal_mesh = nullptr;
+
+#pragma endregion
 
 };

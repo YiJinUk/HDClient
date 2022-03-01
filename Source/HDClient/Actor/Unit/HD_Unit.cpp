@@ -3,25 +3,28 @@
 
 #include "Actor/Unit/HD_Unit.h"
 
-// Sets default values
+#include "Components/SkeletalMeshComponent.h"
+
 AHD_Unit::AHD_Unit()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	_root_scene = CreateDefaultSubobject<USceneComponent>("_root_scene");
+	if (_root_scene)
+	{
+		RootComponent = _root_scene;
+	}
+
+	_skeletal_mesh = CreateDefaultSubobject<USkeletalMeshComponent>("_skeletal_mesh");
+	if (_skeletal_mesh)
+	{
+		_skeletal_mesh->SetupAttachment(GetRootComponent());
+		_skeletal_mesh->SetGenerateOverlapEvents(false);
+		_skeletal_mesh->SetCanEverAffectNavigation(false);
+		_skeletal_mesh->bSkipKinematicUpdateWhenInterpolating = true;
+		_skeletal_mesh->bSkipBoundsUpdateWhenInterpolating = true;
+		_skeletal_mesh->bComponentUseFixedSkelBounds = true;
+		_skeletal_mesh->bEnableUpdateRateOptimizations = true;
+		_skeletal_mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	}
 }
-
-// Called when the game starts or when spawned
-void AHD_Unit::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AHD_Unit::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
