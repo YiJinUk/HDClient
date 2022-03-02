@@ -14,6 +14,8 @@ class HDCLIENT_API AHD_Unit : public AActor
 #pragma region Init
 public:	
 	AHD_Unit();
+
+	USkeletalMeshComponent* GetSkeletalMesh();
 protected:
 	UPROPERTY(EditAnywhere)
 		class USceneComponent* _root_scene = nullptr;

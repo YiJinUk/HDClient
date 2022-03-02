@@ -59,7 +59,7 @@ void AHD_GM::GMPostInit()
 
 	/*플레이어 초기화*/
 	_info_player.wp_equip = _manager_pool->PoolOutWeaponByCode(_info_player.code_wp_equip);
-	_info_player.wp_equip->WPInit();
+	_info_player.wp_equip->WPInit(_hero->GetSkeletalMesh());
 
 	_pc->PCPostInit();
 }
@@ -74,8 +74,8 @@ void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
 	/*새로운 무기 장착*/
 	AHD_Weapon* wp = _manager_pool->PoolOutWeaponByCode(str_code_wp);
 	if (!wp) return;
-
-	wp->WPInit();
+	
+	wp->WPInit(_hero->GetSkeletalMesh());
 
 	_info_player.code_wp_equip = str_code_wp;
 	_info_player.wp_equip = wp;

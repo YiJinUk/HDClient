@@ -41,7 +41,7 @@ AHD_Weapon* AHD_Manager_Pool::PoolOutWeaponByCode(const FString& str_code_wp)
 void AHD_Manager_Pool::PoolInWeapon(AHD_Weapon* wp)
 {
 	if (!wp) return;
-	wp->SetActorLocation(FVector(-1000, -1000, 0));
-	//wp->WPSetActiveTick(false);
+	//wp->SetActorLocation(FVector(-1000, -1000, 0));
+	wp->WPSetActiveTick(false);
 	_pool_wp_only_equip.Add(wp);
 }

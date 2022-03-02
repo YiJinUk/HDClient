@@ -28,3 +28,5 @@ AHD_Unit::AHD_Unit()
 		_skeletal_mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	}
 }
+
+USkeletalMeshComponent* AHD_Unit::GetSkeletalMesh() { return _skeletal_mesh; }

@@ -17,7 +17,9 @@ class HDCLIENT_API AHD_Weapon : public AHD_Object
 #pragma region Init
 public:
 	void WPPostInit(const FDataWeapon* s_data_wp);
-	void WPInit();
+	void WPInit(class USkeletalMeshComponent* skmc);
+
+	void WPSetActiveTick(const bool b_is_active);
 
 	const FInfoWeapon& GetInfoWP();
 private:
