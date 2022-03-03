@@ -14,4 +14,6 @@ class HDCLIENT_API AHD_ENEMY01001 : public AHD_Enemy
 {
 	GENERATED_BODY()
 	
+protected:
+	void EnemyAttackBasic() override;
 };

@@ -33,6 +33,11 @@ protected:
 		FInfoUnit _info_unit;
 #pragma endregion
 
+#pragma region Attack.Basic
+protected:
+	bool UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_delay, const int32 i_as_delay_total, const uint8 i_tick_1frame);
+#pragma endregion
+
 public:
 	FVector2D GetActorLocation2D();
 protected:

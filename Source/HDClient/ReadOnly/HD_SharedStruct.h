@@ -40,7 +40,7 @@ enum class EUnitClassType : uint8
 	HERO,
 };
 UENUM()
-enum class EHeroAttackBasicStatus : uint8
+enum class EAttackBasicStatus : uint8
 {
 	DETECT,//기본공격.대기
 	TRY,//기본공격.시도(선딜)
@@ -57,6 +57,7 @@ UENUM()
 enum class EPROJAttackType : uint8
 {
 	HERO_ATTACK_BASIC,
+	ENEMY_ATTACK_BASIC,
 };
 
 
@@ -124,12 +125,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
 
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		FString _code_proj = "0";
+
+	UPROPERTY(EditAnywhere, Category = "Stat")
+		int32 _as = 0;
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _move_speed = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		UAnimMontage* _anim_attack_basic = nullptr;
 public:
 	FORCEINLINE const TSubclassOf<AHD_Enemy>& GetClassEnemy() { return _class_enemy; }
 	FORCEINLINE const FString& GetCode() { return _code; }
+	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
+	FORCEINLINE const int32 GetAS() { return _as; }
 	FORCEINLINE const int32 GetMoveSpeed() { return _move_speed; }
+	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
 };
 USTRUCT(BlueprintType)
 struct FDataWeapon : public FTableRowBase
@@ -143,7 +155,7 @@ protected:
 		FString _code = "0";
 
 	UPROPERTY(EditAnywhere, Category = "Projectile")
-		FString _code_projectile = "0";
+		FString _code_proj = "0";
 
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _str = 0;
@@ -158,7 +170,7 @@ protected:
 public:
 	FORCEINLINE const TSubclassOf<AHD_Weapon>& GetClassWeapon() { return _class_weapon; }
 	FORCEINLINE const FString& GetCode() { return _code; }
-	FORCEINLINE const FString& GetCodePROJ() { return _code_projectile; }
+	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
 	FORCEINLINE const int32 GetSTR() { return _str; }
 	FORCEINLINE const int32 GetAS() { return _as; }
 	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
@@ -298,7 +310,7 @@ public:
 		AHD_Weapon* wp_equip = nullptr;
 
 	UPROPERTY()
-		EHeroAttackBasicStatus atk_basic_status = EHeroAttackBasicStatus::DELAY;
+		EAttackBasicStatus atk_basic_status = EAttackBasicStatus::DELAY;
 
 	UPROPERTY()
 		int32 str_base = 0;
@@ -335,11 +347,33 @@ public:
 
 	UPROPERTY()
 		float lane_dist = 0;
-
-	UPROPERTY()
-		int32 move_speed = 0;
 	UPROPERTY()
 		bool is_death = false;
+
+	UPROPERTY()
+		EAttackBasicStatus atk_basic_status = EAttackBasicStatus::DELAY;
+	UPROPERTY()
+		AHD_Hero* target = nullptr;
+
+	UPROPERTY()
+		FString code_proj = "0";
+
+	UPROPERTY()
+		int32 as_base = 0;
+	UPROPERTY()
+		int32 as_delay = 0;
+	UPROPERTY()
+		int32 move_speed = 0;
+
+	//0미만으로 떨어지면 이동이 불가능합니다
+	UPROPERTY()
+		int8 is_can_move = 0;
+
+	UPROPERTY()
+		UAnimMontage* anim_attack_basic = nullptr;
+public:
+	FORCEINLINE int32 GetASTotal() const { return as_base; }
+	FORCEINLINE int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
 };
 
 USTRUCT(BlueprintType)

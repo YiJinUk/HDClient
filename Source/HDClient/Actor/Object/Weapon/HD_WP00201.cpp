@@ -8,5 +8,5 @@
 
 void AHD_WP00201::WPAttackBasic(AHD_Enemy* target)
 {
-	_gm->PROJSpawn(_info_wp.code_proj, EPROJTargetType::STRAIGHT, EPROJAttackType::HERO_ATTACK_BASIC, _info_wp.owner_hero->GetActorLocation(), _info_wp.owner_hero, nullptr, target->GetActorLocation2D());
+	_gm->PROJSpawn(_info_wp.code_proj, EPROJAttackType::HERO_ATTACK_BASIC, _info_wp.owner_hero->GetActorLocation(), _info_wp.owner_hero, nullptr, target->GetActorLocation2D());
 }

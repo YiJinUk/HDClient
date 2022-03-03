@@ -40,6 +40,35 @@ void AHD_Unit::UnitPostInit(const EUnitClassType e_unit_type)
 	_info_unit.unit_type = e_unit_type;
 }
 
+bool AHD_Unit::UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_delay, const int32 i_as_delay_total, const uint8 i_tick_1frame)
+{
+	switch (e_atk_basic_status)
+	{
+	case EAttackBasicStatus::DETECT:
+		break;
+	case EAttackBasicStatus::TRY:
+		if (i_as_delay < i_as_delay_total)
+			i_as_delay += i_tick_1frame;
+		break;
+	case EAttackBasicStatus::DELAY:
+		if (i_as_delay >= i_as_delay_total)
+		{
+			i_as_delay = 0;
+			e_atk_basic_status = EAttackBasicStatus::DETECT;
+		}
+		else
+			i_as_delay += i_tick_1frame;
+		break;
+	default:
+		break;
+	}
+
+	if (e_atk_basic_status == EAttackBasicStatus::DETECT)
+		return true;
+	else
+		return false;
+}
+
 FVector2D AHD_Unit::GetActorLocation2D() { FVector v_loc = GetActorLocation();	return FVector2D(v_loc.X, v_loc.Y); }
 USkeletalMeshComponent* AHD_Unit::GetSkeletalMesh() { return _skeletal_mesh; }
 const FInfoUnit& AHD_Unit::GetInfoUnit() { return _info_unit; }

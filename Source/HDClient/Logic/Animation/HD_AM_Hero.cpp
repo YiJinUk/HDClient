@@ -13,5 +13,5 @@ void UHD_AM_Hero::AMPostInitChild(AHD_Unit* unit_owner)
 void UHD_AM_Hero::AttackBasicNotify()
 {
 	if (!_owner) return;
-	_owner->AttackBasicNotify();
+	_owner->HeroAttackBasicNotify();
 }

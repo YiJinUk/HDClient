@@ -53,7 +53,7 @@ private:
 #pragma region Tick
 private:
 	void TickCheckSpawnEnemy();
-	void TickEnemyMove(const float f_delta_time);
+	void TickEnemyMoveAndAttack(const float f_delta_time);
 	void TickPROJMoveAndAttack(const float f_delta_time);
 	void TickHeroAttack();
 #pragma endregion
@@ -140,7 +140,7 @@ public:
 
 #pragma region Projectile
 public:
-	void PROJSpawn(const FString& str_code_proj, const EPROJTargetType e_proj_target_type, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target = nullptr, const FVector2D& v2_dest = FVector2D::ZeroVector);
+	void PROJSpawn(const FString& str_code_proj, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target = nullptr, const FVector2D& v2_dest = FVector2D::ZeroVector);
 	void PROJFinish(AHD_Projectile* proj);
 private:
 	void PROJRemoveSpawnedById(const int64 i_id_proj_remove);

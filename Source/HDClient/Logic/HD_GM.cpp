@@ -88,7 +88,7 @@ void AHD_GM::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (_hero)
 	{
-		const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHeroAttackBasicStatus"), true);
+		const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
 		if (enumPtr)
 		{
 			FString str_enum = enumPtr->GetNameStringByIndex((int32)_hero->GetInfoHero().atk_basic_status);
@@ -96,6 +96,17 @@ void AHD_GM::Tick(float DeltaTime)
 		}
 
 		UHD_FunctionLibrary::GPrintString(2, 1, FString::FromInt(_hero->GetInfoHero().as_delay));
+	}
+	if (_spawned_enemies.Num() >= 1)
+	{
+		const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
+		if (enumPtr)
+		{
+			FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_enemies[0]->GetInfoEnemy().atk_basic_status);
+			UHD_FunctionLibrary::GPrintString(10, 1, str_enum, FColor::Red);
+		}
+
+		UHD_FunctionLibrary::GPrintString(11, 1, FString::FromInt(_spawned_enemies[0]->GetInfoEnemy().as_delay), FColor::Red);
 	}
 
 	if (_info_wld.wld_status != EWorldStatus::HOME)
@@ -112,7 +123,7 @@ void AHD_GM::Tick(float DeltaTime)
 		_info_wave.spawn_enemy_interval_current += _info_wld.tick_unit_by_1frame;
 
 		TickCheckSpawnEnemy();
-		TickEnemyMove(DeltaTime);
+		TickEnemyMoveAndAttack(DeltaTime);
 		TickPROJMoveAndAttack(DeltaTime);
 		TickHeroAttack();
 		break;
@@ -138,17 +149,26 @@ void AHD_GM::TickCheckSpawnEnemy()
 		}
 	}
 }
-void AHD_GM::TickEnemyMove(const float f_delta_time)
+void AHD_GM::TickEnemyMoveAndAttack(const float f_delta_time)
 {
 	if (_spawned_enemies.Num() <= 0) return;
 	AHD_Enemy* enemy = nullptr;
 	for (int32 i = _spawned_enemies.Num() - 1; i >= 0; --i)
 	{
 		enemy = _spawned_enemies[i];
-		enemy->EnemyMove(f_delta_time,
-			_spline_component->GetLocationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World),
-			_spline_component->GetRotationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World)
-		);
+		if (enemy->GetInfoEnemy().is_can_move >= 0)
+		{
+			enemy->EnemyMove(f_delta_time,
+				_spline_component->GetLocationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World),
+				_spline_component->GetRotationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World)
+			);
+		}
+		
+
+		if (enemy->EnemyUpdateAS(_info_wld.tick_unit_by_1frame))
+		{
+			enemy->EnemyAttackBasicStart(_hero);
+		}
 	}
 }
 void AHD_GM::TickPROJMoveAndAttack(const float f_delta_time)
@@ -167,7 +187,7 @@ void AHD_GM::TickHeroAttack()
 	if (_hero->HeroUpdateAS(_info_wld.tick_unit_by_1frame))
 	{
 		/*Å¸°ÙÀ» Ã£°í ¿µ¿õ¿¡°Ô ³Ñ°ÜÁÜ*/
-		_hero->AttackBasicStart(FindEnemyFirstByV2(_hero->GetActorLocation2D()));
+		_hero->HeroAttackBasicStart(FindEnemyFirstByV2(_hero->GetActorLocation2D()));
 	}
 }
 
@@ -286,7 +306,7 @@ void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
 	_hero->HeroChangeWeapon(wp);
 }
 
-void AHD_GM::PROJSpawn(const FString& str_code_proj, const EPROJTargetType e_proj_target_type, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest)
+void AHD_GM::PROJSpawn(const FString& str_code_proj, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest)
 {
 	AHD_Projectile* proj = _manager_pool->PoolGetPROJ(str_code_proj);
 

@@ -33,11 +33,11 @@ public:
 #pragma region Attack.Basic
 public:
 	//기본공격을 시작합니다
-	void AttackBasicStart(AHD_Enemy* target);
+	void HeroAttackBasicStart(AHD_Enemy* target);
 	//기본공격애니메이션중 공격피해를 시도합니다
-	void AttackBasicNotify();
+	void HeroAttackBasicNotify();
 
-	bool HeroUpdateAS(const uint8 i_tick);
+	bool HeroUpdateAS(const uint8 i_tick_1frame);
 #pragma endregion
 
 };
