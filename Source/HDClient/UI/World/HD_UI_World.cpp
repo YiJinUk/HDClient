@@ -3,3 +3,7 @@
 
 #include "UI/World/HD_UI_World.h"
 
+void UHD_UI_World::WorldPostInit()
+{
+
+}

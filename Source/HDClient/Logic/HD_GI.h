@@ -20,13 +20,23 @@ protected:
 	UHD_GI();
 public:
 	void GIPostInit();
+#pragma endregion
+
+#pragma region Data
+public:
+	FDataEnemy* FindDataEnemyByCode(const FString& str_code_enemy);
 
 	const TArray<FDataWeapon*>& GetDataWeapons();
+	const TArray<FDataWave*>& GetDataWaves();
+	FDataGame* GetDataGame();
 private:
 	UDataTable* _dt_game = nullptr;
 	UDataTable* _dt_wave = nullptr;
+	UDataTable* _dt_enemy = nullptr;
 	UDataTable* _dt_weapon = nullptr;
 
 	TArray<FDataWeapon*> _data_wps;
+	TArray<FDataWave*> _data_waves;
+	FDataGame* _data_game = nullptr;
 #pragma endregion
 };

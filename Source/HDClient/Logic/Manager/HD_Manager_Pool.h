@@ -8,6 +8,7 @@
 
 class UHD_GI;
 class AHD_Weapon;
+class AHD_Enemy;
 
 /**
  * 
@@ -28,12 +29,23 @@ private:
 	FActorSpawnParameters _spawn_param = FActorSpawnParameters();
 #pragma endregion
 
+#pragma region Weapon
 public:
 	AHD_Weapon* PoolOutWeaponByCode(const FString& str_code_wp);
 	void PoolInWeapon(AHD_Weapon* wp);
-
 private:
 	UPROPERTY()
 		TSet<AHD_Weapon*> _pool_wp_only_equip;
+#pragma endregion
+
+#pragma region Enemy
+public:
+	AHD_Enemy* PoolGetEnemy(const FString& str_code_enemy);
+private:
+	TMap<FString, TArray<AHD_Enemy*>> _pool_enemy;
+#pragma endregion
+
+#pragma region We
+#pragma endregion
 
 };

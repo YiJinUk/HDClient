@@ -3,7 +3,7 @@
 
 #include "Actor/Object/Weapon/HD_Weapon.h"
 
-void AHD_Weapon::WPPostInit(const FDataWeapon* s_data_wp)
+void AHD_Weapon::WPPostInit(FDataWeapon* s_data_wp)
 {
 	if (!s_data_wp) return;
 
@@ -11,7 +11,7 @@ void AHD_Weapon::WPPostInit(const FDataWeapon* s_data_wp)
 }
 void AHD_Weapon::WPInit(class USkeletalMeshComponent* skmc)
 {
-	SetActorLocation(FVector(0.f, 0.f, 0.f));
+	SetActorLocation(FVector(0.f));
 	AttachToComponent(skmc, FAttachmentTransformRules::KeepRelativeTransform, "Weapon");
 }
 void AHD_Weapon::WPSetActiveTick(const bool b_is_active)

@@ -12,6 +12,7 @@ class AHD_PC;
 class AHD_Hero;
 class AHD_MagicStone;
 class AHD_Companion;
+class AHD_Enemy;
 class AHD_Manager_Pool;
 class AHD_Manager_Weapon;
 
@@ -29,6 +30,7 @@ protected:
 	AHD_GM();
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 private:
 	//어플 실행후 첫 호출지점입니다
 	void GMPostInit();
@@ -40,6 +42,36 @@ private:
 		bool _is_call_PostLogin = false;
 	UPROPERTY()
 		bool _is_call_BeginPlay = false;
+#pragma endregion
+
+#pragma region Tick
+private:
+	void TickCheckSpawnEnemy();
+	void TickEnemyMove();
+#pragma endregion
+
+#pragma region Home
+#pragma endregion
+
+#pragma region World
+public:
+	void WorldStart();
+private:
+	UPROPERTY()
+		FInfoWorld _info_wld;
+	//이번 웨이브에 등장할 적정보 입니다
+	//세계에 진입 또는 웨이브를 클리어할 때 마다 데이터를 "복제"해서 사용하므로 내부 값을 변경해도 괜찮습니다
+	UPROPERTY()
+		TArray<FDataWaveSpawnEnemy> _wave_spawn_enemies;
+#pragma endregion
+
+#pragma region Stage,Wave
+public:
+	UFUNCTION(BlueprintCallable)
+		void WaveStart();
+private:
+	UPROPERTY()
+		FInfoWave _info_wave;
 #pragma endregion
 
 #pragma region Manager
@@ -72,6 +104,14 @@ private:
 #pragma region Companion
 private:
 	AHD_Companion* _cpan = nullptr;
+#pragma endregion
+
+#pragma region Enemy
+public:
+	void EnemySpawn(const FString& str_code_enemy);
+private:
+	UPROPERTY()
+		TArray<AHD_Enemy*> _spawned_enemies;
 #pragma endregion
 
 #pragma region Weapon

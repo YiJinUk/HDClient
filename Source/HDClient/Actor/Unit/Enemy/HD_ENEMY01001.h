@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Actor/Unit/Enemy/HD_Enemy.h"
-#include "HD_Minion.generated.h"
+#include "HD_ENEMY01001.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HDCLIENT_API AHD_Minion : public AHD_Enemy
+class HDCLIENT_API AHD_ENEMY01001 : public AHD_Enemy
 {
 	GENERATED_BODY()
 	

@@ -7,6 +7,7 @@
 #include "HD_PC.generated.h"
 
 class UHD_UI_Main;
+class AHD_GM;
 
 /**
  * 
@@ -25,6 +26,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		UHD_UI_Main* PCBPCreateWidgetMain();
 private:
+	UPROPERTY()
+		AHD_GM* _gm = nullptr;
 #pragma endregion
 
 #pragma region Widget
@@ -32,4 +35,10 @@ private:
 	UPROPERTY()
 		UHD_UI_Main* _ui_main = nullptr;
 #pragma endregion
+
+#pragma region World
+public:
+	void PCWorldStart();
+#pragma endregion
+
 };

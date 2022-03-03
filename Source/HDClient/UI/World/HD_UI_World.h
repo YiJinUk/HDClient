@@ -13,5 +13,8 @@ UCLASS()
 class HDCLIENT_API UHD_UI_World : public UHD_UI_Master
 {
 	GENERATED_BODY()
-	
+#pragma region Init
+public:
+	void WorldPostInit();
+#pragma endregion
 };
