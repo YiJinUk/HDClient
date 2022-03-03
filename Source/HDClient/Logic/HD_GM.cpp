@@ -4,16 +4,21 @@
 #include "Logic/HD_GM.h"
 #include "HD_GI.h"
 #include "HD_PC.h"
+#include "HD_FunctionLibrary.h"
 #include "Actor/Unit/Friend/Hero/HD_Hero.h"
 #include "Actor/Unit/Friend/MagicStone/HD_MagicStone.h"
 #include "Actor/Unit/Friend/Companion/HD_Companion.h"
 #include "Actor/Unit/Enemy/HD_Enemy.h"
+
 #include "Actor/Object/Weapon/HD_Weapon.h"
+#include "Actor/Object/HD_Spline.h"
 
 #include "Manager/HD_Manager_Pool.h"
 #include "Manager/HD_Manager_Weapon.h"
 
+#include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SplineComponent.h"
 
 AHD_GM::AHD_GM()
 {
@@ -49,6 +54,14 @@ void AHD_GM::GMPostInit()
 	UGameplayStatics::GetAllActorsOfClass(wld, AHD_Companion::StaticClass(), arr_found_actor);
 	if (arr_found_actor.Num() >= 1) { _cpan = Cast<AHD_Companion>(arr_found_actor[0]); }
 
+	/*월드에 존재하는 스플라인액터를 통해 스플라인컴포넌트 가져오기*/
+	UGameplayStatics::GetAllActorsOfClass(wld, AHD_Spline::StaticClass(), arr_found_actor);
+	if (arr_found_actor.Num() >= 1) 
+	{
+		AHD_Spline* spline = Cast<AHD_Spline>(arr_found_actor[0]); 
+		_spline_component = spline->GetSplineComponent();
+	}
+
 	/*매니지클래스 생성후 초기화*/
 	FActorSpawnParameters s_param;
 	s_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -82,7 +95,7 @@ void AHD_GM::Tick(float DeltaTime)
 		_info_wave.spawn_enemy_interval_current += _info_wld.tick_unit_by_1frame;
 
 		TickCheckSpawnEnemy();
-		TickEnemyMove();
+		TickEnemyMove(DeltaTime);
 		break;
 	default:
 		break;
@@ -106,12 +119,15 @@ void AHD_GM::TickCheckSpawnEnemy()
 		}
 	}
 }
-void AHD_GM::TickEnemyMove()
+void AHD_GM::TickEnemyMove(const float f_delta_time)
 {
 	if (_spawned_enemies.Num() <= 0) return;
 	for (AHD_Enemy* enemy : _spawned_enemies)
 	{
-		enemy->AddActorWorldOffset(FVector(-1, -1, 0));
+		enemy->EnemyMove(f_delta_time,
+			_spline_component->GetLocationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World),
+			_spline_component->GetRotationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World)
+		);
 	}
 }
 
@@ -135,6 +151,18 @@ void AHD_GM::WorldStart()
 
 	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
 	_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;
+
+	/*Debug*/
+	if (_spline_component)
+	{
+		for (int32 i = 1, i_len = _spline_component->GetSplineLength(); i < i_len; ++i)
+		{
+			DrawDebugLine(GetWorld(), 
+				_spline_component->GetLocationAtDistanceAlongSpline(i, ESplineCoordinateSpace::World),
+				_spline_component->GetLocationAtDistanceAlongSpline(i + 1, ESplineCoordinateSpace::World),
+				FColor::Red, false, 10000.f, (uint8)'\000', 3.f);
+		}
+	}
 }
 void AHD_GM::WaveStart()
 {

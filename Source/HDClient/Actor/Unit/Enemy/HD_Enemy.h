@@ -19,5 +19,15 @@ public:
 	AHD_Enemy();
 	void EnemyPostInit(FDataEnemy* s_data_enemy);
 	void EnemyInit(const FVector v_loc_spawn);
+
+	const FInfoEnemy& GetInfoEnemy();
+private:
+	UPROPERTY()
+		FInfoEnemy _info_enemy;
+#pragma endregion
+
+#pragma region Move
+public:
+	void EnemyMove(const float f_delta_time, const FVector& v_loc_move, const FRotator& r_rot);
 #pragma endregion
 };

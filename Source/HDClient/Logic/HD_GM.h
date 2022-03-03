@@ -47,7 +47,7 @@ private:
 #pragma region Tick
 private:
 	void TickCheckSpawnEnemy();
-	void TickEnemyMove();
+	void TickEnemyMove(const float f_delta_time);
 #pragma endregion
 
 #pragma region Home
@@ -74,12 +74,15 @@ private:
 		FInfoWave _info_wave;
 #pragma endregion
 
-#pragma region Manager
+#pragma region Manager,Spline
 private:
 	UPROPERTY()
 		AHD_Manager_Pool* _manager_pool = nullptr;
 	UPROPERTY()
 		AHD_Manager_Weapon* _manager_wp = nullptr;
+
+	UPROPERTY()
+		class USplineComponent* _spline_component = nullptr;
 #pragma endregion
 
 #pragma region Player

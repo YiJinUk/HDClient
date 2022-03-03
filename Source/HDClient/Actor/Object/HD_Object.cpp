@@ -6,4 +6,10 @@
 AHD_Object::AHD_Object()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	_root_scene = CreateDefaultSubobject<USceneComponent>("_root_scene");
+	if (_root_scene)
+	{
+		RootComponent = _root_scene;
+	}
 }

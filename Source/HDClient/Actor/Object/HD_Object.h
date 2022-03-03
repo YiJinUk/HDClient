@@ -14,5 +14,8 @@ class HDCLIENT_API AHD_Object : public AActor
 	
 public:	
 	AHD_Object();
+protected:
+	UPROPERTY(EditAnywhere)
+		class USceneComponent* _root_scene = nullptr;
 
 };

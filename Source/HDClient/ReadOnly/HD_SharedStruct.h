@@ -87,9 +87,13 @@ protected:
 		TSubclassOf<AHD_Enemy> _class_enemy;
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
+
+	UPROPERTY(EditAnywhere, Category = "Stat")
+		int32 _move_speed = 0;
 public:
 	FORCEINLINE const TSubclassOf<AHD_Enemy>& GetClassEnemy() { return _class_enemy; }
 	FORCEINLINE const FString& GetCode() { return _code; }
+	FORCEINLINE const int32 GetMoveSpeed() { return _move_speed; }
 };
 USTRUCT(BlueprintType)
 struct FDataWeapon : public FTableRowBase
@@ -179,6 +183,22 @@ public:
 		FString code_wp_equip = "WP00101";
 	UPROPERTY()
 		AHD_Weapon* wp_equip = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FInfoEnemy
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		FString code = "0";
+
+	UPROPERTY()
+		float lane_dist = 0;
+
+	UPROPERTY()
+		int32 move_speed = 0;
 };
 
 USTRUCT(BlueprintType)
