@@ -2,6 +2,7 @@
 
 
 #include "Actor/Unit/HD_Unit.h"
+#include "Logic/Animation/HD_AM.h"
 
 #include "Components/SkeletalMeshComponent.h"
 
@@ -29,4 +30,13 @@ AHD_Unit::AHD_Unit()
 	}
 }
 
+void AHD_Unit::UnitPostInit()
+{
+	if(_skeletal_mesh)
+		_anim_instance = Cast<UHD_AM>(_skeletal_mesh->GetAnimInstance());
+	if(_anim_instance)
+		_anim_instance->AMPostInit(this);
+}
+
+FVector2D AHD_Unit::GetActorLocation2D() { FVector v_loc = GetActorLocation();	return FVector2D(v_loc.X, v_loc.Y); }
 USkeletalMeshComponent* AHD_Unit::GetSkeletalMesh() { return _skeletal_mesh; }

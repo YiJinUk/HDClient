@@ -45,7 +45,7 @@ private:
 	TMap<FString, TArray<AHD_Enemy*>> _pool_enemy;
 #pragma endregion
 
-#pragma region We
+#pragma region Projectile
 #pragma endregion
 
 };

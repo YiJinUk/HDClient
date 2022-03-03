@@ -34,6 +34,8 @@ protected:
 private:
 	//어플 실행후 첫 호출지점입니다
 	void GMPostInit();
+
+	const int64 IdGenerate();
 private:
 	UPROPERTY()
 		UHD_GI* _gi = nullptr;
@@ -42,12 +44,15 @@ private:
 		bool _is_call_PostLogin = false;
 	UPROPERTY()
 		bool _is_call_BeginPlay = false;
+	UPROPERTY()
+		int64 _id_generator = 0;
 #pragma endregion
 
 #pragma region Tick
 private:
 	void TickCheckSpawnEnemy();
 	void TickEnemyMove(const float f_delta_time);
+	void TickHeroAttack();
 #pragma endregion
 
 #pragma region Home
@@ -112,6 +117,8 @@ private:
 #pragma region Enemy
 public:
 	void EnemySpawn(const FString& str_code_enemy);
+
+	AHD_Enemy* FindEnemyFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except = 0);
 private:
 	UPROPERTY()
 		TArray<AHD_Enemy*> _spawned_enemies;

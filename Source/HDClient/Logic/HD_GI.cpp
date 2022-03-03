@@ -13,6 +13,10 @@ UHD_GI::UHD_GI()
 	if (DT_ENEMY.Succeeded()) { _dt_enemy = DT_ENEMY.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_WEAPON(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Weapon.HDDT_Weapon"));
 	if (DT_WEAPON.Succeeded()) { _dt_weapon = DT_WEAPON.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_PROJ(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Projectile.HDDT_Projectile"));
+	if (DT_PROJ.Succeeded()) { _dt_proj = DT_PROJ.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_VFX(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_VFX.HDDT_VFX"));
+	if (DT_VFX.Succeeded()) { _dt_vfx = DT_VFX.Object; }
 }
 void UHD_GI::GIPostInit()
 {

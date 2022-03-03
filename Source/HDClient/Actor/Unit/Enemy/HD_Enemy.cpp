@@ -13,8 +13,9 @@ void AHD_Enemy::EnemyPostInit(FDataEnemy* s_data_enemy)
 
 	_info_enemy.move_speed = s_data_enemy->GetMoveSpeed();
 }
-void AHD_Enemy::EnemyInit(const FVector v_loc_spawn)
+void AHD_Enemy::EnemyInit(const int64 i_id, const FVector v_loc_spawn)
 {
+	_info_enemy.id = i_id;
 	SetActorLocation(v_loc_spawn);
 }
 

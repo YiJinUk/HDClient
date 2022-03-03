@@ -71,15 +71,28 @@ void AHD_GM::GMPostInit()
 
 	_manager_pool->PoolPostInit(_gi);
 
+	/*영웅 동료 마법석 초기화*/
+	_hero->UnitPostInit();
+
 	/*플레이어 초기화*/
-	_info_player.wp_equip = _manager_pool->PoolOutWeaponByCode(_info_player.code_wp_equip);
-	_info_player.wp_equip->WPInit(_hero->GetSkeletalMesh());
+	ChangeWeaponStartByCode("WP00101");
 
 	_pc->PCPostInit();
 }
 void AHD_GM::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (_hero)
+	{
+		const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHeroAttackBasicStatus"), true);
+		if (enumPtr)
+		{
+			FString str_enum = enumPtr->GetNameStringByIndex((int32)_hero->GetInfoHero().atk_basic_status);
+			UHD_FunctionLibrary::GPrintString(1, 1, str_enum);
+		}
+
+		UHD_FunctionLibrary::GPrintString(2, 1, FString::FromInt(_hero->GetInfoHero().as_delay));
+	}
 
 	if (_info_wld.wld_status != EWorldStatus::HOME)
 		++_info_wld.tick_total;
@@ -96,6 +109,7 @@ void AHD_GM::Tick(float DeltaTime)
 
 		TickCheckSpawnEnemy();
 		TickEnemyMove(DeltaTime);
+		TickHeroAttack();
 		break;
 	default:
 		break;
@@ -128,6 +142,16 @@ void AHD_GM::TickEnemyMove(const float f_delta_time)
 			_spline_component->GetLocationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World),
 			_spline_component->GetRotationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World)
 		);
+	}
+}
+void AHD_GM::TickHeroAttack()
+{
+	/*공속 업데이트 및 공격가능여부*/
+	if (_hero->HeroUpdateAS(_info_wld.tick_unit_by_1frame))
+	{
+		/*타겟 찾기 시도*/
+		_hero->AttackBasicStart(FindEnemyFirstByV2(_hero->GetActorLocation2D()));
+		
 	}
 }
 
@@ -175,9 +199,33 @@ void AHD_GM::EnemySpawn(const FString& str_code_enemy)
 	AHD_Enemy* enemy_spawn = _manager_pool->PoolGetEnemy(str_code_enemy);
 	if (!enemy_spawn) return;
 
-	enemy_spawn->EnemyInit(_gi->GetDataGame()->GetEnemySpawnLocation());
+	enemy_spawn->EnemyInit(IdGenerate(), _gi->GetDataGame()->GetEnemySpawnLocation());
 
 	_spawned_enemies.Add(enemy_spawn);
+}
+AHD_Enemy* AHD_GM::FindEnemyFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except)
+{
+	AHD_Enemy* enemy_target_candidate = nullptr;
+	//개미의 이동거리. 가장 많이 이동한 개미가 후보입니다
+	int16 i_travel_dist_candidate = 0;
+	int16 i_travel_dist_total_tmp = 0;
+
+	for (AHD_Enemy* enemy_spawned : _spawned_enemies)
+	{
+		/*개미가 유효한지*/
+		if (enemy_spawned && enemy_spawned->GetInfoEnemy().id != i_id_enemy_except)
+		{
+			/*개미의 이동거리가 타겟후보보다 더 이동했는지*/
+			i_travel_dist_total_tmp = enemy_spawned->GetInfoEnemy().lane_dist;
+			if (i_travel_dist_total_tmp > i_travel_dist_candidate)
+			{
+				i_travel_dist_candidate = i_travel_dist_total_tmp;
+				enemy_target_candidate = enemy_spawned;
+			}
+		}
+	}
+
+	return enemy_target_candidate;
 }
 
 void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
@@ -185,7 +233,7 @@ void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
 	//@변경 가능한지 검증단계 필요
 	
 	/*장착중인 무기 풀인*/
-	_manager_pool->PoolInWeapon(_info_player.wp_equip);
+	_manager_pool->PoolInWeapon(_hero->GetInfoHero().wp_equip);
 
 	/*새로운 무기 장착*/
 	AHD_Weapon* wp = _manager_pool->PoolOutWeaponByCode(str_code_wp);
@@ -193,6 +241,8 @@ void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
 	
 	wp->WPInit(_hero->GetSkeletalMesh());
 
-	_info_player.code_wp_equip = str_code_wp;
-	_info_player.wp_equip = wp;
+	/*영웅의 스탯을 변경합니다*/
+	_hero->HeroChangeWeapon(wp);
 }
+
+const int64 AHD_GM::IdGenerate() { return ++_id_generator; }

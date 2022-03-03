@@ -53,6 +53,7 @@ AHD_Enemy* AHD_Manager_Pool::PoolGetEnemy(const FString& str_code_enemy)
 	{
 		FDataEnemy* s_data_enemy = _gi->FindDataEnemyByCode(str_code_enemy);
 		AHD_Enemy* enemy_spawn = GetWorld()->SpawnActor<AHD_Enemy>(s_data_enemy->GetClassEnemy(), _spawn_param); // 풀링 매니저
+		enemy_spawn->UnitPostInit();
 		enemy_spawn->EnemyPostInit(s_data_enemy);
 		return enemy_spawn;
 	}

@@ -7,6 +7,9 @@
 #include "GameFramework/Actor.h"
 #include "HD_Unit.generated.h"
 
+class UHD_AM;
+class UHD_AM_Hero;
+
 UCLASS()
 class HDCLIENT_API AHD_Unit : public AActor
 {
@@ -15,6 +18,7 @@ class HDCLIENT_API AHD_Unit : public AActor
 #pragma region Init
 public:	
 	AHD_Unit();
+	void UnitPostInit();
 
 	USkeletalMeshComponent* GetSkeletalMesh();
 protected:
@@ -23,7 +27,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* _skeletal_mesh = nullptr;
-
 #pragma endregion
 
+public:
+	FVector2D GetActorLocation2D();
+protected:
+	UPROPERTY()
+		UHD_AM* _anim_instance = nullptr;
 };

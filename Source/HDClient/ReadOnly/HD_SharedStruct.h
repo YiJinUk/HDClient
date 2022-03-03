@@ -9,8 +9,10 @@
 #include "HD_SharedStruct.generated.h"
 
 class UAnimMontage;
+class UParticleSystem;
 class AHD_Weapon;
 class AHD_Enemy;
+class AHD_Projectile;
 
 /**
  * 
@@ -30,6 +32,15 @@ enum class EWorldStatus : uint8
 	WAVE_PLAY, //웨이브중 입니다
 };
 
+UENUM()
+enum class EHeroAttackBasicStatus : uint8
+{
+	DETECT,//기본공격.대기
+	TRY,//기본공격.시도(선딜)
+	DELAY,//기본공격.딜레이(후딜)
+
+};
+
 
 #pragma region Data
 USTRUCT(BlueprintType)
@@ -44,9 +55,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 		FVector _enemy_spawn_location = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		int32 _proj_speed = 2500;
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		int32 _proj_detect_range = 150;
 public:
 	FORCEINLINE const uint8 GetWaveEnemySpawnInterval() { return _wave_enemy_spawn_interval; }
 	FORCEINLINE const FVector GetEnemySpawnLocation() { return _enemy_spawn_location; }
+	FORCEINLINE const int32 GetPROJSpeed() { return _proj_speed; }
+	FORCEINLINE const int32 GetPROJDetectRange() { return _proj_detect_range; }
 };
 USTRUCT(BlueprintType)
 struct FDataWaveSpawnEnemy : public FTableRowBase
@@ -106,6 +124,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
 
+	UPROPERTY(EditAnywhere, Category = "General")
+		int32 _str = 0;
+	UPROPERTY(EditAnywhere, Category = "General")
+		int32 _as = 0;
+
 	UPROPERTY(EditAnywhere, Category = "Animation")
 		UAnimMontage* _anim_start = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Animation")
@@ -114,6 +137,40 @@ protected:
 public:
 	FORCEINLINE const TSubclassOf<AHD_Weapon>& GetClassWeapon() { return _class_weapon; }
 	FORCEINLINE const FString& GetCode() { return _code; }
+	FORCEINLINE const int32 GetSTR() { return _str; }
+	FORCEINLINE const int32 GetAS() { return _as; }
+	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
+};
+USTRUCT(BlueprintType)
+struct FDataProjectile : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		TSubclassOf<AHD_Projectile> _class_proj;
+	UPROPERTY(EditAnywhere, Category = "General")
+		FString _code = "0";
+
+public:
+	FORCEINLINE const TSubclassOf<AHD_Projectile>& GetClassPROJ() { return _class_proj; }
+	FORCEINLINE const FString& GetCode() { return _code; }
+};
+
+USTRUCT(BlueprintType)
+struct FDataVFX : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		FString _code = "0";
+	UPROPERTY(EditAnywhere, Category = "General")
+		UParticleSystem* _vfx = nullptr;
+
+public:
+	FORCEINLINE const FString& GetCode() { return _code; }
+	FORCEINLINE UParticleSystem* GetVFX() { return _vfx; }
 };
 #pragma endregion
 
@@ -179,10 +236,43 @@ struct FInfoPlayer
 	GENERATED_BODY()
 
 public:
+
+};
+
+USTRUCT(BlueprintType)
+struct FInfoHero
+{
+	GENERATED_BODY()
+
+public:
 	UPROPERTY()
 		FString code_wp_equip = "WP00101";
 	UPROPERTY()
 		AHD_Weapon* wp_equip = nullptr;
+
+	UPROPERTY()
+		EHeroAttackBasicStatus atk_basic_status = EHeroAttackBasicStatus::DELAY;
+
+	UPROPERTY()
+		int32 str_base = 0;
+	UPROPERTY()
+		int32 dmg_base = 100;
+
+	UPROPERTY()
+		int32 as_base = 0;
+	UPROPERTY()
+		int32 as_delay = 0;
+
+
+	UPROPERTY()
+		float anim_rate_base = 0.f;
+
+	UPROPERTY()
+		AHD_Enemy* target = nullptr;
+public:
+	FORCEINLINE int32 GetASTotal() const { return as_base; }
+	FORCEINLINE int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
+	//FORCEINLINE int32 GetASTotalDelay() const { return (360.f / float(GetASTotal())); }
 };
 
 USTRUCT(BlueprintType)
@@ -192,6 +282,8 @@ struct FInfoEnemy
 
 public:
 	UPROPERTY()
+		int64 id = 0;
+	UPROPERTY()
 		FString code = "0";
 
 	UPROPERTY()
@@ -199,6 +291,8 @@ public:
 
 	UPROPERTY()
 		int32 move_speed = 0;
+	UPROPERTY()
+		bool is_death = false;
 };
 
 USTRUCT(BlueprintType)
@@ -210,8 +304,25 @@ public:
 	UPROPERTY()
 		FString code = "0";
 
+	UPROPERTY()
+		int32 str = 0;
+	UPROPERTY()
+		int32 as = 0;
+	
+
 	//UPROPERTY(EditAnywhere, Category = "Animation")
-	//	UAnimMontage* _anim_start = nullptr;
-	//UPROPERTY(EditAnywhere, Category = "Animation")
-	//	UAnimMontage* _anim_attack_basic = nullptr;
+	//	UAnimMontage* anim_start = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		UAnimMontage* anim_attack_basic = nullptr;
+
+};
+
+USTRUCT(BlueprintType)
+struct FInfoProjectile
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		FString code = "0";
 };

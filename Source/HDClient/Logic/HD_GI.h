@@ -34,6 +34,8 @@ private:
 	UDataTable* _dt_wave = nullptr;
 	UDataTable* _dt_enemy = nullptr;
 	UDataTable* _dt_weapon = nullptr;
+	UDataTable* _dt_proj = nullptr;
+	UDataTable* _dt_vfx = nullptr;
 
 	TArray<FDataWeapon*> _data_wps;
 	TArray<FDataWave*> _data_waves;

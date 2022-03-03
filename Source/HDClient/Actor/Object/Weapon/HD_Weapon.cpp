@@ -8,6 +8,9 @@ void AHD_Weapon::WPPostInit(FDataWeapon* s_data_wp)
 	if (!s_data_wp) return;
 
 	_info_wp.code = s_data_wp->GetCode();
+	_info_wp.str = s_data_wp->GetSTR();
+	_info_wp.as = s_data_wp->GetAS();
+	_info_wp.anim_attack_basic = s_data_wp->GetAnimAttackBasic();
 }
 void AHD_Weapon::WPInit(class USkeletalMeshComponent* skmc)
 {

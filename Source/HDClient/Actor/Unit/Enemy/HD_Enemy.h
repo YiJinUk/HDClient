@@ -18,7 +18,7 @@ class HDCLIENT_API AHD_Enemy : public AHD_Unit
 public:
 	AHD_Enemy();
 	void EnemyPostInit(FDataEnemy* s_data_enemy);
-	void EnemyInit(const FVector v_loc_spawn);
+	void EnemyInit(const int64 i_id, const FVector v_loc_spawn);
 
 	const FInfoEnemy& GetInfoEnemy();
 private:
