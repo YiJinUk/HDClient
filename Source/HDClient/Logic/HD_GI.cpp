@@ -25,11 +25,9 @@ void UHD_GI::GIPostInit()
 	_data_game = _dt_game->FindRow<FDataGame>("GAME00001", "0");
 }
 
-FDataEnemy* UHD_GI::FindDataEnemyByCode(const FString& str_code_enemy)
-{
-	if (!_dt_enemy) return nullptr;
-	return _dt_enemy->FindRow<FDataEnemy>(*str_code_enemy, "0");
-}
+FDataEnemy* UHD_GI::FindDataEnemyByCode(const FString& str_code_enemy) { return _dt_enemy->FindRow<FDataEnemy>(*str_code_enemy, "0"); }
+FDataProjectile* UHD_GI::FindDataPROJByCode(const FString& str_code_proj) { return _dt_proj->FindRow<FDataProjectile>(*str_code_proj, "0"); }
+FDataVFX* UHD_GI::FindDataVFXByCode(const FString& str_code_vfx) { return _dt_vfx->FindRow<FDataVFX>(*str_code_vfx, "0"); }
 
 const TArray<FDataWeapon*>& UHD_GI::GetDataWeapons() { return _data_wps; }
 const TArray<FDataWave*>& UHD_GI::GetDataWaves() { return _data_waves; }

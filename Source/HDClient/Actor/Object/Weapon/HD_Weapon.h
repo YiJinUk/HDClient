@@ -6,6 +6,10 @@
 #include "Actor/Object/HD_Object.h"
 #include "HD_Weapon.generated.h"
 
+class AHD_GM;
+class AHD_Enemy;
+class AHD_Hero;
+
 /**
  * 
  */
@@ -16,14 +20,21 @@ class HDCLIENT_API AHD_Weapon : public AHD_Object
 
 #pragma region Init
 public:
-	void WPPostInit(FDataWeapon* s_data_wp);
+	void WPPostInit(FDataWeapon* s_data_wp, AHD_Hero* hero);
 	void WPInit(class USkeletalMeshComponent* skmc);
 
 	void WPSetActiveTick(const bool b_is_active);
 
 	const FInfoWeapon& GetInfoWP();
-private:
+protected:
+	UPROPERTY()
+		AHD_GM* _gm = nullptr;
 	UPROPERTY()
 		FInfoWeapon _info_wp;
+#pragma endregion
+
+#pragma region Attack.Basic
+public:
+	virtual void WPAttackBasic(AHD_Enemy* target);
 #pragma endregion
 };

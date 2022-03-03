@@ -18,15 +18,19 @@ class HDCLIENT_API AHD_Unit : public AActor
 #pragma region Init
 public:	
 	AHD_Unit();
-	void UnitPostInit();
+	void UnitPostInit(const EUnitClassType e_unit_type);
 
 	USkeletalMeshComponent* GetSkeletalMesh();
+	const FInfoUnit& GetInfoUnit();
 protected:
 	UPROPERTY(EditAnywhere)
 		class USceneComponent* _root_scene = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* _skeletal_mesh = nullptr;
+
+	UPROPERTY()
+		FInfoUnit _info_unit;
 #pragma endregion
 
 public:
@@ -34,4 +38,5 @@ public:
 protected:
 	UPROPERTY()
 		UHD_AM* _anim_instance = nullptr;
+
 };

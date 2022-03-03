@@ -11,10 +11,12 @@
 #include "Actor/Unit/Enemy/HD_Enemy.h"
 
 #include "Actor/Object/Weapon/HD_Weapon.h"
+#include "Actor/Object/Projectile/HD_Projectile.h"
 #include "Actor/Object/HD_Spline.h"
 
 #include "Manager/HD_Manager_Pool.h"
 #include "Manager/HD_Manager_Weapon.h"
+#include "Manager/HD_Manager_FX.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
@@ -68,11 +70,13 @@ void AHD_GM::GMPostInit()
 
 	_manager_pool = wld->SpawnActor<AHD_Manager_Pool>(s_param);
 	_manager_wp = wld->SpawnActor<AHD_Manager_Weapon>(s_param);
+	_manager_fx = wld->SpawnActor<AHD_Manager_FX>(s_param);
 
-	_manager_pool->PoolPostInit(_gi);
+	_manager_pool->PoolPostInit(_gi, this);
+	_manager_fx->FXPostInit(_gi);
 
 	/*영웅 동료 마법석 초기화*/
-	_hero->UnitPostInit();
+	_hero->UnitPostInit(EUnitClassType::HERO);
 
 	/*플레이어 초기화*/
 	ChangeWeaponStartByCode("WP00101");
@@ -109,6 +113,7 @@ void AHD_GM::Tick(float DeltaTime)
 
 		TickCheckSpawnEnemy();
 		TickEnemyMove(DeltaTime);
+		TickPROJMoveAndAttack(DeltaTime);
 		TickHeroAttack();
 		break;
 	default:
@@ -136,12 +141,24 @@ void AHD_GM::TickCheckSpawnEnemy()
 void AHD_GM::TickEnemyMove(const float f_delta_time)
 {
 	if (_spawned_enemies.Num() <= 0) return;
-	for (AHD_Enemy* enemy : _spawned_enemies)
+	AHD_Enemy* enemy = nullptr;
+	for (int32 i = _spawned_enemies.Num() - 1; i >= 0; --i)
 	{
+		enemy = _spawned_enemies[i];
 		enemy->EnemyMove(f_delta_time,
 			_spline_component->GetLocationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World),
 			_spline_component->GetRotationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World)
 		);
+	}
+}
+void AHD_GM::TickPROJMoveAndAttack(const float f_delta_time)
+{
+	if (_spawned_projs.Num() <= 0) return;
+	AHD_Projectile* proj = nullptr;
+	for (int32 i = _spawned_projs.Num() - 1; i >= 0; --i)
+	{
+		proj = _spawned_projs[i];
+		proj->PROJMoveAndAttack(f_delta_time);
 	}
 }
 void AHD_GM::TickHeroAttack()
@@ -149,9 +166,8 @@ void AHD_GM::TickHeroAttack()
 	/*공속 업데이트 및 공격가능여부*/
 	if (_hero->HeroUpdateAS(_info_wld.tick_unit_by_1frame))
 	{
-		/*타겟 찾기 시도*/
+		/*타겟을 찾고 영웅에게 넘겨줌*/
 		_hero->AttackBasicStart(FindEnemyFirstByV2(_hero->GetActorLocation2D()));
-		
 	}
 }
 
@@ -227,6 +243,31 @@ AHD_Enemy* AHD_GM::FindEnemyFirstByV2(const FVector2D& v2_loc_center, const int6
 
 	return enemy_target_candidate;
 }
+AHD_Enemy* AHD_GM::FindEnemyNearByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except)
+{
+	AHD_Enemy* enemy_target_candidate = nullptr;
+	//나비와 개미의 거리. 거리간격이 좁을수록 후보입니다
+	int16 i_dist_candidate = 30000;
+	int16 i_dist_candidate_tmp = 0;
+
+	for (AHD_Enemy* enemy_spawned : _spawned_enemies)
+	{
+		/*개미가 유효한지*/
+		if (enemy_spawned && enemy_spawned->GetInfoEnemy().id != i_id_enemy_except)
+		{
+			/*가장 가까운 개미인지*/
+			i_dist_candidate_tmp = UHD_FunctionLibrary::GetDistance2DByVector(v2_loc_center, enemy_spawned->GetActorLocation2D());
+
+			if (i_dist_candidate_tmp < i_dist_candidate)
+			{
+				i_dist_candidate = i_dist_candidate_tmp;
+				enemy_target_candidate = enemy_spawned;
+			}
+		}
+	}
+
+	return enemy_target_candidate;
+}
 
 void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
 {
@@ -245,4 +286,35 @@ void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
 	_hero->HeroChangeWeapon(wp);
 }
 
+void AHD_GM::PROJSpawn(const FString& str_code_proj, const EPROJTargetType e_proj_target_type, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest)
+{
+	AHD_Projectile* proj = _manager_pool->PoolGetPROJ(str_code_proj);
+
+	proj->PROJInit(IdGenerate(), v_loc_spawn, unit_owner, unit_target, v2_dest);
+
+	_spawned_projs.Add(proj);
+}
+void AHD_GM::PROJFinish(AHD_Projectile* proj)
+{
+	if (!proj) return;
+	_manager_fx->VFXStart(proj->GetInfoPROJ().vfx, proj->GetActorLocation2D());
+	_manager_pool->PoolInPROJ(proj);
+	PROJRemoveSpawnedById(proj->GetInfoPROJ().id);
+}
+void AHD_GM::PROJRemoveSpawnedById(const int64 i_id_proj_remove)
+{
+	if (_spawned_projs.Num() <= 0) return;
+	AHD_Projectile* proj = nullptr;
+	for (int32 i = 0, i_len = _spawned_projs.Num(); i < i_len; ++i)
+	{
+		proj = _spawned_projs[i];
+		if (proj && proj->GetInfoPROJ().id == i_id_proj_remove)
+		{
+			_spawned_projs.RemoveAtSwap(i);
+			return;
+		}
+	}
+}
+
 const int64 AHD_GM::IdGenerate() { return ++_id_generator; }
+AHD_Hero* AHD_GM::GetHero() { return _hero; }

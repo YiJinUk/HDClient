@@ -9,12 +9,14 @@
 
 class UHD_GI;
 class AHD_PC;
+class AHD_Unit;
 class AHD_Hero;
 class AHD_MagicStone;
 class AHD_Companion;
 class AHD_Enemy;
 class AHD_Manager_Pool;
 class AHD_Manager_Weapon;
+class AHD_Manager_FX;
 
 /**
  * 
@@ -52,6 +54,7 @@ private:
 private:
 	void TickCheckSpawnEnemy();
 	void TickEnemyMove(const float f_delta_time);
+	void TickPROJMoveAndAttack(const float f_delta_time);
 	void TickHeroAttack();
 #pragma endregion
 
@@ -85,6 +88,8 @@ private:
 		AHD_Manager_Pool* _manager_pool = nullptr;
 	UPROPERTY()
 		AHD_Manager_Weapon* _manager_wp = nullptr;
+	UPROPERTY()
+		AHD_Manager_FX* _manager_fx = nullptr;
 
 	UPROPERTY()
 		class USplineComponent* _spline_component = nullptr;
@@ -99,6 +104,8 @@ private:
 #pragma endregion
 
 #pragma region Hero
+public:
+	AHD_Hero* GetHero();
 private:
 	UPROPERTY()
 		AHD_Hero* _hero = nullptr;
@@ -119,6 +126,7 @@ public:
 	void EnemySpawn(const FString& str_code_enemy);
 
 	AHD_Enemy* FindEnemyFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except = 0);
+	AHD_Enemy* FindEnemyNearByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except = 0);
 private:
 	UPROPERTY()
 		TArray<AHD_Enemy*> _spawned_enemies;
@@ -128,5 +136,16 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 		void ChangeWeaponStartByCode(const FString& str_code_wp);
+#pragma endregion
+
+#pragma region Projectile
+public:
+	void PROJSpawn(const FString& str_code_proj, const EPROJTargetType e_proj_target_type, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target = nullptr, const FVector2D& v2_dest = FVector2D::ZeroVector);
+	void PROJFinish(AHD_Projectile* proj);
+private:
+	void PROJRemoveSpawnedById(const int64 i_id_proj_remove);
+private:
+	UPROPERTY()
+		TArray<AHD_Projectile*> _spawned_projs;
 #pragma endregion
 };

@@ -7,8 +7,10 @@
 #include "HD_Manager_Pool.generated.h"
 
 class UHD_GI;
+class AHD_GM;
 class AHD_Weapon;
 class AHD_Enemy;
+class AHD_Projectile;
 
 /**
  * 
@@ -22,7 +24,7 @@ class HDCLIENT_API AHD_Manager_Pool : public AHD_Manager_Master
 protected:
 	AHD_Manager_Pool();
 public:
-	void PoolPostInit(UHD_GI* hdgi);
+	void PoolPostInit(UHD_GI* gi, AHD_GM* gm);
 private:
 	UPROPERTY()
 		UHD_GI* _gi = nullptr;;
@@ -46,6 +48,11 @@ private:
 #pragma endregion
 
 #pragma region Projectile
+public:
+	AHD_Projectile* PoolGetPROJ(const FString& str_code_proj);
+	void PoolInPROJ(AHD_Projectile* proj);
+private:
+	TMap<FString, TArray<AHD_Projectile*>> _pool_proj;
 #pragma endregion
 
 };

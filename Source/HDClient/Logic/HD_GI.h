@@ -25,6 +25,8 @@ public:
 #pragma region Data
 public:
 	FDataEnemy* FindDataEnemyByCode(const FString& str_code_enemy);
+	FDataProjectile* FindDataPROJByCode(const FString& str_code_proj);
+	FDataVFX* FindDataVFXByCode(const FString& str_code_vfx);
 
 	const TArray<FDataWeapon*>& GetDataWeapons();
 	const TArray<FDataWave*>& GetDataWaves();

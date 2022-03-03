@@ -13,3 +13,5 @@ AHD_Object::AHD_Object()
 		RootComponent = _root_scene;
 	}
 }
+
+FVector2D AHD_Object::GetActorLocation2D() { FVector v_loc = GetActorLocation();	return FVector2D(v_loc.X, v_loc.Y); }

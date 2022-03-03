@@ -13,6 +13,8 @@ class UParticleSystem;
 class AHD_Weapon;
 class AHD_Enemy;
 class AHD_Projectile;
+class AHD_Unit;
+class AHD_Hero;
 
 /**
  * 
@@ -31,14 +33,30 @@ enum class EWorldStatus : uint8
 	WAVE_STANDBY, //웨이브의 모든 준비를 마치고 플레이어의 웨이브 시작을 기다리는 중
 	WAVE_PLAY, //웨이브중 입니다
 };
-
+UENUM()
+enum class EUnitClassType : uint8
+{
+	ENEMY,
+	HERO,
+};
 UENUM()
 enum class EHeroAttackBasicStatus : uint8
 {
 	DETECT,//기본공격.대기
 	TRY,//기본공격.시도(선딜)
 	DELAY,//기본공격.딜레이(후딜)
+};
 
+UENUM()
+enum class EPROJTargetType : uint8
+{
+	TARGET,//타겟 따라서
+	STRAIGHT,//타겟없이 직진
+};
+UENUM()
+enum class EPROJAttackType : uint8
+{
+	HERO_ATTACK_BASIC,
 };
 
 
@@ -124,9 +142,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
 
-	UPROPERTY(EditAnywhere, Category = "General")
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		FString _code_projectile = "0";
+
+	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _str = 0;
-	UPROPERTY(EditAnywhere, Category = "General")
+	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _as = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Animation")
@@ -137,6 +158,7 @@ protected:
 public:
 	FORCEINLINE const TSubclassOf<AHD_Weapon>& GetClassWeapon() { return _class_weapon; }
 	FORCEINLINE const FString& GetCode() { return _code; }
+	FORCEINLINE const FString& GetCodePROJ() { return _code_projectile; }
 	FORCEINLINE const int32 GetSTR() { return _str; }
 	FORCEINLINE const int32 GetAS() { return _as; }
 	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
@@ -152,9 +174,19 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
 
+	UPROPERTY(EditAnywhere, Category = "General")
+		EPROJTargetType _target_type = EPROJTargetType::TARGET;
+	UPROPERTY(EditAnywhere, Category = "General")
+		EPROJAttackType _attack_type = EPROJAttackType::HERO_ATTACK_BASIC;
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		FString _code_vfx_hit = "0";
 public:
 	FORCEINLINE const TSubclassOf<AHD_Projectile>& GetClassPROJ() { return _class_proj; }
 	FORCEINLINE const FString& GetCode() { return _code; }
+	FORCEINLINE const EPROJTargetType GetPROJTargetType() { return _target_type; }
+	FORCEINLINE const EPROJAttackType GetPROJAttackType() { return _attack_type; }
+	FORCEINLINE const FString& GetCodeVFXHit() { return _code_vfx_hit; }
 };
 
 USTRUCT(BlueprintType)
@@ -166,11 +198,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
 	UPROPERTY(EditAnywhere, Category = "General")
-		UParticleSystem* _vfx = nullptr;
-
+		UParticleSystem* _vfx_cascade = nullptr;
+	UPROPERTY(EditAnywhere, Category = "General")
+		float _size = 1.f;
 public:
 	FORCEINLINE const FString& GetCode() { return _code; }
-	FORCEINLINE UParticleSystem* GetVFX() { return _vfx; }
+	FORCEINLINE UParticleSystem* GetCascade() { return _vfx_cascade; }
+	FORCEINLINE const float GetSize() { return _size; }
 };
 #pragma endregion
 
@@ -240,6 +274,19 @@ public:
 };
 
 USTRUCT(BlueprintType)
+struct FInfoUnit
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		EUnitClassType unit_type = EUnitClassType::HERO;
+	//T : 피격을 받을 수 있는 상태입니다
+	UPROPERTY()
+		bool is_hit_valid = true;
+};
+
+USTRUCT(BlueprintType)
 struct FInfoHero
 {
 	GENERATED_BODY()
@@ -303,6 +350,11 @@ struct FInfoWeapon
 public:
 	UPROPERTY()
 		FString code = "0";
+	UPROPERTY()
+		AHD_Hero* owner_hero = nullptr;
+
+	UPROPERTY()
+		FString code_proj = "0";
 
 	UPROPERTY()
 		int32 str = 0;
@@ -324,5 +376,25 @@ struct FInfoProjectile
 
 public:
 	UPROPERTY()
+		int64 id = 0;
+	UPROPERTY()
 		FString code = "0";
+	UPROPERTY()
+		EPROJTargetType target_type = EPROJTargetType::TARGET;
+	UPROPERTY()
+		EPROJAttackType attack_type = EPROJAttackType::HERO_ATTACK_BASIC;
+	UPROPERTY()
+		AHD_Unit* owner = nullptr;
+
+	UPROPERTY()
+		int32 speed = 0;
+	UPROPERTY()
+		int32 detect_range = 0;
+
+	UPROPERTY()
+		AHD_Unit* target = nullptr;
+	UPROPERTY()
+		FVector2D velocity = FVector2D::ZeroVector;
+
+	FDataVFX* vfx = nullptr;
 };

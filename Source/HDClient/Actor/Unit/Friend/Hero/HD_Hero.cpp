@@ -31,15 +31,16 @@ void AHD_Hero::AttackBasicStart(AHD_Enemy* target)
 }
 void AHD_Hero::AttackBasicNotify()
 {
-	//if (!_info_hero.target || _info_hero.target->GetInfoEnemy().is_death)
-	if (!_info_hero.target)
+	if (!_info_hero.target || !_info_hero.target->GetInfoUnit().is_hit_valid)
 	{
-		/*피해를 주려고 했지만 애니메이션도중 적이 죽어서 다시 적을 찾습니다*/
+		/*피해를 주려고 했지만 애니메이션도중 적의 상태가 피격이 무효하게 바뀌었습니다*/
 		_info_hero.atk_basic_status = EHeroAttackBasicStatus::DETECT;
 	}
 	else
 	{
 		/*피해를 주고 다시 기본공격대기상태로 돌아갑니다*/
+		//무기마다 기본공격양상이 다르기 때문에 무기클래스에서 공격을 시도합니다
+		_info_hero.wp_equip->WPAttackBasic(_info_hero.target);
 		_info_hero.atk_basic_status = EHeroAttackBasicStatus::DELAY;
 	}
 }

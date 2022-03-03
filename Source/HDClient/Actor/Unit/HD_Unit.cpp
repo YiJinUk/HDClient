@@ -30,13 +30,16 @@ AHD_Unit::AHD_Unit()
 	}
 }
 
-void AHD_Unit::UnitPostInit()
+void AHD_Unit::UnitPostInit(const EUnitClassType e_unit_type)
 {
 	if(_skeletal_mesh)
 		_anim_instance = Cast<UHD_AM>(_skeletal_mesh->GetAnimInstance());
 	if(_anim_instance)
 		_anim_instance->AMPostInit(this);
+
+	_info_unit.unit_type = e_unit_type;
 }
 
 FVector2D AHD_Unit::GetActorLocation2D() { FVector v_loc = GetActorLocation();	return FVector2D(v_loc.X, v_loc.Y); }
 USkeletalMeshComponent* AHD_Unit::GetSkeletalMesh() { return _skeletal_mesh; }
+const FInfoUnit& AHD_Unit::GetInfoUnit() { return _info_unit; }
