@@ -37,8 +37,8 @@ void AHD_GM::BeginPlay()
 void AHD_GM::GMPostInit()
 {
 	UWorld* wld = GetWorld();
-	_hdgi = wld->GetGameInstance<UHD_GI>();
-	_hdgi->GIPostInit();
+	_gi = wld->GetGameInstance<UHD_GI>();
+	_gi->GIPostInit();
 	
 	/*월드에 존재하는 영웅, 동료, 마법석액터 가져오기*/
 	TArray<AActor*> arr_found_actor;
@@ -56,7 +56,7 @@ void AHD_GM::GMPostInit()
 	_manager_pool = wld->SpawnActor<AHD_Manager_Pool>(s_param);
 	_manager_wp = wld->SpawnActor<AHD_Manager_Weapon>(s_param);
 
-	_manager_pool->PoolPostInit(_hdgi);
+	_manager_pool->PoolPostInit(_gi);
 
 	/*플레이어 초기화*/
 	_info_player.wp_equip = _manager_pool->PoolOutWeaponByCode(_info_player.code_wp_equip);
@@ -95,7 +95,15 @@ void AHD_GM::TickCheckSpawnEnemy()
 	{
 		/*적 생성*/
 		_info_wave.spawn_enemy_interval_current -= _info_wave.spawn_enemy_interval_max;
-		EnemySpawn("ENEMY01001");
+		for (FDataWaveSpawnEnemy& s_wave_spawn_enemy : _wave_spawn_enemies)
+		{
+			if (s_wave_spawn_enemy.count >= 1)
+			{
+				EnemySpawn(s_wave_spawn_enemy.code);
+				--s_wave_spawn_enemy.count;
+				break;
+			}
+		}
 	}
 }
 void AHD_GM::TickEnemyMove()
@@ -116,14 +124,14 @@ void AHD_GM::WorldStart()
 
 	/*웨이브에 등장할 적데이터 복제하기*/
 	_info_wld.round_total = 1;
-	const TArray<FDataWave*>& arr_data_waves = _hdgi->GetDataWaves();
+	const TArray<FDataWave*>& arr_data_waves = _gi->GetDataWaves();
 	const FDataWave* s_wave = arr_data_waves[_info_wld.round_total - 1];
 	_wave_spawn_enemies = s_wave->GetSpawnEnemies();
 	_info_wld.round_stage = s_wave->GetStageRound();
 	_info_wld.round_wave = s_wave->GetWaveRound();
 
 	/*웨이브정보 초기화*/
-	_info_wave.spawn_enemy_interval_max =_hdgi->GetDataGame()->GetWaveEnemySpawnInterval();
+	_info_wave.spawn_enemy_interval_max =_gi->GetDataGame()->GetWaveEnemySpawnInterval();
 
 	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
 	_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;
@@ -139,7 +147,7 @@ void AHD_GM::EnemySpawn(const FString& str_code_enemy)
 	AHD_Enemy* enemy_spawn = _manager_pool->PoolGetEnemy(str_code_enemy);
 	if (!enemy_spawn) return;
 
-	enemy_spawn->EnemyInit(_hdgi->GetDataGame()->GetEnemySpawnLocation());
+	enemy_spawn->EnemyInit(_gi->GetDataGame()->GetEnemySpawnLocation());
 
 	_spawned_enemies.Add(enemy_spawn);
 }

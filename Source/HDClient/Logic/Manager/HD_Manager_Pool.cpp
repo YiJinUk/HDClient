@@ -12,11 +12,11 @@ AHD_Manager_Pool::AHD_Manager_Pool()
 }
 void AHD_Manager_Pool::PoolPostInit(UHD_GI* hdgi)
 {
-	_hdgi = hdgi;
+	_gi = hdgi;
 	_spawn_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	/*무기 풀 초기화*/
-	const TArray<FDataWeapon*>& arr_data_wp = _hdgi->GetDataWeapons();
+	const TArray<FDataWeapon*>& arr_data_wp = _gi->GetDataWeapons();
 	_pool_wp_only_equip.Reserve(arr_data_wp.Num());
 	for (FDataWeapon* s_data_wp : arr_data_wp)
 	{
@@ -51,7 +51,7 @@ AHD_Enemy* AHD_Manager_Pool::PoolGetEnemy(const FString& str_code_enemy)
 
 	if (!arr_pool_enemy || arr_pool_enemy->Num() <= 0)
 	{
-		FDataEnemy* s_data_enemy = _hdgi->FindDataEnemyByCode(str_code_enemy);
+		FDataEnemy* s_data_enemy = _gi->FindDataEnemyByCode(str_code_enemy);
 		AHD_Enemy* enemy_spawn = GetWorld()->SpawnActor<AHD_Enemy>(s_data_enemy->GetClassEnemy(), _spawn_param); // 풀링 매니저
 		enemy_spawn->EnemyPostInit(s_data_enemy);
 		return enemy_spawn;

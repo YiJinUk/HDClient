@@ -25,7 +25,7 @@ public:
 	void PoolPostInit(UHD_GI* hdgi);
 private:
 	UPROPERTY()
-		UHD_GI* _hdgi = nullptr;;
+		UHD_GI* _gi = nullptr;;
 	FActorSpawnParameters _spawn_param = FActorSpawnParameters();
 #pragma endregion
 

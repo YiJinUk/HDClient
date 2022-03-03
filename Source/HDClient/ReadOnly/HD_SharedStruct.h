@@ -53,11 +53,11 @@ struct FDataWaveSpawnEnemy : public FTableRowBase
 {
 	GENERATED_BODY()
 
-protected:
+public:
 	UPROPERTY(EditAnywhere)
-		FString _code = "0";
+		FString code = "0";
 	UPROPERTY(EditAnywhere)
-		uint8 _count = 0;
+		uint8 count = 0;
 };
 USTRUCT(BlueprintType)
 struct FDataWave : public FTableRowBase

@@ -36,7 +36,7 @@ private:
 	void GMPostInit();
 private:
 	UPROPERTY()
-		UHD_GI* _hdgi = nullptr;
+		UHD_GI* _gi = nullptr;
 
 	UPROPERTY()
 		bool _is_call_PostLogin = false;
