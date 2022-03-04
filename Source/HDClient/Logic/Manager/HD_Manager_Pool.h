@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ReadOnly/HD_SharedStruct.h"
 #include "Logic/Manager/HD_Manager_Master.h"
 #include "HD_Manager_Pool.generated.h"
 
@@ -49,10 +50,11 @@ private:
 
 #pragma region Projectile
 public:
-	AHD_Projectile* PoolGetPROJ(const FString& str_code_proj);
+	AHD_Projectile* PoolGetPROJ(FDataProjectile* s_data_proj);
 	void PoolInPROJ(AHD_Projectile* proj);
 private:
-	TMap<FString, TArray<AHD_Projectile*>> _pool_proj;
+	//TMap<FString, TArray<AHD_Projectile*>> _pool_proj;
+	TArray<AHD_Projectile*> _pool_proj;
 #pragma endregion
 
 };

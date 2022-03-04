@@ -48,16 +48,24 @@ enum class EAttackBasicStatus : uint8
 };
 
 UENUM()
-enum class EPROJTargetType : uint8
+enum class EPROJMoveType : uint8
 {
-	TARGET,//타겟 따라서
-	STRAIGHT,//타겟없이 직진
+	TO_TARGET,//타겟 따라서
+	TO_STRAIGHT,//타겟없이 직진
 };
 UENUM()
 enum class EPROJAttackType : uint8
 {
 	HERO_ATTACK_BASIC,
 	ENEMY_ATTACK_BASIC,
+};
+
+UENUM()
+enum class EVFXType : uint8
+{
+	NO,
+	PROJECTILE,
+	HIT,
 };
 
 
@@ -129,6 +137,8 @@ protected:
 		FString _code_proj = "0";
 
 	UPROPERTY(EditAnywhere, Category = "Stat")
+		int32 _hp = 0;
+	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _as = 0;
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _move_speed = 0;
@@ -139,6 +149,7 @@ public:
 	FORCEINLINE const TSubclassOf<AHD_Enemy>& GetClassEnemy() { return _class_enemy; }
 	FORCEINLINE const FString& GetCode() { return _code; }
 	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
+	FORCEINLINE const int32 GetHP() { return _hp; }
 	FORCEINLINE const int32 GetAS() { return _as; }
 	FORCEINLINE const int32 GetMoveSpeed() { return _move_speed; }
 	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
@@ -187,17 +198,20 @@ protected:
 		FString _code = "0";
 
 	UPROPERTY(EditAnywhere, Category = "General")
-		EPROJTargetType _target_type = EPROJTargetType::TARGET;
+		EPROJMoveType _move_type = EPROJMoveType::TO_TARGET;
 	UPROPERTY(EditAnywhere, Category = "General")
 		EPROJAttackType _attack_type = EPROJAttackType::HERO_ATTACK_BASIC;
 
+	UPROPERTY(EditAnywhere, Category = "VFX")
+		FString _code_vfx_proj = "0";
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		FString _code_vfx_hit = "0";
 public:
 	FORCEINLINE const TSubclassOf<AHD_Projectile>& GetClassPROJ() { return _class_proj; }
 	FORCEINLINE const FString& GetCode() { return _code; }
-	FORCEINLINE const EPROJTargetType GetPROJTargetType() { return _target_type; }
+	FORCEINLINE const EPROJMoveType GetPROJMoveType() { return _move_type; }
 	FORCEINLINE const EPROJAttackType GetPROJAttackType() { return _attack_type; }
+	FORCEINLINE const FString& GetCodeVFXPROJ() { return _code_vfx_proj; }
 	FORCEINLINE const FString& GetCodeVFXHit() { return _code_vfx_hit; }
 };
 
@@ -208,13 +222,16 @@ struct FDataVFX : public FTableRowBase
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "General")
-		FString _code = "0";
-	UPROPERTY(EditAnywhere, Category = "General")
 		UParticleSystem* _vfx_cascade = nullptr;
 	UPROPERTY(EditAnywhere, Category = "General")
 		float _size = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "Description")
+		EVFXType _vfx_type = EVFXType::NO;
+	UPROPERTY(EditAnywhere, Category = "Description")
+		FString _desc = "0";
 public:
-	FORCEINLINE const FString& GetCode() { return _code; }
+	//FORCEINLINE const FString& GetCode() { return _code; }
 	FORCEINLINE UParticleSystem* GetCascade() { return _vfx_cascade; }
 	FORCEINLINE const float GetSize() { return _size; }
 };
@@ -359,6 +376,10 @@ public:
 		FString code_proj = "0";
 
 	UPROPERTY()
+		int32 hp = 0;
+	UPROPERTY()
+		int32 hp_max = 0;
+	UPROPERTY()
 		int32 as_base = 0;
 	UPROPERTY()
 		int32 as_delay = 0;
@@ -414,7 +435,7 @@ public:
 	UPROPERTY()
 		FString code = "0";
 	UPROPERTY()
-		EPROJTargetType target_type = EPROJTargetType::TARGET;
+		EPROJMoveType move_type = EPROJMoveType::TO_TARGET;
 	UPROPERTY()
 		EPROJAttackType attack_type = EPROJAttackType::HERO_ATTACK_BASIC;
 	UPROPERTY()

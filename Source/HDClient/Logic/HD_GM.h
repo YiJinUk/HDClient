@@ -146,6 +146,8 @@ private:
 	void PROJRemoveSpawnedById(const int64 i_id_proj_remove);
 private:
 	UPROPERTY()
-		TArray<AHD_Projectile*> _spawned_projs;
+		TSet<AHD_Projectile*> _spawned_projs;
+	//UPROPERTY()
+		//TArray<AHD_Projectile*> _spawned_projs;
 #pragma endregion
 };

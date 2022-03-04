@@ -65,25 +65,25 @@ AHD_Enemy* AHD_Manager_Pool::PoolGetEnemy(const FString& str_code_enemy)
 	}
 }
 
-AHD_Projectile* AHD_Manager_Pool::PoolGetPROJ(const FString& str_code_proj)
+AHD_Projectile* AHD_Manager_Pool::PoolGetPROJ(FDataProjectile* s_data_proj)
 {
-	TArray<AHD_Projectile*>* arr_pool_proj = _pool_proj.Find(str_code_proj);
+	if (!s_data_proj) return nullptr;
 
-	if (!arr_pool_proj || arr_pool_proj->Num() <= 0)
+	AHD_Projectile* proj_spawn = nullptr;
+	if (_pool_proj.Num() <= 0)
 	{
-		FDataProjectile* s_data_proj = _gi->FindDataPROJByCode(str_code_proj);
-		AHD_Projectile* proj_spawn = GetWorld()->SpawnActor<AHD_Projectile>(s_data_proj->GetClassPROJ(), _spawn_param); // 풀링 매니저
+		proj_spawn = GetWorld()->SpawnActor<AHD_Projectile>(s_data_proj->GetClassPROJ(), _spawn_param); // 풀링 매니저
 		proj_spawn->PROJPostInit(s_data_proj);
 		return proj_spawn;
 	}
 	else
 	{
-		return arr_pool_proj->Pop();
+		return _pool_proj.Pop();
 	}
 }
 void AHD_Manager_Pool::PoolInPROJ(AHD_Projectile* proj)
 {
 	if (!proj) return;
 	proj->PROJSetActiveTick(false);
-	_pool_proj.FindOrAdd(proj->GetInfoPROJ().code).Add(proj);
+	_pool_proj.Add(proj);
 }

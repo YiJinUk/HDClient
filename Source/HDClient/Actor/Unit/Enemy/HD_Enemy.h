@@ -7,6 +7,7 @@
 #include "HD_Enemy.generated.h"
 
 class AHD_GM;
+class UHD_UI_Enemy_HeadUp;
 
 /**
  * 
@@ -18,12 +19,17 @@ class HDCLIENT_API AHD_Enemy : public AHD_Unit
 	
 #pragma region Init
 public:
-	AHD_Enemy();
+	AHD_Enemy(FObjectInitializer const& object_initializer);
 	void EnemyPostInit(FDataEnemy* s_data_enemy);
 	void EnemyInit(const int64 i_id, const FVector v_loc_spawn);
 
 	const FInfoEnemy& GetInfoEnemy();
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UWidgetComponent* _ui_headup = nullptr;
+	UPROPERTY()
+		UHD_UI_Enemy_HeadUp* _ui_enemy_headup = nullptr;
+
 	UPROPERTY()
 		AHD_GM* _gm = nullptr;
 	UPROPERTY()

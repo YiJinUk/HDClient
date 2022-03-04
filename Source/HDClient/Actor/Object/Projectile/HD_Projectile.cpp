@@ -23,27 +23,30 @@ AHD_Projectile::AHD_Projectile()
 void AHD_Projectile::PROJPostInit(FDataProjectile* s_data_proj)
 {
 	_gm = GetWorld()->GetAuthGameMode<AHD_GM>();
-	UHD_GI* gi = GetWorld()->GetGameInstance<UHD_GI>();
+	_gi = GetWorld()->GetGameInstance<UHD_GI>();
 
-	_info_proj.speed = gi->GetDataGame()->GetPROJSpeed();
-	_info_proj.detect_range = gi->GetDataGame()->GetPROJDetectRange();
-	_info_proj.target_type = s_data_proj->GetPROJTargetType();
+	_info_proj.speed = _gi->GetDataGame()->GetPROJSpeed();
+	_info_proj.detect_range = _gi->GetDataGame()->GetPROJDetectRange();
+	_info_proj.move_type = s_data_proj->GetPROJMoveType();
 	_info_proj.attack_type = s_data_proj->GetPROJAttackType();
-	_info_proj.vfx = gi->FindDataVFXByCode(s_data_proj->GetCodeVFXHit());
+	
 }
-void AHD_Projectile::PROJInit(const int64 i_id, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest)
+void AHD_Projectile::PROJInit(const int64 i_id, FDataProjectile* s_data_proj, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest)
 {
-	SetActorLocation(v_loc_spawn);
+	SetActorLocation(FVector(v_loc_spawn.X, v_loc_spawn.Y, __LOC_Z));
 
 	_info_proj.id = i_id;
 	_info_proj.target = unit_target;
 	_info_proj.owner = unit_owner;
 
-	if (_info_proj.target_type == EPROJTargetType::STRAIGHT)
+	if (_info_proj.move_type == EPROJMoveType::TO_STRAIGHT)
 	{
 		_info_proj.velocity = UHD_FunctionLibrary::GetVelocity2DByV2(GetActorLocation2D(), v2_dest);
-		PROJRotation();
 	}
+	PROJRotation();
+
+	_info_proj.vfx = _gi->FindDataVFXByCode(s_data_proj->GetCodeVFXHit());
+	PROJSetTemplate(_gi->FindDataVFXByCode(s_data_proj->GetCodeVFXPROJ()));
 
 	PROJSetActiveTick(true);
 }
@@ -71,9 +74,9 @@ void AHD_Projectile::PROJMoveAndAttack(const float f_delta_time)
 }
 bool AHD_Projectile::PROJMove(const float f_delta_time)
 {
-	switch (_info_proj.target_type)
+	switch (_info_proj.move_type)
 	{
-	case EPROJTargetType::TARGET:
+	case EPROJMoveType::TO_TARGET:
 		if (!_info_proj.target || !_info_proj.target->GetInfoUnit().is_hit_valid)
 		{
 			return false;
@@ -81,13 +84,20 @@ bool AHD_Projectile::PROJMove(const float f_delta_time)
 		else
 		{
 			_velocity_new = UHD_FunctionLibrary::GetVelocity2DByV2(GetActorLocation2D(), _info_proj.target->GetActorLocation2D()) * (_info_proj.speed * f_delta_time);
-			SetActorLocation(FVector(GetActorLocation().X + _velocity_new.X, GetActorLocation().Y + _velocity_new.Y, 50.f));
+			SetActorLocation(FVector(GetActorLocation().X + _velocity_new.X, GetActorLocation().Y + _velocity_new.Y, __LOC_Z));
 			PROJRotation();
 		}
 		break;
-	case EPROJTargetType::STRAIGHT:
-		_velocity_new = _info_proj.velocity * (_info_proj.speed * f_delta_time);
-		SetActorLocation(FVector(GetActorLocation().X + _velocity_new.X, GetActorLocation().Y + _velocity_new.Y, 50.f));
+	case EPROJMoveType::TO_STRAIGHT:
+		//_velocity_new = _info_proj.velocity * (_info_proj.speed * f_delta_time);
+		//AddActorWorldOffset(FVector(_velocity_new.X, _velocity_new.Y, 0.f));
+		AddActorWorldOffset(FVector(0.1f,0.1f, 0.f));
+
+		if (UHD_FunctionLibrary::GetDistance2DByVector(FVector2D(0.f), GetActorLocation2D()) >= 1500)
+		{
+			//세계의 중앙에서 벗어났습니다 발사체를 종료합니다
+			PROJFinish();
+		}
 		break;
 	default:
 		break;
@@ -97,16 +107,16 @@ bool AHD_Projectile::PROJMove(const float f_delta_time)
 }
 void AHD_Projectile::PROJDetect()
 {
-	switch (_info_proj.target_type)
+	switch (_info_proj.move_type)
 	{
-	case EPROJTargetType::TARGET:
+	case EPROJMoveType::TO_TARGET:
 		if (UHD_FunctionLibrary::GetDistance2DByVector(GetActorLocation2D(), _info_proj.target->GetActorLocation2D()) <= _info_proj.detect_range)
 		{
 			/*공격가능*/
 			PROJAttack(_info_proj.target);
 		}
 		break;
-	case EPROJTargetType::STRAIGHT:
+	case EPROJMoveType::TO_STRAIGHT:
 	{
 		if (_info_proj.owner->GetInfoUnit().unit_type == EUnitClassType::HERO)
 		{
@@ -145,18 +155,18 @@ void AHD_Projectile::PROJAttack(AHD_Unit* unit_target)
 
 void AHD_Projectile::PROJRotation()
 {
-	if (_info_proj.target_type == EPROJTargetType::TARGET)
+	if (_info_proj.move_type == EPROJMoveType::TO_TARGET)
 	{
 		SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), _info_proj.target->GetActorLocation()), 0.f));
-
 	}
 	else
 	{
-		//STRAIGHT
-		//직선으로 날아가는 발사체는 해당함수를 한번만 호출합니다
+		//TO_STRAIGHT, 직선으로 날아가는 발사체는 해당함수를 한번만 호출합니다
 		const FVector2D& v2_loc = GetActorLocation2D();
 		SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), FVector(_info_proj.velocity.X + v2_loc.X, _info_proj.velocity.Y + v2_loc.Y, 0.f)), 0.f));
 	}
 }
+
+void AHD_Projectile::PROJSetTemplate(FDataVFX* s_vfx) { if (s_vfx)		_particle->SetTemplate(s_vfx->GetCascade()); }
 
 const FInfoProjectile& AHD_Projectile::GetInfoPROJ() { return _info_proj; }

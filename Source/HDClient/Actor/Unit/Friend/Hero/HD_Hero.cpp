@@ -26,6 +26,7 @@ void AHD_Hero::HeroAttackBasicStart(AHD_Enemy* target)
 
 		_info_hero.atk_basic_status = EAttackBasicStatus::TRY;
 		_info_hero.target = target;
+		SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), _info_hero.target->GetActorLocation()), 0.f));
 		_anim_instance->Montage_Play(_info_hero.wp_equip->GetInfoWP().anim_attack_basic, (_info_hero.GetASTotal() / 60.f) / _info_hero.anim_rate_base);
 	}
 }

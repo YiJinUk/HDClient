@@ -22,6 +22,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/SplineComponent.h"
 
+DECLARE_STATS_GROUP(TEXT("HD_Tick"), STATGROUP_HD_Tick, STATCAT_Advanced);
+DECLARE_CYCLE_STAT(TEXT("HD_Tick_Cycle"), STAT_HD_Tick_Cycle, STATGROUP_HD_Tick);
+
 AHD_GM::AHD_GM()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -86,28 +89,29 @@ void AHD_GM::GMPostInit()
 void AHD_GM::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (_hero)
-	{
-		const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
-		if (enumPtr)
-		{
-			FString str_enum = enumPtr->GetNameStringByIndex((int32)_hero->GetInfoHero().atk_basic_status);
-			UHD_FunctionLibrary::GPrintString(1, 1, str_enum);
-		}
+	//if (_hero)
+	//{
+	//	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
+	//	if (enumPtr)
+	//	{
+	//		FString str_enum = enumPtr->GetNameStringByIndex((int32)_hero->GetInfoHero().atk_basic_status);
+	//		UHD_FunctionLibrary::GPrintString(1, 1, str_enum);
+	//	}
 
-		UHD_FunctionLibrary::GPrintString(2, 1, FString::FromInt(_hero->GetInfoHero().as_delay));
-	}
-	if (_spawned_enemies.Num() >= 1)
-	{
-		const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
-		if (enumPtr)
-		{
-			FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_enemies[0]->GetInfoEnemy().atk_basic_status);
-			UHD_FunctionLibrary::GPrintString(10, 1, str_enum, FColor::Red);
-		}
+	//	UHD_FunctionLibrary::GPrintString(2, 1, FString::FromInt(_hero->GetInfoHero().as_delay));
+	//}
+	//if (_spawned_enemies.Num() >= 1)
+	//{
+	//	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
+	//	if (enumPtr)
+	//	{
+	//		FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_enemies[0]->GetInfoEnemy().atk_basic_status);
+	//		UHD_FunctionLibrary::GPrintString(10, 1, str_enum, FColor::Red);
+	//	}
 
-		UHD_FunctionLibrary::GPrintString(11, 1, FString::FromInt(_spawned_enemies[0]->GetInfoEnemy().as_delay), FColor::Red);
-	}
+	//	UHD_FunctionLibrary::GPrintString(11, 1, FString::FromInt(_spawned_enemies[0]->GetInfoEnemy().as_delay), FColor::Red);
+	//}
+
 
 	if (_info_wld.wld_status != EWorldStatus::HOME)
 		++_info_wld.tick_total;
@@ -173,12 +177,17 @@ void AHD_GM::TickEnemyMoveAndAttack(const float f_delta_time)
 }
 void AHD_GM::TickPROJMoveAndAttack(const float f_delta_time)
 {
+	//SCOPE_CYCLE_COUNTER(STAT_HD_Tick_Cycle);
 	if (_spawned_projs.Num() <= 0) return;
-	AHD_Projectile* proj = nullptr;
-	for (int32 i = _spawned_projs.Num() - 1; i >= 0; --i)
+	//AHD_Projectile* proj = nullptr;
+	//for (int32 i = _spawned_projs.Num() - 1; i >= 0; --i)
+	//{
+	//	proj = _spawned_projs[i];
+	//	proj->PROJMoveAndAttack(f_delta_time);
+	//}
+	for (auto proj = _spawned_projs.CreateConstIterator(); proj; ++proj)
 	{
-		proj = _spawned_projs[i];
-		proj->PROJMoveAndAttack(f_delta_time);
+		(*proj)->PROJMoveAndAttack(f_delta_time);
 	}
 }
 void AHD_GM::TickHeroAttack()
@@ -285,6 +294,21 @@ AHD_Enemy* AHD_GM::FindEnemyNearByV2(const FVector2D& v2_loc_center, const int64
 			}
 		}
 	}
+	//for (auto It = _spawned_enemies.CreateConstIterator(); It; ++It)
+	//{
+	//	/*개미가 유효한지*/
+	//	if ((*It) && (*It)->GetInfoEnemy().id != i_id_enemy_except)
+	//	{
+	//		/*가장 가까운 개미인지*/
+	//		i_dist_candidate_tmp = UHD_FunctionLibrary::GetDistance2DByVector(v2_loc_center, (*It)->GetActorLocation2D());
+
+	//		if (i_dist_candidate_tmp < i_dist_candidate)
+	//		{
+	//			i_dist_candidate = i_dist_candidate_tmp;
+	//			enemy_target_candidate = (*It);
+	//		}
+	//	}
+	//}
 
 	return enemy_target_candidate;
 }
@@ -308,24 +332,26 @@ void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)
 
 void AHD_GM::PROJSpawn(const FString& str_code_proj, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest)
 {
-	AHD_Projectile* proj = _manager_pool->PoolGetPROJ(str_code_proj);
+	FDataProjectile* s_data_proj = _gi->FindDataPROJByCode(str_code_proj);
+	AHD_Projectile* proj = _manager_pool->PoolGetPROJ(s_data_proj);
 
-	proj->PROJInit(IdGenerate(), v_loc_spawn, unit_owner, unit_target, v2_dest);
+	proj->PROJInit(IdGenerate(), s_data_proj, v_loc_spawn, unit_owner, unit_target, v2_dest);
 
 	_spawned_projs.Add(proj);
 }
 void AHD_GM::PROJFinish(AHD_Projectile* proj)
 {
 	if (!proj) return;
-	_manager_fx->VFXStart(proj->GetInfoPROJ().vfx, proj->GetActorLocation2D());
+	_manager_fx->VFXStart(proj->GetInfoPROJ().vfx, proj->GetActorLocation());
 	_manager_pool->PoolInPROJ(proj);
-	PROJRemoveSpawnedById(proj->GetInfoPROJ().id);
+	_spawned_projs.Remove(proj);
+	//PROJRemoveSpawnedById(proj->GetInfoPROJ().id);
 }
 void AHD_GM::PROJRemoveSpawnedById(const int64 i_id_proj_remove)
 {
 	if (_spawned_projs.Num() <= 0) return;
 	AHD_Projectile* proj = nullptr;
-	for (int32 i = 0, i_len = _spawned_projs.Num(); i < i_len; ++i)
+	/*for (int32 i = 0, i_len = _spawned_projs.Num(); i < i_len; ++i)
 	{
 		proj = _spawned_projs[i];
 		if (proj && proj->GetInfoPROJ().id == i_id_proj_remove)
@@ -333,7 +359,7 @@ void AHD_GM::PROJRemoveSpawnedById(const int64 i_id_proj_remove)
 			_spawned_projs.RemoveAtSwap(i);
 			return;
 		}
-	}
+	}*/
 }
 
 const int64 AHD_GM::IdGenerate() { return ++_id_generator; }
