@@ -38,11 +38,11 @@ void AHD_Enemy::EnemyPostInit(FDataEnemy* s_data_enemy)
 {
 	if (!s_data_enemy) return;
 
-	_gm = GetWorld()->GetAuthGameMode<AHD_GM>();
 	_ui_enemy_headup = Cast<UHD_UI_Enemy_HeadUp>(_ui_headup->GetUserWidgetObject());
 
 	_info_enemy.code_proj = s_data_enemy->GetCodePROJ();
 	_info_enemy.hp_max = s_data_enemy->GetHP();
+	_info_enemy.str_base = s_data_enemy->GetSTR();
 	_info_enemy.as_base = s_data_enemy->GetAS();
 	_info_enemy.move_speed = s_data_enemy->GetMoveSpeed();
 	_info_enemy.anim_attack_basic = s_data_enemy->GetAnimAttackBasic();
@@ -52,6 +52,7 @@ void AHD_Enemy::EnemyInit(const int64 i_id, const FVector v_loc_spawn)
 	_info_enemy.id = i_id;
 	_info_enemy.hp = _info_enemy.hp_max;
 	SetActorLocation(v_loc_spawn);
+	_ui_enemy_headup->UIEnemyHeadUpInit(this);
 }
 
 void AHD_Enemy::EnemyMove(const float f_delta_time, const FVector& v_loc_move, const FRotator& r_rot)
@@ -59,6 +60,11 @@ void AHD_Enemy::EnemyMove(const float f_delta_time, const FVector& v_loc_move, c
 	_info_enemy.lane_dist = _info_enemy.lane_dist + ((float)_info_enemy.move_speed * f_delta_time);
 	SetActorLocation(v_loc_move);
 	SetActorRotation(r_rot);
+}
+
+bool AHD_Enemy::EnemyUpdateAS(const uint8 i_tick_1frame)
+{
+	return UnitUpdateAS(_info_enemy.atk_basic_status, _info_enemy.as_delay, _info_enemy.GetASTotalDelay(), i_tick_1frame);
 }
 
 void AHD_Enemy::EnemyAttackBasicStart(AHD_Hero* target)
@@ -88,14 +94,36 @@ void AHD_Enemy::EnemyAttackBasic()
 {
 	//override
 }
-bool AHD_Enemy::EnemyUpdateAS(const uint8 i_tick_1frame)
+void AHD_Enemy::UnitDoAttackBasic(AHD_Unit* unit_target)
 {
-	return UnitUpdateAS(_info_enemy.atk_basic_status, _info_enemy.as_delay, _info_enemy.GetASTotalDelay(), i_tick_1frame);
+	_gm->BattleSend(this, unit_target, _info_enemy.GetAttackBasicDMG(), EAttackType::BASIC);
 }
 
 void AHD_Enemy::EnemyMontageEnd()
 {
 	++_info_enemy.is_can_move;
+}
+
+void AHD_Enemy::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value)
+{
+	switch (e_stat_type)
+	{
+	case EUnitStatType::HP:
+		_info_enemy.hp += i_value;
+		if (_info_enemy.hp <= 0)
+		{
+			_info_enemy.hp = 0;
+		}
+		else if(_info_enemy.hp > _info_enemy.hp_max)
+		{
+			_info_enemy.hp = _info_enemy.hp_max;
+		}
+
+		_ui_enemy_headup->UIEnemyHeadUpSetHPBar(_info_enemy.GetHPRate());
+		break;
+	default:
+		break;
+	}
 }
 
 const FInfoEnemy& AHD_Enemy::GetInfoEnemy() { return _info_enemy; }

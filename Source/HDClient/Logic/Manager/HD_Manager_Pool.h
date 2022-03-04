@@ -53,8 +53,7 @@ public:
 	AHD_Projectile* PoolGetPROJ(FDataProjectile* s_data_proj);
 	void PoolInPROJ(AHD_Projectile* proj);
 private:
-	//TMap<FString, TArray<AHD_Projectile*>> _pool_proj;
-	TArray<AHD_Projectile*> _pool_proj;
+	TArray<AHD_Projectile*, TInlineAllocator<100>> _pool_proj;
 #pragma endregion
 
 };

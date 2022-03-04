@@ -15,6 +15,7 @@
 #include "Actor/Object/HD_Spline.h"
 
 #include "Manager/HD_Manager_Pool.h"
+#include "Manager/HD_Manager_Battle.h"
 #include "Manager/HD_Manager_Weapon.h"
 #include "Manager/HD_Manager_FX.h"
 
@@ -72,10 +73,12 @@ void AHD_GM::GMPostInit()
 	s_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	_manager_pool = wld->SpawnActor<AHD_Manager_Pool>(s_param);
+	_manager_battle = wld->SpawnActor<AHD_Manager_Battle>(s_param);
 	_manager_wp = wld->SpawnActor<AHD_Manager_Weapon>(s_param);
 	_manager_fx = wld->SpawnActor<AHD_Manager_FX>(s_param);
 
 	_manager_pool->PoolPostInit(_gi, this);
+	_manager_battle->BattlePostInit();
 	_manager_fx->FXPostInit(_gi);
 
 	/*영웅 동료 마법석 초기화*/
@@ -361,6 +364,8 @@ void AHD_GM::PROJRemoveSpawnedById(const int64 i_id_proj_remove)
 		}
 	}*/
 }
+
+void AHD_GM::BattleSend(AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type) { _manager_battle->BattleRecv(atk, def, i_dmg, e_atk_type); }
 
 const int64 AHD_GM::IdGenerate() { return ++_id_generator; }
 AHD_Hero* AHD_GM::GetHero() { return _hero; }

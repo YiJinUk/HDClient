@@ -89,9 +89,9 @@ bool AHD_Projectile::PROJMove(const float f_delta_time)
 		}
 		break;
 	case EPROJMoveType::TO_STRAIGHT:
-		//_velocity_new = _info_proj.velocity * (_info_proj.speed * f_delta_time);
-		//AddActorWorldOffset(FVector(_velocity_new.X, _velocity_new.Y, 0.f));
-		AddActorWorldOffset(FVector(0.1f,0.1f, 0.f));
+		_velocity_new = _info_proj.velocity * (_info_proj.speed * f_delta_time);
+		AddActorWorldOffset(FVector(_velocity_new.X, _velocity_new.Y, 0.f));
+		//AddActorWorldOffset(FVector(0.1f,0.1f, 0.f));
 
 		if (UHD_FunctionLibrary::GetDistance2DByVector(FVector2D(0.f), GetActorLocation2D()) >= 1500)
 		{
@@ -142,13 +142,14 @@ void AHD_Projectile::PROJDetect()
 }
 void AHD_Projectile::PROJAttack(AHD_Unit* unit_target)
 {
-	switch (_info_proj.attack_type)
-	{
-	case EPROJAttackType::HERO_ATTACK_BASIC:
-		break;
-	default:
-		break;
-	}
+	//switch (_info_proj.attack_type)
+	//{
+	//case EPROJAttackType::HERO_ATTACK_BASIC:
+	//	break;
+	//default:
+	//	break;
+	//}
+	_info_proj.owner->UnitDoAttackBasic(unit_target);
 
 	PROJFinish();
 }

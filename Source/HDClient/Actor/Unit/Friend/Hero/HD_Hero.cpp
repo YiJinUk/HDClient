@@ -2,10 +2,12 @@
 
 
 #include "Actor/Unit/Friend/Hero/HD_Hero.h"
+#include "Actor/Unit/HD_Unit.h"
 #include "Actor/Unit/Enemy/HD_Enemy.h"
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Logic/Animation/HD_AM.h"
 #include "Logic/HD_FunctionLibrary.h"
+#include "Logic/HD_GM.h"
 
 void AHD_Hero::HeroChangeWeapon(AHD_Weapon* wp_change)
 {
@@ -17,6 +19,10 @@ void AHD_Hero::HeroChangeWeapon(AHD_Weapon* wp_change)
 	_info_hero.anim_rate_base = _info_hero.as_base / 60.f;
 }
 
+bool AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
+{
+	return UnitUpdateAS(_info_hero.atk_basic_status, _info_hero.as_delay, _info_hero.GetASTotalDelay(), i_tick_1frame);
+}
 void AHD_Hero::HeroAttackBasicStart(AHD_Enemy* target)
 {
 	if (target)
@@ -45,10 +51,31 @@ void AHD_Hero::HeroAttackBasicNotify()
 		_info_hero.atk_basic_status = EAttackBasicStatus::DELAY;
 	}
 }
-
-bool AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
+void AHD_Hero::UnitDoAttackBasic(AHD_Unit* unit_target)
 {
-	return UnitUpdateAS(_info_hero.atk_basic_status, _info_hero.as_delay, _info_hero.GetASTotalDelay(), i_tick_1frame);
+	_gm->BattleSend(this, unit_target, _info_hero.GetAttackBasicDMG(), EAttackType::BASIC);
+}
+
+
+
+void AHD_Hero::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value)
+{
+	switch (e_stat_type)
+	{
+	case EUnitStatType::HP:
+		_info_hero.hp_base += i_value;
+		if (_info_hero.hp_base <= 0)
+		{
+			_info_hero.hp_base = 0;
+		}
+		else if (_info_hero.hp_base > _info_hero.hp_max_base)
+		{
+			_info_hero.hp_base = _info_hero.hp_max_base;
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 const FInfoHero& AHD_Hero::GetInfoHero() { return _info_hero; }

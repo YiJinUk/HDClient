@@ -3,6 +3,7 @@
 
 #include "Actor/Unit/HD_Unit.h"
 #include "Logic/Animation/HD_AM.h"
+#include "Logic/HD_GM.h"
 
 #include "Components/SkeletalMeshComponent.h"
 
@@ -36,6 +37,7 @@ void AHD_Unit::UnitPostInit(const EUnitClassType e_unit_type)
 		_anim_instance = Cast<UHD_AM>(_skeletal_mesh->GetAnimInstance());
 	if(_anim_instance)
 		_anim_instance->AMPostInit(this);
+	_gm = GetWorld()->GetAuthGameMode<AHD_GM>();
 
 	_info_unit.unit_type = e_unit_type;
 }
@@ -68,7 +70,8 @@ bool AHD_Unit::UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_
 	else
 		return false;
 }
-
+void AHD_Unit::UnitDoAttackBasic(AHD_Unit* unit_target) {/*override*/ }
+void AHD_Unit::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value) {	/*override*/ }
 FVector2D AHD_Unit::GetActorLocation2D() { FVector v_loc = GetActorLocation();	return FVector2D(v_loc.X, v_loc.Y); }
 USkeletalMeshComponent* AHD_Unit::GetSkeletalMesh() { return _skeletal_mesh; }
 const FInfoUnit& AHD_Unit::GetInfoUnit() { return _info_unit; }

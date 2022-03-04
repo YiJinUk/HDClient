@@ -6,7 +6,6 @@
 #include "Actor/Unit/HD_Unit.h"
 #include "HD_Enemy.generated.h"
 
-class AHD_GM;
 class UHD_UI_Enemy_HeadUp;
 
 /**
@@ -31,8 +30,6 @@ protected:
 		UHD_UI_Enemy_HeadUp* _ui_enemy_headup = nullptr;
 
 	UPROPERTY()
-		AHD_GM* _gm = nullptr;
-	UPROPERTY()
 		FInfoEnemy _info_enemy;
 #pragma endregion
 
@@ -43,13 +40,14 @@ public:
 
 #pragma region Attack.Basic
 public:
+	bool EnemyUpdateAS(const uint8 i_tick_1frame);
 	//기본공격을 시작합니다
 	void EnemyAttackBasicStart(AHD_Hero* target);
 	//기본공격애니메이션중 공격피해를 시도합니다
 	void EnemyAttackBasicNotify();
+	void UnitDoAttackBasic(AHD_Unit* unit_target) override;
 	
 
-	bool EnemyUpdateAS(const uint8 i_tick_1frame);
 protected:
 	virtual void EnemyAttackBasic();
 #pragma endregion
@@ -57,5 +55,10 @@ protected:
 #pragma region Animation
 public:
 	void EnemyMontageEnd();
+#pragma endregion
+
+#pragma region Stat
+private:
+	void UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value) override;
 #pragma endregion
 };

@@ -39,13 +39,6 @@ enum class EUnitClassType : uint8
 	ENEMY,
 	HERO,
 };
-UENUM()
-enum class EAttackBasicStatus : uint8
-{
-	DETECT,//기본공격.대기
-	TRY,//기본공격.시도(선딜)
-	DELAY,//기본공격.딜레이(후딜)
-};
 
 UENUM()
 enum class EPROJMoveType : uint8
@@ -58,6 +51,33 @@ enum class EPROJAttackType : uint8
 {
 	HERO_ATTACK_BASIC,
 	ENEMY_ATTACK_BASIC,
+};
+
+UENUM()
+enum class EAttackBasicStatus : uint8
+{
+	DETECT,//기본공격.대기
+	TRY,//기본공격.시도(선딜)
+	DELAY,//기본공격.딜레이(후딜)
+};
+UENUM()
+enum class EAttackType : uint8
+{
+	BASIC,
+	SKILL,
+};
+
+UENUM()
+enum class EUnitStatType : uint8
+{
+	HP,
+};
+UENUM()
+enum class EUnitStatBy : uint8
+{
+	NO,
+	ENEMY,
+	HERO,
 };
 
 UENUM()
@@ -139,6 +159,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _hp = 0;
 	UPROPERTY(EditAnywhere, Category = "Stat")
+		int32 _str = 0;
+	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _as = 0;
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _move_speed = 0;
@@ -150,6 +172,7 @@ public:
 	FORCEINLINE const FString& GetCode() { return _code; }
 	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
 	FORCEINLINE const int32 GetHP() { return _hp; }
+	FORCEINLINE const int32 GetSTR() { return _str; }
 	FORCEINLINE const int32 GetAS() { return _as; }
 	FORCEINLINE const int32 GetMoveSpeed() { return _move_speed; }
 	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
@@ -237,7 +260,7 @@ public:
 };
 #pragma endregion
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoWorld
 {
 	GENERATED_BODY()
@@ -275,7 +298,7 @@ public:
 		round_wave = 0;
 	}
 };
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoWave
 {
 	GENERATED_BODY()
@@ -293,7 +316,7 @@ public:
 	}
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoPlayer
 {
 	GENERATED_BODY()
@@ -302,7 +325,7 @@ public:
 
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoUnit
 {
 	GENERATED_BODY()
@@ -315,7 +338,7 @@ public:
 		bool is_hit_valid = true;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoHero
 {
 	GENERATED_BODY()
@@ -328,6 +351,11 @@ public:
 
 	UPROPERTY()
 		EAttackBasicStatus atk_basic_status = EAttackBasicStatus::DELAY;
+
+	UPROPERTY()
+		int32 hp_base = 0;
+	UPROPERTY()
+		int32 hp_max_base = 0;
 
 	UPROPERTY()
 		int32 str_base = 0;
@@ -346,12 +374,18 @@ public:
 	UPROPERTY()
 		AHD_Enemy* target = nullptr;
 public:
-	FORCEINLINE int32 GetASTotal() const { return as_base; }
-	FORCEINLINE int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
-	//FORCEINLINE int32 GetASTotalDelay() const { return (360.f / float(GetASTotal())); }
+	FORCEINLINE const int32 GetHPTotal() const { return hp_base; }
+	FORCEINLINE const int32 GetHPMaxTotal() const { return hp_max_base; }
+	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
+	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
+	FORCEINLINE const int32 GetASTotal() const { return as_base; }
+
+	FORCEINLINE const float GetHPRate() const { return (float)GetHPTotal() / (float)GetHPMaxTotal(); }
+	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
+	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoEnemy
 {
 	GENERATED_BODY()
@@ -379,6 +413,11 @@ public:
 		int32 hp = 0;
 	UPROPERTY()
 		int32 hp_max = 0;
+
+	UPROPERTY()
+		int32 str_base = 0;
+	UPROPERTY()
+		int32 dmg_base = 100;
 	UPROPERTY()
 		int32 as_base = 0;
 	UPROPERTY()
@@ -393,11 +432,16 @@ public:
 	UPROPERTY()
 		UAnimMontage* anim_attack_basic = nullptr;
 public:
-	FORCEINLINE int32 GetASTotal() const { return as_base; }
-	FORCEINLINE int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
+	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
+	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
+	FORCEINLINE const int32 GetASTotal() const { return as_base; }
+
+	FORCEINLINE const float GetHPRate() const { return (float)hp / (float)hp_max; }
+	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
+	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoWeapon
 {
 	GENERATED_BODY()
@@ -424,7 +468,7 @@ public:
 
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FInfoProjectile
 {
 	GENERATED_BODY()
@@ -452,4 +496,52 @@ public:
 		FVector2D velocity = FVector2D::ZeroVector;
 
 	FDataVFX* vfx = nullptr;
+};
+
+USTRUCT()
+struct FDamageInfo
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		AHD_Unit* atk = nullptr;
+	UPROPERTY()
+		AHD_Unit* def = nullptr;
+	UPROPERTY()
+		int32 dmg_origin = 0;
+	UPROPERTY()
+		EAttackType atk_type = EAttackType::BASIC;
+
+public:
+	void InitDamageInfo()
+	{
+		atk = nullptr;
+		def = nullptr;
+		dmg_origin = 0;
+		atk_type = EAttackType::BASIC;
+	}
+};
+USTRUCT()
+struct FDamageResult
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		AHD_Unit* atk = nullptr;
+	UPROPERTY()
+		AHD_Unit* def = nullptr;
+
+	UPROPERTY()
+		int32 dmg_rlt = 0;
+
+public:
+	void InitDamageResult()
+	{
+		atk = nullptr;
+		def = nullptr;
+
+		dmg_rlt = 0;
+	}
 };

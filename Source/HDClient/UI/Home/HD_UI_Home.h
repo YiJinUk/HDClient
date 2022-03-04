@@ -28,7 +28,7 @@ private:
 	UPROPERTY()
 		AHD_PC* _pc = nullptr;
 
-	UPROPERTY(Meta = (BindWidget))
+	UPROPERTY(Meta = (BindWidget), Transient)
 		UButton* _world_start = nullptr;
 #pragma endregion
 

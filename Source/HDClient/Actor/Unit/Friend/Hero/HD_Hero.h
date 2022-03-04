@@ -8,6 +8,7 @@
 
 class AHD_Weapon;
 class AHD_Enemy;
+class AHD_Unit;
 
 /**
  * 
@@ -32,12 +33,19 @@ public:
 
 #pragma region Attack.Basic
 public:
+	bool HeroUpdateAS(const uint8 i_tick_1frame);
+
 	//기본공격을 시작합니다
 	void HeroAttackBasicStart(AHD_Enemy* target);
 	//기본공격애니메이션중 공격피해를 시도합니다
 	void HeroAttackBasicNotify();
+	void UnitDoAttackBasic(AHD_Unit* unit_target) override;
 
-	bool HeroUpdateAS(const uint8 i_tick_1frame);
+#pragma endregion
+
+#pragma region Stat
+private:
+	void UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value) override;
 #pragma endregion
 
 };

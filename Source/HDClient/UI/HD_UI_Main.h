@@ -27,11 +27,11 @@ private:
 	* index 0 : home
 	* index 1 : world
 	*/
-	UPROPERTY(Meta = (BindWidget))
+	UPROPERTY(Meta = (BindWidget), Transient)
 		UWidgetSwitcher* _switcher = nullptr;
-	UPROPERTY(Meta = (BindWidget))
+	UPROPERTY(Meta = (BindWidget), Transient)
 		UHD_UI_Home* _ui_home = nullptr;
-	UPROPERTY(Meta = (BindWidget))
+	UPROPERTY(Meta = (BindWidget), Transient)
 		UHD_UI_World* _ui_world = nullptr;
 #pragma endregion
 

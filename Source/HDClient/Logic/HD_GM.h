@@ -15,6 +15,7 @@ class AHD_MagicStone;
 class AHD_Companion;
 class AHD_Enemy;
 class AHD_Manager_Pool;
+class AHD_Manager_Battle;
 class AHD_Manager_Weapon;
 class AHD_Manager_FX;
 
@@ -87,6 +88,8 @@ private:
 	UPROPERTY()
 		AHD_Manager_Pool* _manager_pool = nullptr;
 	UPROPERTY()
+		AHD_Manager_Battle* _manager_battle = nullptr;
+	UPROPERTY()
 		AHD_Manager_Weapon* _manager_wp = nullptr;
 	UPROPERTY()
 		AHD_Manager_FX* _manager_fx = nullptr;
@@ -149,5 +152,10 @@ private:
 		TSet<AHD_Projectile*> _spawned_projs;
 	//UPROPERTY()
 		//TArray<AHD_Projectile*> _spawned_projs;
+#pragma endregion
+
+#pragma region Battle
+public:
+	void BattleSend(AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type);
 #pragma endregion
 };
