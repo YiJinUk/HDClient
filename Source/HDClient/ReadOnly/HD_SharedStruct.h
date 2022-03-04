@@ -143,6 +143,17 @@ public:
 	FORCEINLINE const TArray<FDataWaveSpawnEnemy>& GetSpawnEnemies() const { return _spawn_enemies; }
 };
 USTRUCT(BlueprintType)
+struct FDataHero : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Stat")
+		int32 _hp = 0;
+public:
+	FORCEINLINE const int32 GetHP() { return _hp; }
+};
+USTRUCT(BlueprintType)
 struct FDataEnemy : public FTableRowBase
 {
 	GENERATED_BODY()

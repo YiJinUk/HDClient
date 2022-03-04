@@ -27,6 +27,8 @@ public:
 	void PoolInDMGResult(FDamageResult* s_dmg_rlt);
 	
 private:
+	//풀링 제대로 안하면 크래쉬남... 조심
+
 	TArray<FDamageInfo, TInlineAllocator<5>> _pool_dmg_info_origin;
 	TArray<FDamageInfo*, TInlineAllocator<5>> _pool_dmg_info_pointer;
 	TArray<FDamageResult, TInlineAllocator<5>> _pool_dmg_rlt_origin;

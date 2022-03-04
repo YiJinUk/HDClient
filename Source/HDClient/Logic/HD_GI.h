@@ -31,9 +31,11 @@ public:
 	const TArray<FDataWeapon*>& GetDataWeapons();
 	const TArray<FDataWave*>& GetDataWaves();
 	FDataGame* GetDataGame();
+	FDataHero* GetDataHero();
 private:
 	UDataTable* _dt_game = nullptr;
 	UDataTable* _dt_wave = nullptr;
+	UDataTable* _dt_hero = nullptr;
 	UDataTable* _dt_enemy = nullptr;
 	UDataTable* _dt_weapon = nullptr;
 	UDataTable* _dt_proj = nullptr;
@@ -42,5 +44,6 @@ private:
 	TArray<FDataWeapon*> _data_wps;
 	TArray<FDataWave*> _data_waves;
 	FDataGame* _data_game = nullptr;
+	FDataHero* _data_hero = nullptr;
 #pragma endregion
 };

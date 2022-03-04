@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ReadOnly/HD_SharedStruct.h"
 #include "GameFramework/PlayerController.h"
 #include "HD_PC.generated.h"
 
@@ -41,4 +42,8 @@ public:
 	void PCWorldStart();
 #pragma endregion
 
+#pragma region UI.Stat
+public:
+	void PCUIUpdateStat(const EUnitStatType e_unit_stat_type, const EUnitStatBy e_unit_stat_by, const int32 i_value = 0, const float f_value = 0.f);
+#pragma endregion
 };

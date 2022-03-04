@@ -73,6 +73,8 @@ void AHD_Manager_Battle::BattleRecv(AHD_Unit* atk, AHD_Unit* def, const int32 i_
 
 	BattleAppleDamage(s_dmg_rlt);
 
+	PoolInDMGInfo(s_dmg_info);
+	PoolInDMGResult(s_dmg_rlt);
 }
 void AHD_Manager_Battle::BattleInitDMGInfo(FDamageInfo* s_dmg_info, AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type)
 {

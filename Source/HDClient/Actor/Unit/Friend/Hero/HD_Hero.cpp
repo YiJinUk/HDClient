@@ -8,6 +8,14 @@
 #include "Logic/Animation/HD_AM.h"
 #include "Logic/HD_FunctionLibrary.h"
 #include "Logic/HD_GM.h"
+#include "Logic/HD_PC.h"
+
+void AHD_Hero::HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero)
+{
+	_pc = pc;
+	_info_hero.hp_base = s_data_hero->GetHP();
+	_info_hero.hp_max_base = s_data_hero->GetHP();
+}
 
 void AHD_Hero::HeroChangeWeapon(AHD_Weapon* wp_change)
 {
@@ -72,6 +80,8 @@ void AHD_Hero::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_
 		{
 			_info_hero.hp_base = _info_hero.hp_max_base;
 		}
+
+		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetHPRate());
 		break;
 	default:
 		break;

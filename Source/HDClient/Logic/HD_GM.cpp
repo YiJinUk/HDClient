@@ -83,6 +83,7 @@ void AHD_GM::GMPostInit()
 
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(EUnitClassType::HERO);
+	_hero->HeroPostInit(_pc, _gi->GetDataHero());
 
 	/*플레이어 초기화*/
 	ChangeWeaponStartByCode("WP00101");
@@ -114,6 +115,12 @@ void AHD_GM::Tick(float DeltaTime)
 
 	//	UHD_FunctionLibrary::GPrintString(11, 1, FString::FromInt(_spawned_enemies[0]->GetInfoEnemy().as_delay), FColor::Red);
 	//}
+
+	if (_hero)
+	{
+		UHD_FunctionLibrary::GPrintString(100, 1, "HP : " + FString::FromInt(_hero->GetInfoHero().GetHPTotal()));
+		UHD_FunctionLibrary::GPrintString(101, 1, "HP Rate : " + FString::SanitizeFloat(_hero->GetInfoHero().GetHPRate()));
+	}
 
 
 	if (_info_wld.wld_status != EWorldStatus::HOME)

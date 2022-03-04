@@ -9,6 +9,7 @@
 class AHD_Weapon;
 class AHD_Enemy;
 class AHD_Unit;
+class AHD_PC;
 
 /**
  * 
@@ -20,10 +21,14 @@ class HDCLIENT_API AHD_Hero : public AHD_Friend
 
 #pragma region Init
 public:
+	void HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero);
+
 	const FInfoHero& GetInfoHero();
 private:
 	UPROPERTY()
 		FInfoHero _info_hero;
+	UPROPERTY()
+		AHD_PC* _pc = nullptr;
 #pragma endregion
 
 #pragma region Weapon

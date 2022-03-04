@@ -9,6 +9,8 @@ UHD_GI::UHD_GI()
 	if (DT_GAME.Succeeded()) { _dt_game = DT_GAME.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_WAVE(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Wave.HDDT_Wave"));
 	if (DT_WAVE.Succeeded()) { _dt_wave = DT_WAVE.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_HERO(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Hero.HDDT_Hero"));
+	if (DT_HERO.Succeeded()) { _dt_hero = DT_HERO.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_ENEMY(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Enemy.HDDT_Enemy"));
 	if (DT_ENEMY.Succeeded()) { _dt_enemy = DT_ENEMY.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_WEAPON(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Weapon.HDDT_Weapon"));
@@ -23,6 +25,7 @@ void UHD_GI::GIPostInit()
 	_dt_weapon->GetAllRows("0", _data_wps);
 	_dt_wave->GetAllRows("0", _data_waves);
 	_data_game = _dt_game->FindRow<FDataGame>("GAME00001", "0");
+	_data_hero = _dt_hero->FindRow<FDataHero>("HERO00001", "0");
 }
 
 FDataEnemy* UHD_GI::FindDataEnemyByCode(const FString& str_code_enemy) { return _dt_enemy->FindRow<FDataEnemy>(*str_code_enemy, "0"); }
@@ -32,3 +35,4 @@ FDataVFX* UHD_GI::FindDataVFXByCode(const FString& str_code_vfx) { return _dt_vf
 const TArray<FDataWeapon*>& UHD_GI::GetDataWeapons() { return _data_wps; }
 const TArray<FDataWave*>& UHD_GI::GetDataWaves() { return _data_waves; }
 FDataGame* UHD_GI::GetDataGame() { return _data_game; }
+FDataHero* UHD_GI::GetDataHero() { return _data_hero; }
