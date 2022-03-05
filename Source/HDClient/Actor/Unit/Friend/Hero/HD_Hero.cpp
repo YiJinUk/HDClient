@@ -15,15 +15,29 @@ void AHD_Hero::HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero)
 	_pc = pc;
 	_info_hero.hp_base = s_data_hero->GetHP();
 	_info_hero.hp_max_base = s_data_hero->GetHP();
+
+	_info_hero.armor_max = s_data_hero->GetArmorMax();
+	_info_hero.armor_heal_base = s_data_hero->GetArmorHeal();
+	_info_hero.armor_recovery_base = s_data_hero->GetArmorRecovery();
+	_info_hero.armor_heal_tick_max = s_data_hero->GetArmorHealTickMax();
+	_info_hero.armor_recovery_tick_max = s_data_hero->GetArmorRecoveryTickMax();
 }
 void AHD_Hero::HeroInit()
 {
 	_info_hero.hp_base = _info_hero.hp_max_base;
 	_info_hero.as_delay = 0;
+	_info_hero.armor_status = EArmorStatus::RECOVERY;
+	UnitSetStat(EUnitStatType::ARMOR, EUnitStatBy::NO, -99999);
+	UnitSetStat(EUnitStatType::ARMOR_HEAL_TICK, EUnitStatBy::NO, -99999);
+	UnitSetStat(EUnitStatType::ARMOR_RECOVERY_TICK, EUnitStatBy::NO, -99999);
 }
 void AHD_Hero::HeroWaveEndInit()
 {
 	_info_hero.as_delay = 0;
+	_info_hero.armor_status = EArmorStatus::RECOVERY;
+	UnitSetStat(EUnitStatType::ARMOR, EUnitStatBy::NO, -99999);
+	UnitSetStat(EUnitStatType::ARMOR_HEAL_TICK, EUnitStatBy::NO, -99999);
+	UnitSetStat(EUnitStatType::ARMOR_RECOVERY_TICK, EUnitStatBy::NO, -99999);
 }
 void AHD_Hero::HeroToHomeInit()
 {
@@ -38,6 +52,39 @@ void AHD_Hero::HeroChangeWeapon(AHD_Weapon* wp_change)
 	_info_hero.code_wp_equip = wp_change->GetInfoWP().code;
 	_info_hero.wp_equip = wp_change;
 	_info_hero.anim_rate_base = _info_hero.as_base / 60.f;
+}
+
+void AHD_Hero::HeroUpdateHealArmor(const uint8 i_tick_1frame)
+{
+	switch (_info_hero.armor_status)
+	{
+	case EArmorStatus::NO:
+		break;
+	case EArmorStatus::HEAL:
+		UnitSetStat(EUnitStatType::ARMOR_HEAL_TICK, EUnitStatBy::NO, i_tick_1frame);
+		if (UnitGetStat(EUnitStatType::ARMOR_HEAL_TICK) >= _info_hero.armor_heal_tick_max)
+		{
+			/*회복합니다*/
+			_info_hero.armor_heal_tick = 0;
+			UnitSetStat(EUnitStatType::ARMOR, EUnitStatBy::NO, _info_hero.GetArmorHeadTotal());
+		}
+		break;
+	case EArmorStatus::RECOVERY:
+		UnitSetStat(EUnitStatType::ARMOR_RECOVERY_TICK, EUnitStatBy::NO, i_tick_1frame);
+		if (UnitGetStat(EUnitStatType::ARMOR_RECOVERY_TICK) >= _info_hero.armor_recovery_tick_max)
+		{
+			/*회복합니다*/
+			_info_hero.armor_recovery_tick = 0;
+			UnitSetStat(EUnitStatType::ARMOR, EUnitStatBy::NO, _info_hero.GetArmorRecoveryTotal());
+
+			/*방어복구에 성공해서 방어회복모드로 변경됩니다*/
+			_info_hero.armor_status = EArmorStatus::HEAL;
+			_info_hero.armor_heal_tick = 0;
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 bool AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
@@ -81,6 +128,14 @@ void AHD_Hero::UnitDoAttackBasic(AHD_Unit* unit_target)
 	_gm->BattleSend(this, unit_target, _info_hero.GetAttackBasicDMG(), EAttackType::BASIC);
 }
 
+void AHD_Hero::UnitHit(const FBattleHitResult& s_battle_hit_result)
+{
+	if (s_battle_hit_result.is_broken_armor && _info_hero.armor_status != EArmorStatus::RECOVERY)
+	{
+		_info_hero.armor_status = EArmorStatus::RECOVERY;
+		_info_hero.armor_recovery_tick = 0;
+	}
+}
 void AHD_Hero::UnitDeath()
 {
 	_gm->WorldGameOver();
@@ -103,6 +158,33 @@ void AHD_Hero::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_
 
 		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetHPRate());
 		break;
+	case EUnitStatType::ARMOR:
+		_info_hero.armor += i_value;
+		if (_info_hero.armor <= 0)
+			_info_hero.armor = 0;
+		else if (_info_hero.armor > _info_hero.armor_max)
+			_info_hero.armor = _info_hero.armor_max;
+
+		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, _info_hero.armor);
+		break;
+	case EUnitStatType::ARMOR_HEAL_TICK:
+		_info_hero.armor_heal_tick += i_value;
+		if (_info_hero.armor_heal_tick <= 0)
+			_info_hero.armor_heal_tick = 0;
+		else if (_info_hero.armor_heal_tick > _info_hero.armor_heal_tick_max)
+			_info_hero.armor_heal_tick = _info_hero.armor_heal_tick_max;
+
+		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetArmorHealRate());
+		break;
+	case EUnitStatType::ARMOR_RECOVERY_TICK:
+		_info_hero.armor_recovery_tick += i_value;
+		if (_info_hero.armor_recovery_tick <= 0)
+			_info_hero.armor_recovery_tick = 0;
+		else if (_info_hero.armor_recovery_tick > _info_hero.armor_recovery_tick_max)
+			_info_hero.armor_recovery_tick = _info_hero.armor_recovery_tick_max;
+
+		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetArmorRecoveryRate());
+		break;
 	default:
 		break;
 	}
@@ -113,6 +195,15 @@ const int32 AHD_Hero::UnitGetStat(const EUnitStatType e_stat_type)
 	{
 	case EUnitStatType::HP:
 		return _info_hero.GetHPTotal();
+		break;
+	case EUnitStatType::ARMOR:
+		return _info_hero.armor;
+		break;
+	case EUnitStatType::ARMOR_HEAL_TICK:
+		return _info_hero.armor_heal_tick;
+		break;
+	case EUnitStatType::ARMOR_RECOVERY_TICK:
+		return _info_hero.armor_recovery_tick;
 		break;
 	default:
 		break;

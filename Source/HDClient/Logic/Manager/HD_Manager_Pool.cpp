@@ -72,7 +72,7 @@ AHD_Monster* AHD_Manager_Pool::PoolGetMOB(const FString& str_code_mob)
 		if (!s_data_mob)
 		{
 			UHD_FunctionLibrary::GPrintString(10000, 3, "AHD_Manager_Pool::PoolGetMOB Wrong MonsterCode");
-			return;
+			return nullptr;
 		}
 		AHD_Monster* mob_spawn = GetWorld()->SpawnActor<AHD_Monster>(s_data_mob->GetClassMOB(), _spawn_param); // 풀링 매니저
 		mob_spawn->UnitPostInit(EUnitClassType::ENEMY);

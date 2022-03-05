@@ -33,6 +33,9 @@ private:
 	TArray<FDamageInfo*, TInlineAllocator<5>> _pool_dmg_info_pointer;
 	TArray<FDamageResult, TInlineAllocator<5>> _pool_dmg_rlt_origin;
 	TArray<FDamageResult*, TInlineAllocator<5>> _pool_dmg_rlt_pointer;
+
+	UPROPERTY()
+		FBattleHitResult _battle_hit_result;
 #pragma endregion
 
 #pragma region Battle
@@ -42,7 +45,10 @@ private:
 	void BattleInitDMGInfo(FDamageInfo* s_dmg_info, AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type);
 	void BattleInitDMGResult(FDamageResult* s_dmg_rlt, FDamageInfo* s_dmg_info);
 
-	//void BattleGet
+	void BattleGetDMG(FDamageInfo* s_dmg_info, FDamageResult* s_dmg_rlt);
+	void BattleGetArmor(FDamageInfo* s_dmg_info, FDamageResult* s_dmg_rlt);
+
+	void BattleCalcArmor(FDamageInfo* s_dmg_info, FDamageResult* s_dmg_rlt);
 	void BattleCalcDamage(FDamageInfo* s_dmg_info, FDamageResult* s_dmg_rlt);
 
 	void BattleAppleDamage(FDamageResult* s_dmg_rlt);

@@ -32,6 +32,7 @@ enum class EWorldStatus : uint8
 	HOME, //타이틀
 	WAVE_STANDBY, //웨이브의 모든 준비를 마치고 플레이어의 웨이브 시작을 기다리는 중
 	WAVE_PLAY, //웨이브중 입니다
+	WAVE_END, //웨이브를 클리어했습니다
 
 	WORLD_GAME_OVER,//세계에서 영웅이 죽었습니다
 };
@@ -73,6 +74,9 @@ UENUM()
 enum class EUnitStatType : uint8
 {
 	HP,
+	ARMOR,
+	ARMOR_HEAL_TICK,
+	ARMOR_RECOVERY_TICK,
 };
 UENUM()
 enum class EUnitStatBy : uint8
@@ -80,6 +84,14 @@ enum class EUnitStatBy : uint8
 	NO,
 	ENEMY,
 	HERO,
+};
+
+UENUM()
+enum class EArmorStatus : uint8
+{
+	NO,//회복하지 않음
+	HEAL,//회복
+	RECOVERY,//복구
 };
 
 UENUM()
@@ -152,8 +164,24 @@ struct FDataHero : public FTableRowBase
 protected:
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _hp = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Stat.Armor")
+		int32 _armor_max = 0;
+	UPROPERTY(EditAnywhere, Category = "Stat.Armor")
+		int32 _armor_recorver = 0;
+	UPROPERTY(EditAnywhere, Category = "Stat.Armor")
+		int32 _armor_recovery_tick_max = 0;
+	UPROPERTY(EditAnywhere, Category = "Stat.Armor")
+		int32 _armor_heal = 0;
+	UPROPERTY(EditAnywhere, Category = "Stat.Armor")
+		int32 _armor_heal_tick_max = 0;
 public:
 	FORCEINLINE const int32 GetHP() { return _hp; }
+	FORCEINLINE const int32 GetArmorMax() { return _armor_max; }
+	FORCEINLINE const int32 GetArmorRecovery() { return _armor_recorver; }
+	FORCEINLINE const int32 GetArmorRecoveryTickMax() { return _armor_recovery_tick_max; }
+	FORCEINLINE const int32 GetArmorHeal() { return _armor_heal; }
+	FORCEINLINE const int32 GetArmorHealTickMax() { return _armor_heal_tick_max; }
 };
 USTRUCT(BlueprintType)
 struct FDataMonster : public FTableRowBase
@@ -380,6 +408,25 @@ public:
 	UPROPERTY()
 		int32 as_delay = 0;
 
+	UPROPERTY()
+		EArmorStatus armor_status = EArmorStatus::HEAL;
+	UPROPERTY()
+		int32 armor = 0;
+	UPROPERTY()
+		int32 armor_max = 0;
+	UPROPERTY()
+		int32 armor_heal_base = 0;
+	UPROPERTY()
+		int32 armor_recovery_base = 0;
+	UPROPERTY()
+		int32 armor_heal_tick = 0;
+	UPROPERTY()
+		int32 armor_heal_tick_max = 0;
+	UPROPERTY()
+		int32 armor_recovery_tick = 0;
+	UPROPERTY()
+		int32 armor_recovery_tick_max = 0;
+
 
 	UPROPERTY()
 		float anim_rate_base = 0.f;
@@ -392,10 +439,15 @@ public:
 	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
 	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
+	FORCEINLINE const int32 GetArmorHeadTotal() const { return armor_heal_base; }
+	FORCEINLINE const int32 GetArmorRecoveryTotal() const { return armor_recovery_base; }
 
 	FORCEINLINE const float GetHPRate() const { return (float)GetHPTotal() / (float)GetHPMaxTotal(); }
 	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
 	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
+
+	FORCEINLINE const float GetArmorHealRate() const { return (float)armor_heal_tick / (float)armor_heal_tick_max; }
+	FORCEINLINE const float GetArmorRecoveryRate() const { return (float)armor_recovery_tick / (float)armor_recovery_tick_max; }
 };
 
 USTRUCT()
@@ -517,6 +569,22 @@ public:
 };
 
 USTRUCT()
+struct FBattleHitResult
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		bool is_broken_armor = false;
+
+public:
+	void InitBattleHitResult()
+	{
+		is_broken_armor = false;
+	}
+};
+
+USTRUCT()
 struct FDamageInfo
 {
 	GENERATED_BODY()
@@ -552,7 +620,22 @@ public:
 		AHD_Unit* def = nullptr;
 
 	UPROPERTY()
-		int32 dmg_rlt = 0;
+		int32 dmg_base = 0;
+	UPROPERTY()
+		int32 dmg_sum = 0;
+	UPROPERTY()
+		int32 dmg_hp_rlt = 0;
+	UPROPERTY()
+		int32 dmg_armor_rlt = 0;
+
+	UPROPERTY()
+		int32 atk_armor_base = 0;
+	UPROPERTY()
+		int32 atk_armor_rlt = 0;
+	UPROPERTY()
+		int32 def_armor_base = 0;
+	UPROPERTY()
+		int32 def_armor_rlt = 0;
 
 public:
 	void InitDamageResult()
@@ -560,6 +643,15 @@ public:
 		atk = nullptr;
 		def = nullptr;
 
-		dmg_rlt = 0;
+		dmg_base = 0;
+		dmg_sum = 0;
+		dmg_hp_rlt = 0;
+		dmg_armor_rlt = 0;
+
+		atk_armor_base = 0;
+		atk_armor_rlt = 0;
+
+		def_armor_base = 0;
+		def_armor_rlt = 0;
 	}
 };

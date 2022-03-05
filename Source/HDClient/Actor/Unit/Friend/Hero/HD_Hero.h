@@ -39,6 +39,11 @@ public:
 	void HeroChangeWeapon(AHD_Weapon* wp_change);
 #pragma endregion
 
+#pragma region Armor
+public:
+	void HeroUpdateHealArmor(const uint8 i_tick_1frame);
+#pragma endregion
+
 #pragma region Attack.Basic
 public:
 	bool HeroUpdateAS(const uint8 i_tick_1frame);
@@ -52,6 +57,7 @@ public:
 
 #pragma region Death
 private:
+	void UnitHit(const FBattleHitResult& s_battle_hit_result) override;
 	void UnitDeath() override;
 #pragma endregion
 

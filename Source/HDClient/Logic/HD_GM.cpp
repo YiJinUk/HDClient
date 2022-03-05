@@ -129,6 +129,7 @@ void AHD_GM::Tick(float DeltaTime)
 		TickCheckSpawnEnemy();
 		TickEnemyMoveAndAttack(DeltaTime);
 		TickPROJMoveAndAttack(DeltaTime);
+		TickHeroHealArmor();
 		TickHeroAttack();
 		TickCheckWaveEnd();
 		break;
@@ -187,6 +188,14 @@ void AHD_GM::TickPROJMoveAndAttack(const float f_delta_time)
 	{
 		(*proj)->PROJMoveAndAttack(f_delta_time);
 	}
+}
+void AHD_GM::TickFriendMP()
+{
+
+}
+void AHD_GM::TickHeroHealArmor()
+{
+	_hero->HeroUpdateHealArmor(_info_wld.tick_unit_by_1frame);
 }
 void AHD_GM::TickHeroAttack()
 {
@@ -303,6 +312,7 @@ void AHD_GM::WaveStart()
 }
 void AHD_GM::WaveEnd()
 {
+	_info_wld.wld_status = EWorldStatus::WAVE_END;
 	_hero->HeroWaveEndInit();
 	_pc->PCWaveEnd();
 }

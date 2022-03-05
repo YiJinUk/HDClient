@@ -50,8 +50,9 @@ protected:
 	bool UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_delay, const int32 i_as_delay_total, const uint8 i_tick_1frame);
 #pragma endregion
 
-#pragma region Death
+#pragma region Hit,Death
 public:
+	virtual void UnitHit(const FBattleHitResult& s_battle_hit_result);
 	virtual void UnitDeath();
 #pragma endregion
 

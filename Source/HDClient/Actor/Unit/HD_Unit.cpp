@@ -86,10 +86,8 @@ bool AHD_Unit::UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_
 		return false;
 }
 
-void AHD_Unit::UnitDeath()
-{
-	//override
-}
+void AHD_Unit::UnitHit(const FBattleHitResult& s_battle_hit_result) {	/*override*/ }
+void AHD_Unit::UnitDeath() {	/*override*/ }
 
 void AHD_Unit::UnitDoAttackBasic(AHD_Unit* unit_target) {/*override*/ }
 void AHD_Unit::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value) {	/*override*/ }

@@ -69,6 +69,13 @@ void UHD_UI_Main::UIMainUpdateStat(const EUnitStatType e_unit_stat_type, const E
 	case EUnitStatType::HP:
 		_ui_info_bottom->InfoBottomSetHPBar(f_value);
 		break;
+	case EUnitStatType::ARMOR_HEAL_TICK:
+	case EUnitStatType::ARMOR_RECOVERY_TICK:
+		_ui_info_bottom->InfoBottomSetArmorBar(f_value);
+		break;
+	case EUnitStatType::ARMOR:
+		_ui_info_bottom->InfoBottomSetArmorText(i_value);
+		break;
 	default:
 		break;
 	}
