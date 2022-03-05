@@ -82,6 +82,7 @@ bool AHD_Projectile::PROJMove(const float f_delta_time)
 	case EPROJMoveType::TO_TARGET:
 		if (!_info_proj.target || !_info_proj.target->GetInfoUnit().is_hit_valid)
 		{
+			PROJFinish();
 			return false;
 		}
 		else
