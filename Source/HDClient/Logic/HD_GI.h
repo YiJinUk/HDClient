@@ -24,7 +24,7 @@ public:
 
 #pragma region Data
 public:
-	FDataEnemy* FindDataEnemyByCode(const FString& str_code_enemy);
+	FDataMonster* FindDataMOBByCode(const FString& str_code_mob);
 	FDataProjectile* FindDataPROJByCode(const FString& str_code_proj);
 	FDataVFX* FindDataVFXByCode(const FString& str_code_vfx);
 
@@ -36,7 +36,7 @@ private:
 	UDataTable* _dt_game = nullptr;
 	UDataTable* _dt_wave = nullptr;
 	UDataTable* _dt_hero = nullptr;
-	UDataTable* _dt_enemy = nullptr;
+	UDataTable* _dt_mob = nullptr;
 	UDataTable* _dt_weapon = nullptr;
 	UDataTable* _dt_proj = nullptr;
 	UDataTable* _dt_vfx = nullptr;

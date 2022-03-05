@@ -3,7 +3,7 @@
 
 #include "Actor/Object/Projectile/HD_Projectile.h"
 #include "Actor/Unit/HD_Unit.h"
-#include "Actor/Unit/Enemy/HD_Enemy.h"
+#include "Actor/Unit/Monster/HD_Monster.h"
 #include "Logic/HD_FunctionLibrary.h"
 #include "Logic/HD_GM.h"
 #include "Logic/HD_GI.h"
@@ -123,7 +123,7 @@ void AHD_Projectile::PROJDetect()
 	{
 		if (_info_proj.owner->GetInfoUnit().unit_type == EUnitClassType::HERO)
 		{
-			AHD_Unit* unit_target = _gm->FindEnemyNearByV2(GetActorLocation2D());
+			AHD_Unit* unit_target = _gm->FindMOBNearByV2(GetActorLocation2D());
 			if (unit_target && UHD_FunctionLibrary::GetDistance2DByVector(GetActorLocation2D(), unit_target->GetActorLocation2D()) <= _info_proj.detect_range)
 			{
 				PROJAttack(unit_target);

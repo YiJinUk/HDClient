@@ -35,7 +35,7 @@ void AHD_Weapon::WPSetActiveTick(const bool b_is_active)
 	}
 }
 
-void AHD_Weapon::WPAttackBasic(AHD_Enemy* target)
+void AHD_Weapon::WPAttackBasic(AHD_Monster* target)
 {
 	//override
 }

@@ -4,22 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "UI/HD_UI_Master.h"
-#include "HD_UI_Enemy_HeadUp.generated.h"
+#include "HD_UI_Monster_HeadUp.generated.h"
 
 class UProgressBar;
-class AHD_Enemy;
+class AHD_Monster;
 
 /**
  * 
  */
 UCLASS()
-class HDCLIENT_API UHD_UI_Enemy_HeadUp : public UHD_UI_Master
+class HDCLIENT_API UHD_UI_Monster_HeadUp : public UHD_UI_Master
 {
 	GENERATED_BODY()
 
 #pragma region Init
 public:
-	void UIEnemyHeadUpInit(AHD_Enemy* enemy_owner);
+	void UIEnemyHeadUpInit(AHD_Monster* mob_owner);
 private:
 	UPROPERTY(Meta = (BindWidget))
 		UProgressBar* _hp_bar;

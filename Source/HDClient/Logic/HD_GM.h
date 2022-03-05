@@ -13,7 +13,7 @@ class AHD_Unit;
 class AHD_Hero;
 class AHD_MagicStone;
 class AHD_Companion;
-class AHD_Enemy;
+class AHD_Monster;
 class AHD_Manager_Pool;
 class AHD_Manager_Battle;
 class AHD_Manager_Weapon;
@@ -134,18 +134,18 @@ private:
 	AHD_Companion* _cpan = nullptr;
 #pragma endregion
 
-#pragma region Enemy
+#pragma region Monster
 public:
-	void EnemySpawn(const FString& str_code_enemy);
-	void EnemyDeath(AHD_Enemy* enemy_death);
+	void MOBSpawn(const FString& str_code_mob);
+	void MOBDeath(AHD_Monster* mob_death);
 
-	AHD_Enemy* FindEnemyFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except = 0);
-	AHD_Enemy* FindEnemyNearByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except = 0);
+	AHD_Monster* FindMOBFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_mob_except = 0);
+	AHD_Monster* FindMOBNearByV2(const FVector2D& v2_loc_center, const int64 i_id_mob_except = 0);
 private:
-	void EnemyRemoveSpawnedById(const int64 i_id_enemy);
+	void MOBRemoveSpawnedById(const int64 i_id_mob);
 private:
 	UPROPERTY()
-		TArray<AHD_Enemy*> _spawned_enemies;
+		TArray<AHD_Monster*> _spawned_monsters;
 #pragma endregion
 
 #pragma region Weapon

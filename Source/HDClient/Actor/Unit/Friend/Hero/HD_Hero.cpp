@@ -3,7 +3,7 @@
 
 #include "Actor/Unit/Friend/Hero/HD_Hero.h"
 #include "Actor/Unit/HD_Unit.h"
-#include "Actor/Unit/Enemy/HD_Enemy.h"
+#include "Actor/Unit/Monster/HD_Monster.h"
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Logic/Animation/HD_AM.h"
 #include "Logic/HD_FunctionLibrary.h"
@@ -44,7 +44,7 @@ bool AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
 {
 	return UnitUpdateAS(_info_hero.atk_basic_status, _info_hero.as_delay, _info_hero.GetASTotalDelay(), i_tick_1frame);
 }
-void AHD_Hero::HeroAttackBasicStart(AHD_Enemy* target)
+void AHD_Hero::HeroAttackBasicStart(AHD_Monster* target)
 {
 	if (target)
 	{

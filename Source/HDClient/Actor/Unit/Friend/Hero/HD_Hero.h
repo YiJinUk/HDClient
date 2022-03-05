@@ -7,7 +7,7 @@
 #include "HD_Hero.generated.h"
 
 class AHD_Weapon;
-class AHD_Enemy;
+class AHD_Monster;
 class AHD_Unit;
 class AHD_PC;
 
@@ -44,7 +44,7 @@ public:
 	bool HeroUpdateAS(const uint8 i_tick_1frame);
 
 	//기본공격을 시작합니다
-	void HeroAttackBasicStart(AHD_Enemy* target);
+	void HeroAttackBasicStart(AHD_Monster* target);
 	//기본공격애니메이션중 공격피해를 시도합니다
 	void HeroAttackBasicNotify();
 	void UnitDoAttackBasic(AHD_Unit* unit_target) override;

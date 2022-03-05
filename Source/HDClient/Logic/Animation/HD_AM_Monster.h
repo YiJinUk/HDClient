@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Logic/Animation/HD_AM.h"
-#include "HD_AM_Enemy.generated.h"
+#include "HD_AM_Monster.generated.h"
 
-class AHD_Enemy;
+class AHD_Monster;
 
 /**
  * 
  */
 UCLASS()
-class HDCLIENT_API UHD_AM_Enemy : public UHD_AM
+class HDCLIENT_API UHD_AM_Monster : public UHD_AM
 {
 	GENERATED_BODY()
 public:
@@ -22,7 +22,7 @@ private:
 		void OnAnimationFinished(UAnimMontage* Montage, bool bInterrupted);
 private:
 	UPROPERTY()
-		AHD_Enemy* _owner = nullptr;
+		AHD_Monster* _owner = nullptr;
 
 public:
 	UFUNCTION(BlueprintCallable)

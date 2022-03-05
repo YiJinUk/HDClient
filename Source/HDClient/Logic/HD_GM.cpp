@@ -8,7 +8,7 @@
 #include "Actor/Unit/Friend/Hero/HD_Hero.h"
 #include "Actor/Unit/Friend/MagicStone/HD_MagicStone.h"
 #include "Actor/Unit/Friend/Companion/HD_Companion.h"
-#include "Actor/Unit/Enemy/HD_Enemy.h"
+#include "Actor/Unit/Monster/HD_Monster.h"
 
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Actor/Object/Projectile/HD_Projectile.h"
@@ -96,11 +96,11 @@ void AHD_GM::Tick(float DeltaTime)
 	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
 	if (enumPtr)
 	{
-		if (_spawned_enemies.Num() >= 1)
+		if (_spawned_monsters.Num() >= 1)
 		{
-			FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_enemies[0]->GetInfoEnemy().atk_basic_status);
+			FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_monsters[0]->GetInfoMOB().atk_basic_status);
 			UHD_FunctionLibrary::GPrintString(10, 1, str_enum, FColor::Red);
-			UHD_FunctionLibrary::GPrintString(11, 1, FString::FromInt(_spawned_enemies[0]->GetInfoEnemy().as_delay), FColor::Red);
+			UHD_FunctionLibrary::GPrintString(11, 1, FString::FromInt(_spawned_monsters[0]->GetInfoMOB().as_delay), FColor::Red);
 		}
 		if (_hero)
 		{
@@ -150,7 +150,7 @@ void AHD_GM::TickCheckSpawnEnemy()
 		{
 			if (s_wave_spawn_enemy.count >= 1)
 			{
-				EnemySpawn(s_wave_spawn_enemy.code);
+				MOBSpawn(s_wave_spawn_enemy.code);
 				--s_wave_spawn_enemy.count;
 				break;
 			}
@@ -159,23 +159,23 @@ void AHD_GM::TickCheckSpawnEnemy()
 }
 void AHD_GM::TickEnemyMoveAndAttack(const float f_delta_time)
 {
-	if (_spawned_enemies.Num() <= 0) return;
-	AHD_Enemy* enemy = nullptr;
-	for (int32 i = _spawned_enemies.Num() - 1; i >= 0; --i)
+	if (_spawned_monsters.Num() <= 0) return;
+	AHD_Monster* mob = nullptr;
+	for (int32 i = _spawned_monsters.Num() - 1; i >= 0; --i)
 	{
-		enemy = _spawned_enemies[i];
-		if (enemy->GetInfoEnemy().is_can_move >= 0)
+		mob = _spawned_monsters[i];
+		if (mob->GetInfoMOB().is_can_move >= 0)
 		{
-			enemy->EnemyMove(f_delta_time,
-				_spline_component->GetLocationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World),
-				_spline_component->GetRotationAtDistanceAlongSpline(enemy->GetInfoEnemy().lane_dist, ESplineCoordinateSpace::World)
+			mob->MOBMove(f_delta_time,
+				_spline_component->GetLocationAtDistanceAlongSpline(mob->GetInfoMOB().lane_dist, ESplineCoordinateSpace::World),
+				_spline_component->GetRotationAtDistanceAlongSpline(mob->GetInfoMOB().lane_dist, ESplineCoordinateSpace::World)
 			);
 		}
 		
 
-		if (enemy->EnemyUpdateAS(_info_wld.tick_unit_by_1frame))
+		if (mob->MOBUpdateAS(_info_wld.tick_unit_by_1frame))
 		{
-			enemy->EnemyAttackBasicStart(_hero);
+			mob->MOBAttackBasicStart(_hero);
 		}
 	}
 }
@@ -194,12 +194,12 @@ void AHD_GM::TickHeroAttack()
 	if (_hero->HeroUpdateAS(_info_wld.tick_unit_by_1frame))
 	{
 		/*타겟을 찾고 영웅에게 넘겨줌*/
-		_hero->HeroAttackBasicStart(FindEnemyFirstByV2(_hero->GetActorLocation2D()));
+		_hero->HeroAttackBasicStart(FindMOBFirstByV2(_hero->GetActorLocation2D()));
 	}
 }
 void AHD_GM::TickCheckWaveEnd()
 {
-	if (_spawned_enemies.Num() >= 1) return;
+	if (_spawned_monsters.Num() >= 1) return;
 	for (FDataWaveSpawnEnemy& s_wave_spawn_enemy : _wave_spawn_enemies)
 	{
 		if (s_wave_spawn_enemy.count >= 1)
@@ -254,16 +254,16 @@ void AHD_GM::WorldGameOver()
 }
 void AHD_GM::WorldReturnToHome()
 {
-	if (_spawned_enemies.Num() >= 1)
+	if (_spawned_monsters.Num() >= 1)
 	{
-		AHD_Enemy* enemy = nullptr;
-		for (int32 i = _spawned_enemies.Num() - 1; i >= 0; --i)
+		AHD_Monster* mob = nullptr;
+		for (int32 i = _spawned_monsters.Num() - 1; i >= 0; --i)
 		{
-			enemy = _spawned_enemies[i];
-			enemy->EnemyToHomeInit();
-			enemy->UnitDeath();
+			mob = _spawned_monsters[i];
+			mob->MOBToHomeInit();
+			mob->UnitDeath();
 		}
-		//_spawned_enemies.Empty(50);
+		//_spawned_monsters.Empty(50);
 	}
 	if (_spawned_projs.Num() >= 1)
 	{
@@ -331,82 +331,82 @@ void AHD_GM::WaveNext()
 	}
 }
 
-void AHD_GM::EnemySpawn(const FString& str_code_enemy)
+void AHD_GM::MOBSpawn(const FString& str_code_mob)
 {
-	AHD_Enemy* enemy_spawn = _manager_pool->PoolGetEnemy(str_code_enemy);
-	if (!enemy_spawn) return;
+	AHD_Monster* mob_spawn = _manager_pool->PoolGetMOB(str_code_mob);
+	if (!mob_spawn) return;
 
-	enemy_spawn->EnemyInit(IdGenerate(), _gi->GetDataGame()->GetEnemySpawnLocation());
+	mob_spawn->MOBInit(IdGenerate(), _gi->GetDataGame()->GetEnemySpawnLocation());
 
-	_spawned_enemies.Add(enemy_spawn);
+	_spawned_monsters.Add(mob_spawn);
 }
-void AHD_GM::EnemyDeath(AHD_Enemy* enemy_death)
+void AHD_GM::MOBDeath(AHD_Monster* mob_death)
 {
-	EnemyRemoveSpawnedById(enemy_death->GetInfoEnemy().id);
-	_manager_pool->PoolEnemyDeath(enemy_death);
+	MOBRemoveSpawnedById(mob_death->GetInfoMOB().id);
+	_manager_pool->PoolMOBDeath(mob_death);
 }
-void AHD_GM::EnemyRemoveSpawnedById(const int64 i_id_enemy)
+void AHD_GM::MOBRemoveSpawnedById(const int64 i_id_mob)
 {
-	if (_spawned_enemies.Num() <= 0) return;
-	AHD_Enemy* enemy = nullptr;
-	for (int32 i = 0, i_len = _spawned_enemies.Num(); i < i_len; ++i)
+	if (_spawned_monsters.Num() <= 0) return;
+	AHD_Monster* mob = nullptr;
+	for (int32 i = 0, i_len = _spawned_monsters.Num(); i < i_len; ++i)
 	{
-		enemy = _spawned_enemies[i];
-		if (enemy && enemy->GetInfoEnemy().id == i_id_enemy)
+		mob = _spawned_monsters[i];
+		if (mob && mob->GetInfoMOB().id == i_id_mob)
 		{
-			_spawned_enemies.RemoveAtSwap(i);
+			_spawned_monsters.RemoveAtSwap(i);
 			return;
 		}
 	}
 }
-AHD_Enemy* AHD_GM::FindEnemyFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except)
+AHD_Monster* AHD_GM::FindMOBFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_mob_except)
 {
-	AHD_Enemy* enemy_target_candidate = nullptr;
+	AHD_Monster* mob_target_candidate = nullptr;
 	//개미의 이동거리. 가장 많이 이동한 개미가 후보입니다
 	int16 i_travel_dist_candidate = 0;
 	int16 i_travel_dist_total_tmp = 0;
 
-	for (AHD_Enemy* enemy_spawned : _spawned_enemies)
+	for (AHD_Monster* mob_spawned : _spawned_monsters)
 	{
 		/*개미가 유효한지*/
-		if (enemy_spawned && enemy_spawned->GetInfoUnit().is_hit_valid && enemy_spawned->GetInfoEnemy().id != i_id_enemy_except)
+		if (mob_spawned && mob_spawned->GetInfoUnit().is_hit_valid && mob_spawned->GetInfoMOB().id != i_id_mob_except)
 		{
 			/*개미의 이동거리가 타겟후보보다 더 이동했는지*/
-			i_travel_dist_total_tmp = enemy_spawned->GetInfoEnemy().lane_dist;
+			i_travel_dist_total_tmp = mob_spawned->GetInfoMOB().lane_dist;
 			if (i_travel_dist_total_tmp > i_travel_dist_candidate)
 			{
 				i_travel_dist_candidate = i_travel_dist_total_tmp;
-				enemy_target_candidate = enemy_spawned;
+				mob_target_candidate = mob_spawned;
 			}
 		}
 	}
 
-	return enemy_target_candidate;
+	return mob_target_candidate;
 }
-AHD_Enemy* AHD_GM::FindEnemyNearByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except)
+AHD_Monster* AHD_GM::FindMOBNearByV2(const FVector2D& v2_loc_center, const int64 i_id_mob_except)
 {
-	AHD_Enemy* enemy_target_candidate = nullptr;
+	AHD_Monster* mob_target_candidate = nullptr;
 	//나비와 개미의 거리. 거리간격이 좁을수록 후보입니다
 	int16 i_dist_candidate = 30000;
 	int16 i_dist_candidate_tmp = 0;
 
-	for (AHD_Enemy* enemy_spawned : _spawned_enemies)
+	for (AHD_Monster* mob_spawned : _spawned_monsters)
 	{
 		/*개미가 유효한지*/
-		if (enemy_spawned && enemy_spawned->GetInfoUnit().is_hit_valid && enemy_spawned->GetInfoEnemy().id != i_id_enemy_except)
+		if (mob_spawned && mob_spawned->GetInfoUnit().is_hit_valid && mob_spawned->GetInfoMOB().id != i_id_mob_except)
 		{
 			/*가장 가까운 개미인지*/
-			i_dist_candidate_tmp = UHD_FunctionLibrary::GetDistance2DByVector(v2_loc_center, enemy_spawned->GetActorLocation2D());
+			i_dist_candidate_tmp = UHD_FunctionLibrary::GetDistance2DByVector(v2_loc_center, mob_spawned->GetActorLocation2D());
 
 			if (i_dist_candidate_tmp < i_dist_candidate)
 			{
 				i_dist_candidate = i_dist_candidate_tmp;
-				enemy_target_candidate = enemy_spawned;
+				mob_target_candidate = mob_spawned;
 			}
 		}
 	}
 
-	return enemy_target_candidate;
+	return mob_target_candidate;
 }
 
 void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)

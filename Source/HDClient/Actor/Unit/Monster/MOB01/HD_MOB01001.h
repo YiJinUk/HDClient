@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actor/Unit/Enemy/HD_Enemy.h"
-#include "HD_ENEMY01001.generated.h"
+#include "Actor/Unit/Monster/HD_Monster.h"
+#include "HD_MOB01001.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HDCLIENT_API AHD_ENEMY01001 : public AHD_Enemy
+class HDCLIENT_API AHD_MOB01001 : public AHD_Monster
 {
 	GENERATED_BODY()
 	
 protected:
-	void EnemyAttackBasic() override;
+	void MOBAttackBasic() override;
 };

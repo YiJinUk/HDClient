@@ -7,7 +7,7 @@
 #include "HD_Weapon.generated.h"
 
 class AHD_GM;
-class AHD_Enemy;
+class AHD_Monster;
 class AHD_Hero;
 
 /**
@@ -35,6 +35,6 @@ protected:
 
 #pragma region Attack.Basic
 public:
-	virtual void WPAttackBasic(AHD_Enemy* target);
+	virtual void WPAttackBasic(AHD_Monster* target);
 #pragma endregion
 };

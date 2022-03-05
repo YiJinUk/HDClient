@@ -11,7 +11,7 @@
 class UAnimMontage;
 class UParticleSystem;
 class AHD_Weapon;
-class AHD_Enemy;
+class AHD_Monster;
 class AHD_Projectile;
 class AHD_Unit;
 class AHD_Hero;
@@ -156,13 +156,13 @@ public:
 	FORCEINLINE const int32 GetHP() { return _hp; }
 };
 USTRUCT(BlueprintType)
-struct FDataEnemy : public FTableRowBase
+struct FDataMonster : public FTableRowBase
 {
 	GENERATED_BODY()
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "General")
-		TSubclassOf<AHD_Enemy> _class_enemy;
+		TSubclassOf<AHD_Monster> _class_monster;
 	UPROPERTY(EditAnywhere, Category = "General")
 		FString _code = "0";
 
@@ -181,7 +181,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 		UAnimMontage* _anim_attack_basic = nullptr;
 public:
-	FORCEINLINE const TSubclassOf<AHD_Enemy>& GetClassEnemy() { return _class_enemy; }
+	FORCEINLINE const TSubclassOf<AHD_Monster>& GetClassMOB() { return _class_monster; }
 	FORCEINLINE const FString& GetCode() { return _code; }
 	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
 	FORCEINLINE const int32 GetHP() { return _hp; }
@@ -385,7 +385,7 @@ public:
 		float anim_rate_base = 0.f;
 
 	UPROPERTY()
-		AHD_Enemy* target = nullptr;
+		AHD_Monster* target = nullptr;
 public:
 	FORCEINLINE const int32 GetHPTotal() const { return hp_base; }
 	FORCEINLINE const int32 GetHPMaxTotal() const { return hp_max_base; }
@@ -399,7 +399,7 @@ public:
 };
 
 USTRUCT()
-struct FInfoEnemy
+struct FInfoMonster
 {
 	GENERATED_BODY()
 

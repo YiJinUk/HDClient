@@ -10,10 +10,10 @@
 class UHD_GI;
 class AHD_GM;
 class AHD_Weapon;
-class AHD_Enemy;
+class AHD_Monster;
 class AHD_Projectile;
 
-/**
+/**PoolGetMOB
  * 
  */
 UCLASS()
@@ -48,14 +48,14 @@ private:
 
 #pragma region Enemy
 public:
-	AHD_Enemy* PoolGetEnemy(const FString& str_code_enemy);
-	void PoolEnemyDeath(AHD_Enemy* enemy);
+	AHD_Monster* PoolGetMOB(const FString& str_code_mob);
+	void PoolMOBDeath(AHD_Monster* mob);
 private:
-	void PoolInEnemy(AHD_Enemy* enemy);
+	void PoolInMOB(AHD_Monster* mob);
 private:
-	TMap<FString, TArray<AHD_Enemy*>> _pool_enemy;
+	TMap<FString, TArray<AHD_Monster*>> _pool_mob;
 	UPROPERTY()
-		TArray<AHD_Enemy*> _q_death_enemy;
+		TArray<AHD_Monster*> _q_death_mob;
 #pragma endregion
 
 #pragma region Projectile

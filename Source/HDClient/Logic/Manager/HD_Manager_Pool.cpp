@@ -2,11 +2,12 @@
 
 
 #include "Logic/Manager/HD_Manager_Pool.h"
+#include "Logic/HD_FunctionLibrary.h"
 #include "Logic/HD_GI.h"
 #include "Logic/HD_GM.h"
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Actor/Object/Projectile/HD_Projectile.h"
-#include "Actor/Unit/Enemy/HD_Enemy.h"
+#include "Actor/Unit/Monster/HD_Monster.h"
 
 AHD_Manager_Pool::AHD_Manager_Pool()
 {
@@ -30,14 +31,14 @@ void AHD_Manager_Pool::PoolPostInit(UHD_GI* gi, AHD_GM* gm)
 
 void AHD_Manager_Pool::PoolTick()
 {
-	AHD_Enemy* enemy = nullptr;
-	for (int32 i = _q_death_enemy.Num() - 1; i >= 0; --i)
+	AHD_Monster* mob = nullptr;
+	for (int32 i = _q_death_mob.Num() - 1; i >= 0; --i)
 	{
-		enemy = _q_death_enemy[i];
-		if (enemy->EnemyUpdateDeathToPool())
+		mob = _q_death_mob[i];
+		if (mob->MOBUpdateDeathToPool())
 		{
-			PoolInEnemy(enemy);
-			_q_death_enemy.RemoveAt(i);
+			PoolInMOB(mob);
+			_q_death_mob.RemoveAt(i);
 		}
 	}
 }
@@ -61,32 +62,37 @@ void AHD_Manager_Pool::PoolInWeapon(AHD_Weapon* wp)
 	_pool_wp_only_equip.Add(wp);
 }
 
-AHD_Enemy* AHD_Manager_Pool::PoolGetEnemy(const FString& str_code_enemy)
+AHD_Monster* AHD_Manager_Pool::PoolGetMOB(const FString& str_code_mob)
 {
-	TArray<AHD_Enemy*>* arr_pool_enemy = _pool_enemy.Find(str_code_enemy);
+	TArray<AHD_Monster*>* arr_pool_mob = _pool_mob.Find(str_code_mob);
 
-	if (!arr_pool_enemy || arr_pool_enemy->Num() <= 0)
+	if (!arr_pool_mob || arr_pool_mob->Num() <= 0)
 	{
-		FDataEnemy* s_data_enemy = _gi->FindDataEnemyByCode(str_code_enemy);
-		AHD_Enemy* enemy_spawn = GetWorld()->SpawnActor<AHD_Enemy>(s_data_enemy->GetClassEnemy(), _spawn_param); // 풀링 매니저
-		enemy_spawn->UnitPostInit(EUnitClassType::ENEMY);
-		enemy_spawn->EnemyPostInit(s_data_enemy);
-		return enemy_spawn;
+		FDataMonster* s_data_mob = _gi->FindDataMOBByCode(str_code_mob);
+		if (!s_data_mob)
+		{
+			UHD_FunctionLibrary::GPrintString(10000, 3, "AHD_Manager_Pool::PoolGetMOB Wrong MonsterCode");
+			return;
+		}
+		AHD_Monster* mob_spawn = GetWorld()->SpawnActor<AHD_Monster>(s_data_mob->GetClassMOB(), _spawn_param); // 풀링 매니저
+		mob_spawn->UnitPostInit(EUnitClassType::ENEMY);
+		mob_spawn->MOBPostInit(s_data_mob);
+		return mob_spawn;
 	}
 	else
 	{
-		return arr_pool_enemy->Pop();
+		return arr_pool_mob->Pop();
 	}
 }
-void AHD_Manager_Pool::PoolEnemyDeath(AHD_Enemy* enemy)
+void AHD_Manager_Pool::PoolMOBDeath(AHD_Monster* mob)
 {
-	_q_death_enemy.Add(enemy);
+	_q_death_mob.Add(mob);
 }
-void AHD_Manager_Pool::PoolInEnemy(AHD_Enemy* enemy)
+void AHD_Manager_Pool::PoolInMOB(AHD_Monster* mob)
 {
-	if (!enemy) return;
-	enemy->UnitSetActiveTick(false);
-	_pool_enemy.FindOrAdd(enemy->GetInfoEnemy().code);
+	if (!mob) return;
+	mob->UnitSetActiveTick(false);
+	_pool_mob.FindOrAdd(mob->GetInfoMOB().code);
 }
 
 AHD_Projectile* AHD_Manager_Pool::PoolGetPROJ(FDataProjectile* s_data_proj)

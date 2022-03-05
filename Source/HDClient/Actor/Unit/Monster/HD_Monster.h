@@ -4,69 +4,69 @@
 
 #include "CoreMinimal.h"
 #include "Actor/Unit/HD_Unit.h"
-#include "HD_Enemy.generated.h"
+#include "HD_Monster.generated.h"
 
-class UHD_UI_Enemy_HeadUp;
-class UHD_AM_Enemy;
+class UHD_UI_Monster_HeadUp;
+class UHD_AM_Monster;
 
 /**
  * 
  */
 UCLASS()
-class HDCLIENT_API AHD_Enemy : public AHD_Unit
+class HDCLIENT_API AHD_Monster : public AHD_Unit
 {
 	GENERATED_BODY()
 	
 #pragma region Init
 public:
-	AHD_Enemy(FObjectInitializer const& object_initializer);
-	void EnemyPostInit(FDataEnemy* s_data_enemy);
-	void EnemyInit(const int64 i_id, const FVector v_loc_spawn);
-	void EnemyToHomeInit();
+	AHD_Monster(FObjectInitializer const& object_initializer);
+	void MOBPostInit(FDataMonster* s_data_enemy);
+	void MOBInit(const int64 i_id, const FVector v_loc_spawn);
+	void MOBToHomeInit();
 
-	const FInfoEnemy& GetInfoEnemy();
+	const FInfoMonster& GetInfoMOB();
 private:
 	void UnitSetActiveTickChild(const bool b_is_active) override;
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class UWidgetComponent* _ui_headup = nullptr;
 	UPROPERTY()
-		UHD_UI_Enemy_HeadUp* _ui_enemy_headup = nullptr;
+		UHD_UI_Monster_HeadUp* _ui_monster_headup = nullptr;
 	UPROPERTY()
-		UHD_AM_Enemy* _anim_instance_enemy = nullptr;
+		UHD_AM_Monster* _anim_instance_monster = nullptr;
 
 	UPROPERTY()
-		FInfoEnemy _info_enemy;
+		FInfoMonster _info_monster;
 #pragma endregion
 
 #pragma region Move
 public:
-	void EnemyMove(const float f_delta_time, const FVector& v_loc_move, const FRotator& r_rot);
+	void MOBMove(const float f_delta_time, const FVector& v_loc_move, const FRotator& r_rot);
 #pragma endregion
 
 #pragma region Attack.Basic
 public:
-	bool EnemyUpdateAS(const uint8 i_tick_1frame);
+	bool MOBUpdateAS(const uint8 i_tick_1frame);
 	//기본공격을 시작합니다
-	void EnemyAttackBasicStart(AHD_Hero* target);
+	void MOBAttackBasicStart(AHD_Hero* target);
 	//기본공격애니메이션중 공격피해를 시도합니다
-	void EnemyAttackBasicNotify();
+	void MOBAttackBasicNotify();
 	void UnitDoAttackBasic(AHD_Unit* unit_target) override;
 	
 
 protected:
-	virtual void EnemyAttackBasic();
+	virtual void MOBAttackBasic();
 #pragma endregion
 
 #pragma region Animation
 public:
-	void EnemyMontageEnd();
+	void MOBMontageEnded();
 #pragma endregion
 
 #pragma region Death
 public:
 	void UnitDeath() override;
-	bool EnemyUpdateDeathToPool();
+	bool MOBUpdateDeathToPool();
 #pragma endregion
 
 #pragma region Stat
