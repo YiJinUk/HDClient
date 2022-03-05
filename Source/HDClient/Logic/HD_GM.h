@@ -57,6 +57,7 @@ private:
 	void TickEnemyMoveAndAttack(const float f_delta_time);
 	void TickPROJMoveAndAttack(const float f_delta_time);
 	void TickHeroAttack();
+	void TickCheckWaveEnd();
 #pragma endregion
 
 #pragma region Home
@@ -65,6 +66,12 @@ private:
 #pragma region World
 public:
 	void WorldStart();
+	//영웅의 체력이 0이 되었을 때
+	void WorldGameOver();
+	void WorldReturnToHome();
+	void WorldClearToHome();
+private:
+	void WorldClear();
 private:
 	UPROPERTY()
 		FInfoWorld _info_wld;
@@ -78,6 +85,9 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 		void WaveStart();
+	void WaveNext();
+private:
+	void WaveEnd();
 private:
 	UPROPERTY()
 		FInfoWave _info_wave;
@@ -127,9 +137,12 @@ private:
 #pragma region Enemy
 public:
 	void EnemySpawn(const FString& str_code_enemy);
+	void EnemyDeath(AHD_Enemy* enemy_death);
 
 	AHD_Enemy* FindEnemyFirstByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except = 0);
 	AHD_Enemy* FindEnemyNearByV2(const FVector2D& v2_loc_center, const int64 i_id_enemy_except = 0);
+private:
+	void EnemyRemoveSpawnedById(const int64 i_id_enemy);
 private:
 	UPROPERTY()
 		TArray<AHD_Enemy*> _spawned_enemies;
@@ -143,15 +156,11 @@ public:
 
 #pragma region Projectile
 public:
-	void PROJSpawn(const FString& str_code_proj, const EPROJAttackType e_proj_attack_type, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target = nullptr, const FVector2D& v2_dest = FVector2D::ZeroVector);
+	void PROJSpawn(const FString& str_code_proj, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target = nullptr, const FVector2D& v2_dest = FVector2D::ZeroVector);
 	void PROJFinish(AHD_Projectile* proj);
-private:
-	void PROJRemoveSpawnedById(const int64 i_id_proj_remove);
 private:
 	UPROPERTY()
 		TSet<AHD_Projectile*> _spawned_projs;
-	//UPROPERTY()
-		//TArray<AHD_Projectile*> _spawned_projs;
 #pragma endregion
 
 #pragma region Battle

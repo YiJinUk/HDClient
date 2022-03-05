@@ -28,6 +28,20 @@ void AHD_Manager_Pool::PoolPostInit(UHD_GI* gi, AHD_GM* gm)
 	}
 }
 
+void AHD_Manager_Pool::PoolTick()
+{
+	AHD_Enemy* enemy = nullptr;
+	for (int32 i = _q_death_enemy.Num() - 1; i >= 0; --i)
+	{
+		enemy = _q_death_enemy[i];
+		if (enemy->EnemyUpdateDeathToPool())
+		{
+			PoolInEnemy(enemy);
+			_q_death_enemy.RemoveAt(i);
+		}
+	}
+}
+
 AHD_Weapon* AHD_Manager_Pool::PoolOutWeaponByCode(const FString& str_code_wp)
 {
 	AHD_Weapon* wp = nullptr;
@@ -63,6 +77,16 @@ AHD_Enemy* AHD_Manager_Pool::PoolGetEnemy(const FString& str_code_enemy)
 	{
 		return arr_pool_enemy->Pop();
 	}
+}
+void AHD_Manager_Pool::PoolEnemyDeath(AHD_Enemy* enemy)
+{
+	_q_death_enemy.Add(enemy);
+}
+void AHD_Manager_Pool::PoolInEnemy(AHD_Enemy* enemy)
+{
+	if (!enemy) return;
+	enemy->UnitSetActiveTick(false);
+	_pool_enemy.FindOrAdd(enemy->GetInfoEnemy().code);
 }
 
 AHD_Projectile* AHD_Manager_Pool::PoolGetPROJ(FDataProjectile* s_data_proj)

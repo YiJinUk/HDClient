@@ -20,3 +20,5 @@ void UHD_AM_Enemy::AttackBasicNotify()
 	if (!_owner) return;
 	_owner->EnemyAttackBasicNotify();
 }
+
+void UHD_AM_Enemy::AMSetIsDeath(const bool b_is_death) { _is_death = b_is_death; }

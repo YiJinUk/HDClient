@@ -22,6 +22,9 @@ class HDCLIENT_API AHD_Hero : public AHD_Friend
 #pragma region Init
 public:
 	void HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero);
+	void HeroInit();
+	void HeroWaveEndInit();
+	void HeroToHomeInit();
 
 	const FInfoHero& GetInfoHero();
 private:
@@ -45,12 +48,17 @@ public:
 	//기본공격애니메이션중 공격피해를 시도합니다
 	void HeroAttackBasicNotify();
 	void UnitDoAttackBasic(AHD_Unit* unit_target) override;
+#pragma endregion
 
+#pragma region Death
+private:
+	void UnitDeath() override;
 #pragma endregion
 
 #pragma region Stat
 private:
 	void UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value) override;
+	const int32 UnitGetStat(const EUnitStatType e_stat_type) override;
 #pragma endregion
 
 };

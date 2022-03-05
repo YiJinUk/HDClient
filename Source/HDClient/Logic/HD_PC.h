@@ -40,6 +40,17 @@ private:
 #pragma region World
 public:
 	void PCWorldStart();
+	void PCWorldGameOver();
+	void PCUIReturnToHome();
+	void PCWorldClear();
+	void PCUIWorldClearToHome();
+#pragma endregion
+
+#pragma region Stage,Wave
+public:
+	void PCWaveStart();
+	void PCWaveEnd();
+	void PCWaveNext(const int32 i_round_stage, const int32 i_round_wave);
 #pragma endregion
 
 #pragma region UI.Stat

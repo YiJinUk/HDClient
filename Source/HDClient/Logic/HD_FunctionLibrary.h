@@ -20,4 +20,5 @@ public:
 	static float GetFindLookRotatorYawByV3(const FVector& v_owner, const FVector& v_target);
 
 	static void GPrintString(int i_key, float f_time, const FString& str_message, const FColor& s_color = FColor::Magenta);
+	static void GSaveLog(FString s_log, FString s_filename, bool b_is_overwriting = false);
 };

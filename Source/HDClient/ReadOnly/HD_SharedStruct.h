@@ -32,6 +32,8 @@ enum class EWorldStatus : uint8
 	HOME, //타이틀
 	WAVE_STANDBY, //웨이브의 모든 준비를 마치고 플레이어의 웨이브 시작을 기다리는 중
 	WAVE_PLAY, //웨이브중 입니다
+
+	WORLD_GAME_OVER,//세계에서 영웅이 죽었습니다
 };
 UENUM()
 enum class EUnitClassType : uint8
@@ -439,6 +441,11 @@ public:
 	//0미만으로 떨어지면 이동이 불가능합니다
 	UPROPERTY()
 		int8 is_can_move = 0;
+
+	UPROPERTY()
+		int32 death_to_pool_tick = 0;
+	UPROPERTY()
+		int32 death_to_pool_tick_max = 0;
 
 	UPROPERTY()
 		UAnimMontage* anim_attack_basic = nullptr;

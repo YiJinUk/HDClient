@@ -26,10 +26,7 @@ void AHD_Projectile::PROJPostInit(FDataProjectile* s_data_proj)
 	_gi = GetWorld()->GetGameInstance<UHD_GI>();
 
 	_info_proj.speed = _gi->GetDataGame()->GetPROJSpeed();
-	_info_proj.detect_range = _gi->GetDataGame()->GetPROJDetectRange();
-	_info_proj.move_type = s_data_proj->GetPROJMoveType();
-	_info_proj.attack_type = s_data_proj->GetPROJAttackType();
-	
+	_info_proj.detect_range = _gi->GetDataGame()->GetPROJDetectRange();	
 }
 void AHD_Projectile::PROJInit(const int64 i_id, FDataProjectile* s_data_proj, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest)
 {
@@ -38,6 +35,8 @@ void AHD_Projectile::PROJInit(const int64 i_id, FDataProjectile* s_data_proj, co
 	_info_proj.id = i_id;
 	_info_proj.target = unit_target;
 	_info_proj.owner = unit_owner;
+	_info_proj.move_type = s_data_proj->GetPROJMoveType();
+	_info_proj.attack_type = s_data_proj->GetPROJAttackType();
 
 	if (_info_proj.move_type == EPROJMoveType::TO_STRAIGHT)
 	{
@@ -49,6 +48,10 @@ void AHD_Projectile::PROJInit(const int64 i_id, FDataProjectile* s_data_proj, co
 	PROJSetTemplate(_gi->FindDataVFXByCode(s_data_proj->GetCodeVFXPROJ()));
 
 	PROJSetActiveTick(true);
+}
+void AHD_Projectile::PROJGameOverInit()
+{
+	
 }
 void AHD_Projectile::PROJSetActiveTick(bool b_is_active)
 {

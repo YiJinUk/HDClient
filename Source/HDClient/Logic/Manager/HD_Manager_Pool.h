@@ -32,6 +32,11 @@ private:
 	FActorSpawnParameters _spawn_param = FActorSpawnParameters();
 #pragma endregion
 
+#pragma region Tick
+public:
+	void PoolTick();
+#pragma endregion
+
 #pragma region Weapon
 public:
 	AHD_Weapon* PoolOutWeaponByCode(const FString& str_code_wp);
@@ -44,8 +49,13 @@ private:
 #pragma region Enemy
 public:
 	AHD_Enemy* PoolGetEnemy(const FString& str_code_enemy);
+	void PoolEnemyDeath(AHD_Enemy* enemy);
+private:
+	void PoolInEnemy(AHD_Enemy* enemy);
 private:
 	TMap<FString, TArray<AHD_Enemy*>> _pool_enemy;
+	UPROPERTY()
+		TArray<AHD_Enemy*> _q_death_enemy;
 #pragma endregion
 
 #pragma region Projectile

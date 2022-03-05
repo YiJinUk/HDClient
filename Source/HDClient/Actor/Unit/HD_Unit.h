@@ -20,10 +20,13 @@ class HDCLIENT_API AHD_Unit : public AActor
 public:	
 	AHD_Unit();
 	void UnitPostInit(const EUnitClassType e_unit_type);
+	void UnitSetActiveTick(const bool b_is_active);
 
 	FVector2D GetActorLocation2D();
 	USkeletalMeshComponent* GetSkeletalMesh();
 	const FInfoUnit& GetInfoUnit();
+protected:
+	virtual void UnitSetActiveTickChild(const bool b_is_active);
 protected:
 	UPROPERTY(EditAnywhere)
 		class USceneComponent* _root_scene = nullptr;
@@ -47,6 +50,11 @@ protected:
 	bool UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_delay, const int32 i_as_delay_total, const uint8 i_tick_1frame);
 #pragma endregion
 
+#pragma region Death
+public:
+	virtual void UnitDeath();
+#pragma endregion
+
 #pragma region Stat
 public:
 	/*
@@ -56,5 +64,6 @@ public:
 	* @param i_value - 해당 값만큼 변경될 스탯에 더합니다
 	*/
 	virtual void UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value);
+	virtual const int32 UnitGetStat(const EUnitStatType e_stat_type);
 #pragma endregion
 };

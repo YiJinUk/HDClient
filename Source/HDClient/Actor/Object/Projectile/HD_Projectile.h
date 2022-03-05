@@ -22,6 +22,7 @@ public:
 	AHD_Projectile();
 	void PROJPostInit(FDataProjectile* s_data_proj);
 	void PROJInit(const int64 i_id, FDataProjectile* s_data_proj, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target, const FVector2D& v2_dest);
+	void PROJGameOverInit();
 
 	void PROJSetActiveTick(bool b_is_active);
 

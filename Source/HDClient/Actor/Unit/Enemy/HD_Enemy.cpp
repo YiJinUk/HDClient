@@ -4,7 +4,7 @@
 #include "Actor/Unit/Enemy/HD_Enemy.h"
 #include "Actor/Unit/Friend/Hero/HD_Hero.h"
 #include "Logic/HD_FunctionLibrary.h"
-#include "Logic/Animation/HD_AM.h"
+#include "Logic/Animation/HD_AM_Enemy.h"
 #include "Logic/HD_GM.h"
 #include "UI/World/Enemy/HD_UI_Enemy_HeadUp.h"
 
@@ -39,20 +39,39 @@ void AHD_Enemy::EnemyPostInit(FDataEnemy* s_data_enemy)
 	if (!s_data_enemy) return;
 
 	_ui_enemy_headup = Cast<UHD_UI_Enemy_HeadUp>(_ui_headup->GetUserWidgetObject());
+	_anim_instance_enemy = Cast<UHD_AM_Enemy>(_skeletal_mesh->GetAnimInstance());
 
 	_info_enemy.code_proj = s_data_enemy->GetCodePROJ();
 	_info_enemy.hp_max = s_data_enemy->GetHP();
 	_info_enemy.str_base = s_data_enemy->GetSTR();
 	_info_enemy.as_base = s_data_enemy->GetAS();
 	_info_enemy.move_speed = s_data_enemy->GetMoveSpeed();
+	_info_enemy.death_to_pool_tick_max = 240;
 	_info_enemy.anim_attack_basic = s_data_enemy->GetAnimAttackBasic();
 }
 void AHD_Enemy::EnemyInit(const int64 i_id, const FVector v_loc_spawn)
 {
+	UnitSetActiveTick(true);
 	_info_enemy.id = i_id;
 	_info_enemy.hp = _info_enemy.hp_max;
+	_info_enemy.death_to_pool_tick = 0;
+	_info_enemy.is_death = false;
+	_info_unit.is_hit_valid = true;
+
 	SetActorLocation(v_loc_spawn);
+
+	_anim_instance_enemy->AMSetIsDeath(false);
+
+	_ui_enemy_headup->SetVisibility(ESlateVisibility::Visible);
 	_ui_enemy_headup->UIEnemyHeadUpInit(this);
+}
+void AHD_Enemy::EnemyToHomeInit()
+{
+	_anim_instance_enemy->StopAllMontages(-1.f);
+}
+void AHD_Enemy::UnitSetActiveTickChild(const bool b_is_active)
+{
+
 }
 
 void AHD_Enemy::EnemyMove(const float f_delta_time, const FVector& v_loc_move, const FRotator& r_rot)
@@ -74,9 +93,10 @@ void AHD_Enemy::EnemyAttackBasicStart(AHD_Hero* target)
 
 	_info_enemy.atk_basic_status = EAttackBasicStatus::TRY;
 	_info_enemy.target = target;
+	_info_enemy.as_delay = 0;
 	SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), _info_enemy.target->GetActorLocation()), 0.f));
 	--_info_enemy.is_can_move;
-	_anim_instance->Montage_Play(_info_enemy.anim_attack_basic);
+	_anim_instance_enemy->Montage_Play(_info_enemy.anim_attack_basic);
 }
 void AHD_Enemy::EnemyAttackBasicNotify()
 {
@@ -104,6 +124,28 @@ void AHD_Enemy::EnemyMontageEnd()
 	++_info_enemy.is_can_move;
 }
 
+void AHD_Enemy::UnitDeath()
+{
+	_ui_enemy_headup->SetVisibility(ESlateVisibility::Hidden);
+	_info_enemy.is_death = true;
+	_info_unit.is_hit_valid = false;
+
+	_anim_instance_enemy->StopAllMontages(-1.f);
+	_anim_instance_enemy->AMSetIsDeath(true);
+
+	_gm->EnemyDeath(this);
+}
+bool AHD_Enemy::EnemyUpdateDeathToPool()
+{
+	++_info_enemy.death_to_pool_tick;
+	if (_info_enemy.death_to_pool_tick >= _info_enemy.death_to_pool_tick_max)
+	{
+		return true;
+	}
+	else
+		return false;
+}
+
 void AHD_Enemy::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value)
 {
 	switch (e_stat_type)
@@ -124,6 +166,19 @@ void AHD_Enemy::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e
 	default:
 		break;
 	}
+}
+const int32 AHD_Enemy::UnitGetStat(const EUnitStatType e_stat_type)
+{
+	switch (e_stat_type)
+	{
+	case EUnitStatType::HP:
+		return _info_enemy.hp;
+		break;
+	default:
+		break;
+	}
+
+	return int32();
 }
 
 const FInfoEnemy& AHD_Enemy::GetInfoEnemy() { return _info_enemy; }

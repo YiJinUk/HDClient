@@ -27,4 +27,9 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 		void AttackBasicNotify();
+
+	void AMSetIsDeath(const bool b_is_death);
+protected:
+	UPROPERTY(BlueprintReadOnly)
+		bool _is_death = false;
 };

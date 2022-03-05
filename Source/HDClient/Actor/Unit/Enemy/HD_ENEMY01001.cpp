@@ -8,5 +8,5 @@
 
 void AHD_ENEMY01001::EnemyAttackBasic()
 {
-	_gm->PROJSpawn(_info_enemy.code_proj, EPROJAttackType::ENEMY_ATTACK_BASIC, GetActorLocation(), this, _info_enemy.target, _info_enemy.target->GetActorLocation2D());
+	_gm->PROJSpawn(_info_enemy.code_proj, GetActorLocation(), this, _info_enemy.target, _info_enemy.target->GetActorLocation2D());
 }

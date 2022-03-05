@@ -102,4 +102,10 @@ void AHD_Manager_Battle::BattleAppleDamage(FDamageResult* s_dmg_rlt)
 {
 	/*계산된 피해값으로 실제 피해를 줍니다*/
 	s_dmg_rlt->def->UnitSetStat(EUnitStatType::HP, EUnitStatBy::NO, -s_dmg_rlt->dmg_rlt);
+
+	if (s_dmg_rlt->def->UnitGetStat(EUnitStatType::HP) <= 0)
+	{
+		/*방어자가 죽었습니다*/
+		s_dmg_rlt->def->UnitDeath();
+	}
 }

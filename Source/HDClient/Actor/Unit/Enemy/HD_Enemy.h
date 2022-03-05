@@ -7,6 +7,7 @@
 #include "HD_Enemy.generated.h"
 
 class UHD_UI_Enemy_HeadUp;
+class UHD_AM_Enemy;
 
 /**
  * 
@@ -21,13 +22,18 @@ public:
 	AHD_Enemy(FObjectInitializer const& object_initializer);
 	void EnemyPostInit(FDataEnemy* s_data_enemy);
 	void EnemyInit(const int64 i_id, const FVector v_loc_spawn);
+	void EnemyToHomeInit();
 
 	const FInfoEnemy& GetInfoEnemy();
+private:
+	void UnitSetActiveTickChild(const bool b_is_active) override;
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class UWidgetComponent* _ui_headup = nullptr;
 	UPROPERTY()
 		UHD_UI_Enemy_HeadUp* _ui_enemy_headup = nullptr;
+	UPROPERTY()
+		UHD_AM_Enemy* _anim_instance_enemy = nullptr;
 
 	UPROPERTY()
 		FInfoEnemy _info_enemy;
@@ -57,8 +63,16 @@ public:
 	void EnemyMontageEnd();
 #pragma endregion
 
+#pragma region Death
+public:
+	void UnitDeath() override;
+	bool EnemyUpdateDeathToPool();
+#pragma endregion
+
 #pragma region Stat
 private:
 	void UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value) override;
+	const int32 UnitGetStat(const EUnitStatType e_stat_type) override;
 #pragma endregion
+
 };

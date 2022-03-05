@@ -5,6 +5,7 @@
 #include "Home/HD_UI_Home.h"
 #include "World/HD_UI_World.h"
 #include "World/Information/HD_UI_Info_Bottom.h"
+#include "World/Information/HD_UI_Info_Top.h"
 
 #include "Components/WidgetSwitcher.h"
 
@@ -21,7 +22,44 @@ void UHD_UI_Main::UIMainPostInit()
 
 void UHD_UI_Main::UIMainWorldStart()
 {
+	_ui_world->WorldInit();
+
+	_ui_info_bottom->InfoBottomSetHPBar(1.f);
+	_ui_info_top->InfoTopInit();
+
 	_switcher->SetActiveWidgetIndex(1);
+}
+void UHD_UI_Main::UIMainWorldGameOver()
+{
+	_ui_world->UIWorldGameOver();
+}
+void UHD_UI_Main::UIMainReturnToHome()
+{
+	_switcher->SetActiveWidgetIndex(0);
+	_ui_world->UIWorldReturnToHome();
+}
+void UHD_UI_Main::UIMainWorldClear()
+{
+	_ui_world->UIWorldWorldClear();
+}
+void UHD_UI_Main::UIMainClearToHome()
+{
+	_switcher->SetActiveWidgetIndex(0);
+	_ui_world->UIWorldClearToHome();
+}
+
+void UHD_UI_Main::UIMainWaveStart()
+{
+	_ui_world->UIWorldWaveStart();
+}
+void UHD_UI_Main::UIMainWaveEnd()
+{
+	_ui_world->UIWorldWaveEnd();
+}
+void UHD_UI_Main::UIMainWaveNext(const int32 i_round_stage, const int32 i_round_wave)
+{
+	_ui_info_top->InfoTopSetRound(i_round_stage, i_round_wave);
+	_ui_world->UIWorldWaveNext();
 }
 
 void UHD_UI_Main::UIMainUpdateStat(const EUnitStatType e_unit_stat_type, const EUnitStatBy e_unit_stat_by, const int32 i_value, const float f_value)
@@ -37,3 +75,4 @@ void UHD_UI_Main::UIMainUpdateStat(const EUnitStatType e_unit_stat_type, const E
 }
 
 void UHD_UI_Main::UIMainSetUIInfoBottom(UHD_UI_Info_Bottom* ui_info_bottom) { _ui_info_bottom = ui_info_bottom; }
+void UHD_UI_Main::UIMainSetUIInfoTop(UHD_UI_Info_Top* ui_info_top) { _ui_info_top = ui_info_top; }
