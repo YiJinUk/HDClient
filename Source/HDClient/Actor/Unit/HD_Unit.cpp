@@ -58,38 +58,11 @@ void AHD_Unit::UnitSetActiveTickChild(const bool b_is_active)
 	//override
 }
 
-bool AHD_Unit::UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_delay, const int32 i_as_delay_total, const uint8 i_tick_1frame)
-{
-	switch (e_atk_basic_status)
-	{
-	case EAttackBasicStatus::DETECT:
-		break;
-	case EAttackBasicStatus::TRY:
-		if (i_as_delay < i_as_delay_total)
-			i_as_delay += i_tick_1frame;
-		break;
-	case EAttackBasicStatus::DELAY:
-		if (i_as_delay >= i_as_delay_total)
-		{
-			e_atk_basic_status = EAttackBasicStatus::DETECT;
-		}
-		else
-			i_as_delay += i_tick_1frame;
-		break;
-	default:
-		break;
-	}
-
-	if (e_atk_basic_status == EAttackBasicStatus::DETECT)
-		return true;
-	else
-		return false;
-}
-
 void AHD_Unit::UnitHit(const FBattleHitResult& s_battle_hit_result) {	/*override*/ }
 void AHD_Unit::UnitDeath() {	/*override*/ }
 
 void AHD_Unit::UnitDoAttackBasic(AHD_Unit* unit_target) {/*override*/ }
+void AHD_Unit::UnitDoAttackSK(AHD_Unit* unit_target) {	/*override*/ }
 void AHD_Unit::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value) {	/*override*/ }
 const int32 AHD_Unit::UnitGetStat(const EUnitStatType e_stat_type) { return int32(); /*override*/ };
 FVector2D AHD_Unit::GetActorLocation2D() { FVector v_loc = GetActorLocation();	return FVector2D(v_loc.X, v_loc.Y); }

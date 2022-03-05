@@ -46,8 +46,7 @@ protected:
 #pragma region Attack
 public:
 	virtual void UnitDoAttackBasic(AHD_Unit* unit_target);
-protected:
-	bool UnitUpdateAS(EAttackBasicStatus& e_atk_basic_status, int32& i_as_delay, const int32 i_as_delay_total, const uint8 i_tick_1frame);
+	virtual void UnitDoAttackSK(AHD_Unit* unit_target);
 #pragma endregion
 
 #pragma region Hit,Death

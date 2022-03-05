@@ -25,4 +25,6 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 		void AttackBasicNotify();
+	UFUNCTION(BlueprintCallable)
+		void AttackSKNotify();
 };

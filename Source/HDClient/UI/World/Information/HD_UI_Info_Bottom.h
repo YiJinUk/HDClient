@@ -24,6 +24,8 @@ private:
 		UProgressBar* _hp_bar = nullptr;
 	UPROPERTY(Meta = (BindWidget))
 		UProgressBar* _armor_bar = nullptr;
+	UPROPERTY(Meta = (BindWidget))
+		UProgressBar* _sk_cooldown_bar = nullptr;
 
 	UPROPERTY(Meta = (BindWidget))
 		UTextBlock* _armor = nullptr;
@@ -33,4 +35,5 @@ public:
 	void InfoBottomSetHPBar(const float f_hp_rate);
 	void InfoBottomSetArmorBar(const float f_armor_rate);
 	void InfoBottomSetArmorText(const int32 i_armor);
+	void InfoBottomSetSKCooldownBar(const float f_sk_cooldown_rate);
 };

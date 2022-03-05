@@ -76,6 +76,9 @@ void UHD_UI_Main::UIMainUpdateStat(const EUnitStatType e_unit_stat_type, const E
 	case EUnitStatType::ARMOR:
 		_ui_info_bottom->InfoBottomSetArmorText(i_value);
 		break;
+	case EUnitStatType::SK_COOLDOWN_TICK:
+		_ui_info_bottom->InfoBottomSetSKCooldownBar(f_value);
+		break;
 	default:
 		break;
 	}

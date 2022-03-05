@@ -15,3 +15,8 @@ void UHD_AM_Hero::AttackBasicNotify()
 	if (!_owner) return;
 	_owner->HeroAttackBasicNotify();
 }
+void UHD_AM_Hero::AttackSKNotify()
+{
+	if (!_owner) return;
+	_owner->HeroAttackSKNotify();
+}

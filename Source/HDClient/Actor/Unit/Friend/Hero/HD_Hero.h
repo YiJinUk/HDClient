@@ -10,6 +10,7 @@ class AHD_Weapon;
 class AHD_Monster;
 class AHD_Unit;
 class AHD_PC;
+class UHD_GI;
 
 /**
  * 
@@ -22,7 +23,7 @@ class HDCLIENT_API AHD_Hero : public AHD_Friend
 #pragma region Init
 public:
 	void HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero);
-	void HeroInit();
+	void HeroInit(FDataHero* s_data_hero);
 	void HeroWaveEndInit();
 	void HeroToHomeInit();
 
@@ -30,6 +31,8 @@ public:
 private:
 	UPROPERTY()
 		FInfoHero _info_hero;
+	UPROPERTY()
+		UHD_GI* _gi = nullptr;
 	UPROPERTY()
 		AHD_PC* _pc = nullptr;
 #pragma endregion
@@ -46,13 +49,21 @@ public:
 
 #pragma region Attack.Basic
 public:
-	bool HeroUpdateAS(const uint8 i_tick_1frame);
+	void HeroUpdateAS(const uint8 i_tick_1frame);
 
 	//기본공격을 시작합니다
 	void HeroAttackBasicStart(AHD_Monster* target);
 	//기본공격애니메이션중 공격피해를 시도합니다
 	void HeroAttackBasicNotify();
 	void UnitDoAttackBasic(AHD_Unit* unit_target) override;
+#pragma endregion
+
+#pragma region Attack.Skill
+public:
+	void HeroUpdateReduceCooldown(const uint8 i_tick_1frame);
+	void HeroAttackSkillStart();
+	void HeroAttackSKNotify();
+	void UnitDoAttackSK(AHD_Unit* unit_target) override;
 #pragma endregion
 
 #pragma region Death

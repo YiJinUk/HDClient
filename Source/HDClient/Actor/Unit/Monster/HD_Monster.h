@@ -46,7 +46,7 @@ public:
 
 #pragma region Attack.Basic
 public:
-	bool MOBUpdateAS(const uint8 i_tick_1frame);
+	void MOBUpdateAS(const uint8 i_tick_1frame);
 	//기본공격을 시작합니다
 	void MOBAttackBasicStart(AHD_Hero* target);
 	//기본공격애니메이션중 공격피해를 시도합니다

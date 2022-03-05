@@ -27,6 +27,7 @@ public:
 	FDataMonster* FindDataMOBByCode(const FString& str_code_mob);
 	FDataProjectile* FindDataPROJByCode(const FString& str_code_proj);
 	FDataVFX* FindDataVFXByCode(const FString& str_code_vfx);
+	FDataSkill* FindDataSKByCode(const FString& str_code_sk);
 
 	const TArray<FDataWeapon*>& GetDataWeapons();
 	const TArray<FDataWave*>& GetDataWaves();
@@ -40,6 +41,7 @@ private:
 	UDataTable* _dt_weapon = nullptr;
 	UDataTable* _dt_proj = nullptr;
 	UDataTable* _dt_vfx = nullptr;
+	UDataTable* _dt_sk = nullptr;
 
 	TArray<FDataWeapon*> _data_wps;
 	TArray<FDataWave*> _data_waves;

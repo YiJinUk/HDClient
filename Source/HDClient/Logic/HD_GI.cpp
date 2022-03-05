@@ -19,6 +19,8 @@ UHD_GI::UHD_GI()
 	if (DT_PROJ.Succeeded()) { _dt_proj = DT_PROJ.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_VFX(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_VFX.HDDT_VFX"));
 	if (DT_VFX.Succeeded()) { _dt_vfx = DT_VFX.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_SK(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Skill.HDDT_Skill"));
+	if (DT_SK.Succeeded()) { _dt_sk = DT_SK.Object; }
 }
 void UHD_GI::GIPostInit()
 {
@@ -31,6 +33,7 @@ void UHD_GI::GIPostInit()
 FDataMonster* UHD_GI::FindDataMOBByCode(const FString& str_code_mob) { return _dt_mob->FindRow<FDataMonster>(*str_code_mob, "0"); }
 FDataProjectile* UHD_GI::FindDataPROJByCode(const FString& str_code_proj) { return _dt_proj->FindRow<FDataProjectile>(*str_code_proj, "0"); }
 FDataVFX* UHD_GI::FindDataVFXByCode(const FString& str_code_vfx) { return _dt_vfx->FindRow<FDataVFX>(*str_code_vfx, "0"); }
+FDataSkill* UHD_GI::FindDataSKByCode(const FString& str_code_sk) { return _dt_sk->FindRow<FDataSkill>(*str_code_sk, "0"); }
 
 const TArray<FDataWeapon*>& UHD_GI::GetDataWeapons() { return _data_wps; }
 const TArray<FDataWave*>& UHD_GI::GetDataWaves() { return _data_waves; }

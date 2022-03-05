@@ -18,6 +18,7 @@ class AHD_Manager_Pool;
 class AHD_Manager_Battle;
 class AHD_Manager_Weapon;
 class AHD_Manager_FX;
+class AHD_Manager_Skill;
 
 /**
  * 
@@ -54,11 +55,15 @@ private:
 #pragma region Tick
 private:
 	void TickCheckSpawnEnemy();
-	void TickEnemyMoveAndAttack(const float f_delta_time);
+	void TickMOBMoveAndAttack(const float f_delta_time);
 	void TickPROJMoveAndAttack(const float f_delta_time);
 	void TickFriendMP();
+
 	void TickHeroHealArmor();
+	void TickHeroReduceCooldown();
+	void TickHeroReduceAS();
 	void TickHeroAttack();
+
 	void TickCheckWaveEnd();
 #pragma endregion
 
@@ -96,6 +101,8 @@ private:
 #pragma endregion
 
 #pragma region Manager,Spline
+public:
+	AHD_Manager_Skill* GetManagerSK();
 private:
 	UPROPERTY()
 		AHD_Manager_Pool* _manager_pool = nullptr;
@@ -105,6 +112,8 @@ private:
 		AHD_Manager_Weapon* _manager_wp = nullptr;
 	UPROPERTY()
 		AHD_Manager_FX* _manager_fx = nullptr;
+	UPROPERTY()
+		AHD_Manager_Skill* _manager_sk = nullptr;
 
 	UPROPERTY()
 		class USplineComponent* _spline_component = nullptr;
@@ -160,6 +169,8 @@ public:
 public:
 	void PROJSpawn(const FString& str_code_proj, const FVector& v_loc_spawn, AHD_Unit* unit_owner, AHD_Unit* unit_target = nullptr, const FVector2D& v2_dest = FVector2D::ZeroVector);
 	void PROJFinish(AHD_Projectile* proj);
+private:
+	void PROJAllPoolIn();
 private:
 	UPROPERTY()
 		TSet<AHD_Projectile*> _spawned_projs;

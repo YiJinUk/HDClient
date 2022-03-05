@@ -10,6 +10,7 @@ void UHD_UI_Info_Bottom::InfoBottomPostInit()
 {
 	_hp_bar->SetPercent(1.f);
 	_armor_bar->SetPercent(0.f);
+	_sk_cooldown_bar->SetPercent(0.f);
 	_armor->SetText(FText::AsNumber(0));
 }
 
@@ -24,4 +25,8 @@ void UHD_UI_Info_Bottom::InfoBottomSetArmorBar(const float f_armor_rate)
 void UHD_UI_Info_Bottom::InfoBottomSetArmorText(const int32 i_armor)
 {
 	_armor->SetText(FText::AsNumber(i_armor));
+}
+void UHD_UI_Info_Bottom::InfoBottomSetSKCooldownBar(const float f_sk_cooldown_rate)
+{
+	_sk_cooldown_bar->SetPercent(f_sk_cooldown_rate);
 }

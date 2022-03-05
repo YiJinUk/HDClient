@@ -2,10 +2,12 @@
 
 
 #include "Logic/Manager/HD_Manager_Battle.h"
+#include "Logic/HD_PC.h"
 #include "Actor/Unit/HD_Unit.h"
 
-void AHD_Manager_Battle::BattlePostInit()
+void AHD_Manager_Battle::BattlePostInit(AHD_PC* pc)
 {
+	_pc = pc;
 	int32 i_index = 0;
 	for (int32 i = 0; i < 30; ++i)
 	{
@@ -169,4 +171,6 @@ void AHD_Manager_Battle::BattleAppleDamage(FDamageResult* s_dmg_rlt)
 		/*방어자가 죽었습니다*/
 		s_dmg_rlt->def->UnitDeath();
 	}
+
+	_pc->PCUIFloatingDMGNumber(s_dmg_rlt->def->GetActorLocation(), s_dmg_rlt->dmg_base);
 }

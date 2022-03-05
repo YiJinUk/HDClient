@@ -7,11 +7,14 @@
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Logic/Animation/HD_AM.h"
 #include "Logic/HD_FunctionLibrary.h"
+#include "Logic/Manager/HD_Manager_Skill.h"
 #include "Logic/HD_GM.h"
 #include "Logic/HD_PC.h"
+#include "Logic/HD_GI.h"
 
 void AHD_Hero::HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero)
 {
+	_gi = GetWorld()->GetGameInstance<UHD_GI>();
 	_pc = pc;
 	_info_hero.hp_base = s_data_hero->GetHP();
 	_info_hero.hp_max_base = s_data_hero->GetHP();
@@ -21,23 +24,41 @@ void AHD_Hero::HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero)
 	_info_hero.armor_recovery_base = s_data_hero->GetArmorRecovery();
 	_info_hero.armor_heal_tick_max = s_data_hero->GetArmorHealTickMax();
 	_info_hero.armor_recovery_tick_max = s_data_hero->GetArmorRecoveryTickMax();
+
+	_info_hero.anim_attack_sk = s_data_hero->GetAnimAttackSK();
 }
-void AHD_Hero::HeroInit()
+void AHD_Hero::HeroInit(FDataHero* s_data_hero)
 {
+	_info_hero.atk_basic_status = EAttackBasicStatus::DELAY;
+	_info_hero.atk_sk_status = EAttackSkillStatus::COOLDOWN;
+	_info_hero.armor_status = EArmorStatus::RECOVERY;
+
 	_info_hero.hp_base = _info_hero.hp_max_base;
 	_info_hero.as_delay = 0;
-	_info_hero.armor_status = EArmorStatus::RECOVERY;
+
+	_info_hero.dmg_base = 100;
+
+	_info_hero.sk_data = _gi->FindDataSKByCode(s_data_hero->GetSKCode());
+	_info_hero.sk_ap_base = 100;
+	_info_hero.sk_cooldown_tick_max = _info_hero.sk_data->GetCooldown();
+	_info_hero.sk_cooldown_tick = 0;
+
 	UnitSetStat(EUnitStatType::ARMOR, EUnitStatBy::NO, -99999);
 	UnitSetStat(EUnitStatType::ARMOR_HEAL_TICK, EUnitStatBy::NO, -99999);
 	UnitSetStat(EUnitStatType::ARMOR_RECOVERY_TICK, EUnitStatBy::NO, -99999);
+	UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, -99999);
 }
 void AHD_Hero::HeroWaveEndInit()
 {
-	_info_hero.as_delay = 0;
+	_info_hero.atk_basic_status = EAttackBasicStatus::DELAY;
+	_info_hero.atk_sk_status = EAttackSkillStatus::COOLDOWN;
 	_info_hero.armor_status = EArmorStatus::RECOVERY;
+
+	_info_hero.as_delay = 0;
 	UnitSetStat(EUnitStatType::ARMOR, EUnitStatBy::NO, -99999);
 	UnitSetStat(EUnitStatType::ARMOR_HEAL_TICK, EUnitStatBy::NO, -99999);
 	UnitSetStat(EUnitStatType::ARMOR_RECOVERY_TICK, EUnitStatBy::NO, -99999);
+	UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, -99999);
 }
 void AHD_Hero::HeroToHomeInit()
 {
@@ -86,10 +107,46 @@ void AHD_Hero::HeroUpdateHealArmor(const uint8 i_tick_1frame)
 		break;
 	}
 }
-
-bool AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
+void AHD_Hero::HeroUpdateReduceCooldown(const uint8 i_tick_1frame)
 {
-	return UnitUpdateAS(_info_hero.atk_basic_status, _info_hero.as_delay, _info_hero.GetASTotalDelay(), i_tick_1frame);
+	switch (_info_hero.atk_sk_status)
+	{
+	case EAttackSkillStatus::DETECT:
+		break;
+	case EAttackSkillStatus::TRY:
+		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
+		break;
+	case EAttackSkillStatus::COOLDOWN:
+		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
+		if (UnitGetStat(EUnitStatType::SK_COOLDOWN_TICK) >= _info_hero.sk_cooldown_tick_max)
+		{
+			_info_hero.atk_sk_status = EAttackSkillStatus::DETECT;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
+{
+	switch (_info_hero.atk_basic_status)
+	{
+	case EAttackBasicStatus::DETECT:
+		break;
+	case EAttackBasicStatus::TRY:
+		UnitSetStat(EUnitStatType::AS_DEALY, EUnitStatBy::NO, i_tick_1frame);
+		break;
+	case EAttackBasicStatus::DELAY:
+		UnitSetStat(EUnitStatType::AS_DEALY, EUnitStatBy::NO, i_tick_1frame);
+		if (UnitGetStat(EUnitStatType::AS_DEALY) >= _info_hero.GetASTotalDelay())
+		{
+			_info_hero.atk_basic_status = EAttackBasicStatus::DETECT;
+		}
+		break;
+	default:
+		break;
+	}
 }
 void AHD_Hero::HeroAttackBasicStart(AHD_Monster* target)
 {
@@ -126,6 +183,43 @@ void AHD_Hero::HeroAttackBasicNotify()
 void AHD_Hero::UnitDoAttackBasic(AHD_Unit* unit_target)
 {
 	_gm->BattleSend(this, unit_target, _info_hero.GetAttackBasicDMG(), EAttackType::BASIC);
+}
+
+void AHD_Hero::HeroAttackSkillStart()
+{
+	AHD_Monster* mob_target = _gm->FindMOBFirstByV2(GetActorLocation2D());
+	if (mob_target)
+	{
+		//이미 기본공격시도중입니다
+		if (_info_hero.atk_sk_status == EAttackSkillStatus::TRY) return;
+
+		_info_hero.atk_sk_status = EAttackSkillStatus::TRY;
+		_info_hero.target = mob_target;
+		_info_hero.sk_cooldown_tick = 0;
+		SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), _info_hero.target->GetActorLocation()), 0.f));
+		_anim_instance->Montage_Play(_info_hero.anim_attack_sk);
+	}
+}
+void AHD_Hero::HeroAttackSKNotify()
+{
+	if (!_info_hero.target || !_info_hero.target->GetInfoUnit().is_hit_valid)
+	{
+		/*피해를 주려고 했지만 애니메이션도중 적의 상태가 피격이 무효하게 바뀌었습니다*/
+		_info_hero.atk_sk_status = EAttackSkillStatus::DETECT;
+		_info_hero.sk_cooldown_tick = _info_hero.sk_cooldown_tick_max;
+	}
+	else
+	{
+		/*피해를 주고 다시 기본공격대기상태로 돌아갑니다*/
+		//무기마다 기본공격양상이 다르기 때문에 무기클래스에서 공격을 시도합니다
+		_gm->PROJSpawn("PROJ10001", GetActorLocation(), this, _info_hero.target);
+		_info_hero.atk_sk_status = EAttackSkillStatus::COOLDOWN;
+	}
+}
+void AHD_Hero::UnitDoAttackSK(AHD_Unit* unit_target)
+{
+	//_gm->BattleSend(this,unit_target,)
+	_gm->GetManagerSK()->DoSkillHero(this, Cast<AHD_Monster>(unit_target), _info_hero.sk_data);
 }
 
 void AHD_Hero::UnitHit(const FBattleHitResult& s_battle_hit_result)
@@ -185,6 +279,19 @@ void AHD_Hero::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_
 
 		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetArmorRecoveryRate());
 		break;
+	case EUnitStatType::AS_DEALY:
+		if (_info_hero.as_delay < _info_hero.GetASTotalDelay())
+			_info_hero.as_delay += i_value;
+		if (_info_hero.as_delay <= 0)
+			_info_hero.as_delay = 0;
+		break;
+	case EUnitStatType::SK_COOLDOWN_TICK:
+		if (_info_hero.sk_cooldown_tick < _info_hero.sk_cooldown_tick_max)
+			_info_hero.sk_cooldown_tick += i_value;
+		if (_info_hero.sk_cooldown_tick <= 0)
+			_info_hero.sk_cooldown_tick = 0;
+		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetSKCooldownRate());
+		break;
 	default:
 		break;
 	}
@@ -204,6 +311,12 @@ const int32 AHD_Hero::UnitGetStat(const EUnitStatType e_stat_type)
 		break;
 	case EUnitStatType::ARMOR_RECOVERY_TICK:
 		return _info_hero.armor_recovery_tick;
+		break;
+	case EUnitStatType::AS_DEALY:
+		return _info_hero.as_delay;
+		break;
+	case EUnitStatType::SK_COOLDOWN_TICK:
+		return _info_hero.sk_cooldown_tick;
 		break;
 	default:
 		break;

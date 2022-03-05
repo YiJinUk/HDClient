@@ -53,7 +53,15 @@ UENUM()
 enum class EPROJAttackType : uint8
 {
 	HERO_ATTACK_BASIC,
-	ENEMY_ATTACK_BASIC,
+	HERO_ATTACK_SKILL,
+	MONSTER_ATTACK_BASIC,
+};
+
+UENUM()
+enum class EAttackType : uint8
+{
+	BASIC,
+	SKILL,
 };
 
 UENUM()
@@ -64,11 +72,14 @@ enum class EAttackBasicStatus : uint8
 	DELAY,//기본공격.딜레이(후딜)
 };
 UENUM()
-enum class EAttackType : uint8
+enum class EAttackSkillStatus : uint8
 {
-	BASIC,
-	SKILL,
+	DETECT,//스킬공격.대기
+	TRY,//스킬공격.시도(선딜)
+	COOLDOWN,//스킬공격.쿨다운
 };
+
+
 
 UENUM()
 enum class EUnitStatType : uint8
@@ -77,6 +88,8 @@ enum class EUnitStatType : uint8
 	ARMOR,
 	ARMOR_HEAL_TICK,
 	ARMOR_RECOVERY_TICK,
+	AS_DEALY,
+	SK_COOLDOWN_TICK,
 };
 UENUM()
 enum class EUnitStatBy : uint8
@@ -175,6 +188,12 @@ protected:
 		int32 _armor_heal = 0;
 	UPROPERTY(EditAnywhere, Category = "Stat.Armor")
 		int32 _armor_heal_tick_max = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Stat.Skill")
+		FString _sk_code = "0";
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		UAnimMontage* _anim_attack_sk = nullptr;
 public:
 	FORCEINLINE const int32 GetHP() { return _hp; }
 	FORCEINLINE const int32 GetArmorMax() { return _armor_max; }
@@ -182,6 +201,8 @@ public:
 	FORCEINLINE const int32 GetArmorRecoveryTickMax() { return _armor_recovery_tick_max; }
 	FORCEINLINE const int32 GetArmorHeal() { return _armor_heal; }
 	FORCEINLINE const int32 GetArmorHealTickMax() { return _armor_heal_tick_max; }
+	FORCEINLINE const FString& GetSKCode() { return _sk_code; }
+	FORCEINLINE UAnimMontage* GetAnimAttackSK() { return _anim_attack_sk; }
 };
 USTRUCT(BlueprintType)
 struct FDataMonster : public FTableRowBase
@@ -299,6 +320,34 @@ public:
 	FORCEINLINE UParticleSystem* GetCascade() { return _vfx_cascade; }
 	FORCEINLINE const float GetSize() { return _size; }
 };
+
+USTRUCT(BlueprintType)
+struct FDataSkill : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		int32 _id = 0;
+	UPROPERTY(EditAnywhere, Category = "General")
+		int32 _cooldown = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Value")
+		int32 _value_1 = 0;
+	UPROPERTY(EditAnywhere, Category = "Value")
+		int32 _value_2 = 0;
+	UPROPERTY(EditAnywhere, Category = "Value")
+		int32 _value_3 = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Description")
+		FString _desc = "0";
+public:
+	FORCEINLINE const int32 GetID() const { return _id; }
+	FORCEINLINE const int32 GetCooldown() const { return _cooldown; }
+	FORCEINLINE const int32 GetValue1() const { return _value_1; }
+	FORCEINLINE const int32 GetValue2() const { return _value_2; }
+	FORCEINLINE const int32 GetValue3() const { return _value_3; }
+};
 #pragma endregion
 
 USTRUCT()
@@ -392,24 +441,16 @@ public:
 
 	UPROPERTY()
 		EAttackBasicStatus atk_basic_status = EAttackBasicStatus::DELAY;
+	UPROPERTY()
+		EAttackSkillStatus atk_sk_status = EAttackSkillStatus::COOLDOWN;
+	UPROPERTY()
+		EArmorStatus armor_status = EArmorStatus::HEAL;
 
 	UPROPERTY()
 		int32 hp_base = 0;
 	UPROPERTY()
 		int32 hp_max_base = 0;
-
-	UPROPERTY()
-		int32 str_base = 0;
-	UPROPERTY()
-		int32 dmg_base = 100;
-
-	UPROPERTY()
-		int32 as_base = 0;
-	UPROPERTY()
-		int32 as_delay = 0;
-
-	UPROPERTY()
-		EArmorStatus armor_status = EArmorStatus::HEAL;
+	
 	UPROPERTY()
 		int32 armor = 0;
 	UPROPERTY()
@@ -427,12 +468,33 @@ public:
 	UPROPERTY()
 		int32 armor_recovery_tick_max = 0;
 
+	UPROPERTY()
+		int32 str_base = 0;
+	UPROPERTY()
+		int32 dmg_base = 100;
+
+	UPROPERTY()
+		int32 as_base = 0;
+	UPROPERTY()
+		int32 as_delay = 0;
+
+	FDataSkill* sk_data = nullptr;
+	UPROPERTY()
+		int32 sk_ap_base = 100;
+	UPROPERTY()
+		int32 sk_cooldown_tick = 0;
+	UPROPERTY()
+		int32 sk_cooldown_tick_max = 0;
+
 
 	UPROPERTY()
 		float anim_rate_base = 0.f;
 
 	UPROPERTY()
 		AHD_Monster* target = nullptr;
+
+	UPROPERTY()
+		UAnimMontage* anim_attack_sk = nullptr;
 public:
 	FORCEINLINE const int32 GetHPTotal() const { return hp_base; }
 	FORCEINLINE const int32 GetHPMaxTotal() const { return hp_max_base; }
@@ -441,13 +503,17 @@ public:
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
 	FORCEINLINE const int32 GetArmorHeadTotal() const { return armor_heal_base; }
 	FORCEINLINE const int32 GetArmorRecoveryTotal() const { return armor_recovery_base; }
+	FORCEINLINE const int32 GetSKAPTotal() const { return sk_ap_base; }
 
 	FORCEINLINE const float GetHPRate() const { return (float)GetHPTotal() / (float)GetHPMaxTotal(); }
+	FORCEINLINE const float GetArmorHealRate() const { return (float)armor_heal_tick / (float)armor_heal_tick_max; }
+	FORCEINLINE const float GetArmorRecoveryRate() const { return (float)armor_recovery_tick / (float)armor_recovery_tick_max; }
+
 	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
 	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
 
-	FORCEINLINE const float GetArmorHealRate() const { return (float)armor_heal_tick / (float)armor_heal_tick_max; }
-	FORCEINLINE const float GetArmorRecoveryRate() const { return (float)armor_recovery_tick / (float)armor_recovery_tick_max; }
+	FORCEINLINE const float GetSKCooldownRate() const { return (float)sk_cooldown_tick / (float)sk_cooldown_tick_max; }
+
 };
 
 USTRUCT()

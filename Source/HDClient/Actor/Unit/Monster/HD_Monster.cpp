@@ -81,9 +81,25 @@ void AHD_Monster::MOBMove(const float f_delta_time, const FVector& v_loc_move, c
 	SetActorRotation(r_rot);
 }
 
-bool AHD_Monster::MOBUpdateAS(const uint8 i_tick_1frame)
+void AHD_Monster::MOBUpdateAS(const uint8 i_tick_1frame)
 {
-	return UnitUpdateAS(_info_monster.atk_basic_status, _info_monster.as_delay, _info_monster.GetASTotalDelay(), i_tick_1frame);
+	switch (_info_monster.atk_basic_status)
+	{
+	case EAttackBasicStatus::DETECT:
+		break;
+	case EAttackBasicStatus::TRY:
+		UnitSetStat(EUnitStatType::AS_DEALY, EUnitStatBy::NO, i_tick_1frame);
+		break;
+	case EAttackBasicStatus::DELAY:
+		UnitSetStat(EUnitStatType::AS_DEALY, EUnitStatBy::NO, i_tick_1frame);
+		if (UnitGetStat(EUnitStatType::AS_DEALY) >= _info_monster.GetASTotalDelay())
+		{
+			_info_monster.atk_basic_status = EAttackBasicStatus::DETECT;
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void AHD_Monster::MOBAttackBasicStart(AHD_Hero* target)
@@ -163,6 +179,10 @@ void AHD_Monster::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy
 
 		_ui_monster_headup->UIEnemyHeadUpSetHPBar(_info_monster.GetHPRate());
 		break;
+	case EUnitStatType::AS_DEALY:
+		if (_info_monster.as_delay < _info_monster.GetASTotalDelay())
+			_info_monster.as_delay += i_value;
+		break;
 	default:
 		break;
 	}
@@ -173,6 +193,9 @@ const int32 AHD_Monster::UnitGetStat(const EUnitStatType e_stat_type)
 	{
 	case EUnitStatType::HP:
 		return _info_monster.hp;
+		break;
+	case EUnitStatType::AS_DEALY:
+		return _info_monster.as_delay;
 		break;
 	default:
 		break;

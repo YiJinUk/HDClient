@@ -8,6 +8,7 @@
 #include "HD_Manager_Battle.generated.h"
 
 class AHD_Unit;
+class AHD_PC;
 
 /**
  * 
@@ -19,7 +20,7 @@ class HDCLIENT_API AHD_Manager_Battle : public AHD_Manager_Master
 
 #pragma region Init
 public:
-	void BattlePostInit();
+	void BattlePostInit(AHD_PC* pc);
 
 	FDamageInfo* PoolOutDMGInfo();
 	void PoolInDMGInfo(FDamageInfo* s_dmg_info);
@@ -33,6 +34,9 @@ private:
 	TArray<FDamageInfo*, TInlineAllocator<5>> _pool_dmg_info_pointer;
 	TArray<FDamageResult, TInlineAllocator<5>> _pool_dmg_rlt_origin;
 	TArray<FDamageResult*, TInlineAllocator<5>> _pool_dmg_rlt_pointer;
+
+	UPROPERTY()
+		AHD_PC* _pc = nullptr;
 
 	UPROPERTY()
 		FBattleHitResult _battle_hit_result;

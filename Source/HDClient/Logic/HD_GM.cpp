@@ -18,6 +18,7 @@
 #include "Manager/HD_Manager_Battle.h"
 #include "Manager/HD_Manager_Weapon.h"
 #include "Manager/HD_Manager_FX.h"
+#include "Manager/HD_Manager_Skill.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
@@ -76,10 +77,12 @@ void AHD_GM::GMPostInit()
 	_manager_battle = wld->SpawnActor<AHD_Manager_Battle>(s_param);
 	_manager_wp = wld->SpawnActor<AHD_Manager_Weapon>(s_param);
 	_manager_fx = wld->SpawnActor<AHD_Manager_FX>(s_param);
+	_manager_sk = wld->SpawnActor<AHD_Manager_Skill>(s_param);
 
 	_manager_pool->PoolPostInit(_gi, this);
-	_manager_battle->BattlePostInit();
+	_manager_battle->BattlePostInit(_pc);
 	_manager_fx->FXPostInit(_gi);
+	_manager_sk->SKPostInit(this);
 
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(EUnitClassType::HERO);
@@ -127,10 +130,14 @@ void AHD_GM::Tick(float DeltaTime)
 		_info_wave.spawn_enemy_interval_current += _info_wld.tick_unit_by_1frame;
 
 		TickCheckSpawnEnemy();
-		TickEnemyMoveAndAttack(DeltaTime);
+		TickMOBMoveAndAttack(DeltaTime);
 		TickPROJMoveAndAttack(DeltaTime);
+
 		TickHeroHealArmor();
+		TickHeroReduceCooldown();
+		TickHeroReduceAS();
 		TickHeroAttack();
+
 		TickCheckWaveEnd();
 		break;
 	default:
@@ -158,7 +165,7 @@ void AHD_GM::TickCheckSpawnEnemy()
 		}
 	}
 }
-void AHD_GM::TickEnemyMoveAndAttack(const float f_delta_time)
+void AHD_GM::TickMOBMoveAndAttack(const float f_delta_time)
 {
 	if (_spawned_monsters.Num() <= 0) return;
 	AHD_Monster* mob = nullptr;
@@ -174,7 +181,9 @@ void AHD_GM::TickEnemyMoveAndAttack(const float f_delta_time)
 		}
 		
 
-		if (mob->MOBUpdateAS(_info_wld.tick_unit_by_1frame))
+
+		mob->MOBUpdateAS(_info_wld.tick_unit_by_1frame);
+		if (mob->GetInfoMOB().atk_basic_status == EAttackBasicStatus::DETECT)
 		{
 			mob->MOBAttackBasicStart(_hero);
 		}
@@ -197,12 +206,22 @@ void AHD_GM::TickHeroHealArmor()
 {
 	_hero->HeroUpdateHealArmor(_info_wld.tick_unit_by_1frame);
 }
+void AHD_GM::TickHeroReduceCooldown()
+{
+	_hero->HeroUpdateReduceCooldown(_info_wld.tick_unit_by_1frame);
+}
+void AHD_GM::TickHeroReduceAS()
+{
+	_hero->HeroUpdateAS(_info_wld.tick_unit_by_1frame);
+}
 void AHD_GM::TickHeroAttack()
 {
-	/*공속 업데이트 및 공격가능여부*/
-	if (_hero->HeroUpdateAS(_info_wld.tick_unit_by_1frame))
+	if (_hero->GetInfoHero().atk_sk_status == EAttackSkillStatus::DETECT && _hero->GetInfoHero().atk_basic_status != EAttackBasicStatus::TRY)
 	{
-		/*타겟을 찾고 영웅에게 넘겨줌*/
+		_hero->HeroAttackSkillStart();
+	}
+	else if (_hero->GetInfoHero().atk_sk_status == EAttackSkillStatus::COOLDOWN && _hero->GetInfoHero().atk_basic_status == EAttackBasicStatus::DETECT)
+	{
 		_hero->HeroAttackBasicStart(FindMOBFirstByV2(_hero->GetActorLocation2D()));
 	}
 }
@@ -239,7 +258,7 @@ void AHD_GM::WorldStart()
 	_info_wave.spawn_enemy_interval_max =_gi->GetDataGame()->GetWaveEnemySpawnInterval();
 
 	/*영웅 초기화*/
-	_hero->HeroInit();
+	_hero->HeroInit(_gi->GetDataHero());
 
 	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
 	_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;
@@ -274,15 +293,7 @@ void AHD_GM::WorldReturnToHome()
 		}
 		//_spawned_monsters.Empty(50);
 	}
-	if (_spawned_projs.Num() >= 1)
-	{
-		for (auto proj = _spawned_projs.CreateConstIterator(); proj; ++proj)
-		{
-			(*proj)->PROJGameOverInit();
-			_manager_pool->PoolInPROJ(*proj);
-		}
-		_spawned_projs.Empty(50);
-	}
+	PROJAllPoolIn();
 	_hero->HeroToHomeInit();
 
 	_info_wld.wld_status = EWorldStatus::HOME;
@@ -312,8 +323,11 @@ void AHD_GM::WaveStart()
 }
 void AHD_GM::WaveEnd()
 {
-	_info_wld.wld_status = EWorldStatus::WAVE_END;
 	_hero->HeroWaveEndInit();
+	PROJAllPoolIn();
+
+	_info_wld.wld_status = EWorldStatus::WAVE_END;
+
 	_pc->PCWaveEnd();
 }
 void AHD_GM::WaveNext()
@@ -454,7 +468,20 @@ void AHD_GM::PROJFinish(AHD_Projectile* proj)
 	_manager_pool->PoolInPROJ(proj);
 	_spawned_projs.Remove(proj);
 }
+void AHD_GM::PROJAllPoolIn()
+{
+	if (_spawned_projs.Num() >= 1)
+	{
+		for (auto proj = _spawned_projs.CreateConstIterator(); proj; ++proj)
+		{
+			//(*proj)->PROJGameOverInit();
+			_manager_pool->PoolInPROJ(*proj);
+		}
+		_spawned_projs.Empty(50);
+	}
+}
 void AHD_GM::BattleSend(AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type) { _manager_battle->BattleRecv(atk, def, i_dmg, e_atk_type); }
 
 const int64 AHD_GM::IdGenerate() { return ++_id_generator; }
 AHD_Hero* AHD_GM::GetHero() { return _hero; }
+AHD_Manager_Skill* AHD_GM::GetManagerSK() { return _manager_sk; }

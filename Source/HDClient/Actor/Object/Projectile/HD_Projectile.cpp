@@ -145,14 +145,18 @@ void AHD_Projectile::PROJDetect()
 }
 void AHD_Projectile::PROJAttack(AHD_Unit* unit_target)
 {
-	//switch (_info_proj.attack_type)
-	//{
-	//case EPROJAttackType::HERO_ATTACK_BASIC:
-	//	break;
-	//default:
-	//	break;
-	//}
-	_info_proj.owner->UnitDoAttackBasic(unit_target);
+	switch (_info_proj.attack_type)
+	{
+	case EPROJAttackType::HERO_ATTACK_BASIC:
+	case EPROJAttackType::MONSTER_ATTACK_BASIC:
+		_info_proj.owner->UnitDoAttackBasic(unit_target);
+		break;
+	case EPROJAttackType::HERO_ATTACK_SKILL:
+		_info_proj.owner->UnitDoAttackSK(unit_target);
+		break;
+	default:
+		break;
+	}
 
 	PROJFinish();
 }
