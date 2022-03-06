@@ -58,8 +58,6 @@ void AHD_GM::GMPostInit()
 	if (arr_found_actor.Num() >= 1) { _hero = Cast<AHD_Hero>(arr_found_actor[0]); }
 	UGameplayStatics::GetAllActorsOfClass(wld, AHD_MagicStone::StaticClass(), arr_found_actor);
 	if (arr_found_actor.Num() >= 1) { _ms = Cast<AHD_MagicStone>(arr_found_actor[0]); }
-	UGameplayStatics::GetAllActorsOfClass(wld, AHD_Companion::StaticClass(), arr_found_actor);
-	if (arr_found_actor.Num() >= 1) { _cpan = Cast<AHD_Companion>(arr_found_actor[0]); }
 
 	/*월드에 존재하는 스플라인액터를 통해 스플라인컴포넌트 가져오기*/
 	UGameplayStatics::GetAllActorsOfClass(wld, AHD_Spline::StaticClass(), arr_found_actor);
@@ -87,6 +85,8 @@ void AHD_GM::GMPostInit()
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(_pc, EUnitClassType::HERO);
 	_hero->HeroPostInit(_gi->GetDataHero());
+
+	ChangeCPANStartByCode("CPAN00001");
 
 	/*플레이어 초기화*/
 	ChangeWeaponStartByCode("WP00101");
@@ -436,6 +436,20 @@ AHD_Monster* AHD_GM::FindMOBNearByV2(const FVector2D& v2_loc_center, const int64
 	}
 
 	return mob_target_candidate;
+}
+
+void AHD_GM::ChangeCPANStartByCode(const FString& str_code_cpan)
+{
+	//@변경 가능한지 검증단계 필요
+
+	/*장착중인 무기 풀인*/
+	_manager_pool->PoolInCPAN(_cpan);
+
+	/*새로운 무기 장착*/
+	_cpan = _manager_pool->PoolGetCPAN(str_code_cpan);
+	if (!_cpan) return;
+
+	_cpan->CPANInit(_gi->GetDataGame()->GetCPANSpawnLocation());
 }
 
 void AHD_GM::ChangeWeaponStartByCode(const FString& str_code_wp)

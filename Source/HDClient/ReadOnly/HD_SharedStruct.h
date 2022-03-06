@@ -15,6 +15,7 @@ class AHD_Monster;
 class AHD_Projectile;
 class AHD_Unit;
 class AHD_Hero;
+class AHD_Companion;
 
 /**
  * 
@@ -47,6 +48,7 @@ enum class EUnitClassType : uint8
 {
 	ENEMY,
 	HERO,
+	CPAN,
 };
 
 UENUM()
@@ -133,8 +135,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Wave")
 		uint8 _wave_enemy_spawn_interval = 0;
 
-	UPROPERTY(EditAnywhere, Category = "Enemy")
+	UPROPERTY(EditAnywhere, Category = "Monster")
 		FVector _enemy_spawn_location = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Companion")
+		FVector _cpan_spawn_location = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 		int32 _proj_speed = 2500;
@@ -142,7 +147,8 @@ protected:
 		int32 _proj_detect_range = 150;
 public:
 	FORCEINLINE const uint8 GetWaveEnemySpawnInterval() { return _wave_enemy_spawn_interval; }
-	FORCEINLINE const FVector GetEnemySpawnLocation() { return _enemy_spawn_location; }
+	FORCEINLINE const FVector& GetEnemySpawnLocation() { return _enemy_spawn_location; }
+	FORCEINLINE const FVector& GetCPANSpawnLocation() { return _cpan_spawn_location; }
 	FORCEINLINE const int32 GetPROJSpeed() { return _proj_speed; }
 	FORCEINLINE const int32 GetPROJDetectRange() { return _proj_detect_range; }
 };
@@ -250,6 +256,35 @@ public:
 	FORCEINLINE const int32 GetSTR() { return _str; }
 	FORCEINLINE const int32 GetAS() { return _as; }
 	FORCEINLINE const int32 GetMoveSpeed() { return _move_speed; }
+	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
+};
+USTRUCT(BlueprintType)
+struct FDataCPAN : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		TSubclassOf<AHD_Companion> _class_cpan;
+	UPROPERTY(EditAnywhere, Category = "General")
+		FString _code = "0";
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		FString _code_proj = "0";
+
+	UPROPERTY(EditAnywhere, Category = "Stat")
+		int32 _str = 0;
+	UPROPERTY(EditAnywhere, Category = "Stat")
+		int32 _as = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		UAnimMontage* _anim_attack_basic = nullptr;
+public:
+	FORCEINLINE const TSubclassOf<AHD_Companion>& GetClassCPAN() { return _class_cpan; }
+	FORCEINLINE const FString& GetCode() { return _code; }
+	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
+	FORCEINLINE const int32 GetSTR() { return _str; }
+	FORCEINLINE const int32 GetAS() { return _as; }
 	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
 };
 USTRUCT(BlueprintType)
@@ -591,6 +626,45 @@ public:
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
 
 	FORCEINLINE const float GetHPRate() const { return (float)hp / (float)hp_max; }
+	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
+	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
+};
+
+USTRUCT()
+struct FInfoCPAN
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		int64 id = 0;
+	UPROPERTY()
+		FString code = "0";
+
+	UPROPERTY()
+		EAttackBasicStatus atk_basic_status = EAttackBasicStatus::DELAY;
+	UPROPERTY()
+		AHD_Monster* target = nullptr;
+
+	UPROPERTY()
+		FString code_proj = "0";
+
+	UPROPERTY()
+		int32 str_base = 0;
+	UPROPERTY()
+		int32 dmg_base = 100;
+	UPROPERTY()
+		int32 as_base = 0;
+	UPROPERTY()
+		int32 as_delay = 0;
+
+	UPROPERTY()
+		UAnimMontage* anim_attack_basic = nullptr;
+public:
+	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
+	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
+	FORCEINLINE const int32 GetASTotal() const { return as_base; }
+
 	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
 	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
 };

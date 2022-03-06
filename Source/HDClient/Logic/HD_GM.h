@@ -159,6 +159,12 @@ private:
 		TArray<AHD_Monster*> _spawned_monsters;
 #pragma endregion
 
+#pragma region Companion
+public:
+	UFUNCTION(BlueprintCallable)
+		void ChangeCPANStartByCode(const FString& str_code_cpan);
+#pragma endregion
+
 #pragma region Weapon
 public:
 	UFUNCTION(BlueprintCallable)

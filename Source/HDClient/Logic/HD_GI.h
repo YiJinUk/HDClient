@@ -25,11 +25,13 @@ public:
 #pragma region Data
 public:
 	FDataMonster* FindDataMOBByCode(const FString& str_code_mob);
+	FDataCPAN* FindDataCPANByCode(const FString& str_code_cpan);
 	FDataProjectile* FindDataPROJByCode(const FString& str_code_proj);
 	FDataVFX* FindDataVFXByCode(const FString& str_code_vfx);
 	FDataSkill* FindDataSKByCode(const FString& str_code_sk);
 
 	const TArray<FDataWeapon*>& GetDataWeapons();
+	const TArray<FDataCPAN*>& GetDataCPANs();
 	const TArray<FDataWave*>& GetDataWaves();
 	FDataGame* GetDataGame();
 	FDataHero* GetDataHero();
@@ -38,12 +40,14 @@ private:
 	UDataTable* _dt_wave = nullptr;
 	UDataTable* _dt_hero = nullptr;
 	UDataTable* _dt_mob = nullptr;
+	UDataTable* _dt_cpan = nullptr;
 	UDataTable* _dt_weapon = nullptr;
 	UDataTable* _dt_proj = nullptr;
 	UDataTable* _dt_vfx = nullptr;
 	UDataTable* _dt_sk = nullptr;
 
 	TArray<FDataWeapon*> _data_wps;
+	TArray<FDataCPAN*> _data_cpans;
 	TArray<FDataWave*> _data_waves;
 	FDataGame* _data_game = nullptr;
 	FDataHero* _data_hero = nullptr;

@@ -14,4 +14,11 @@ class HDCLIENT_API AHD_Companion : public AHD_Friend
 {
 	GENERATED_BODY()
 	
+public:
+	void CPANPostInit(FDataCPAN* s_data_cpan);
+	void CPANInit(const FVector& v_loc_spawn);
+	const FInfoCPAN& GetInfoCPAN();
+private:
+	UPROPERTY()
+		FInfoCPAN _info_cpan;
 };
