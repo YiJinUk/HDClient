@@ -33,6 +33,19 @@ private:
 		AHD_GM* _gm = nullptr;
 #pragma endregion
 
+#pragma region Input
+protected:
+	virtual void SetupInputComponent() override;
+private:
+	void TapPressed();
+	void TapReleased();
+private:
+	UPROPERTY()
+		bool _is_tap_pressed = false;
+	UPROPERTY()
+		FHitResult _tap_hit = FHitResult();
+#pragma endregion
+
 #pragma region Widget
 private:
 	UPROPERTY()

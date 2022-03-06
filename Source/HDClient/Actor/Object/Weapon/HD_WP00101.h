@@ -13,7 +13,4 @@ UCLASS()
 class HDCLIENT_API AHD_WP00101 : public AHD_Weapon
 {
 	GENERATED_BODY()
-	
-private:
-	void WPAttackBasic(AHD_Monster* target) override;
 };

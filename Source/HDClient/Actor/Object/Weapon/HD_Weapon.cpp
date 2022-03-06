@@ -2,6 +2,7 @@
 
 
 #include "Actor/Object/Weapon/HD_Weapon.h"
+#include "Actor/Unit/Friend/Hero/HD_Hero.h"
 #include "Logic/HD_GM.h"
 
 void AHD_Weapon::WPPostInit(FDataWeapon* s_data_wp, AHD_Hero* hero)
@@ -35,9 +36,10 @@ void AHD_Weapon::WPSetActiveTick(const bool b_is_active)
 	}
 }
 
-void AHD_Weapon::WPAttackBasic(AHD_Monster* target)
+void AHD_Weapon::WPAttackBasic(AHD_Monster* target, const FVector2D& v2_dest)
 {
 	//override
+	_gm->PROJSpawn(_info_wp.code_proj, _info_wp.owner_hero->GetActorLocation(), _info_wp.owner_hero, nullptr, v2_dest);
 }
 
 const FInfoWeapon& AHD_Weapon::GetInfoWP() { return _info_wp; }

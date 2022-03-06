@@ -20,10 +20,24 @@ void AHD_PC::PCPostInit()
 	for (int32 i = 0; i < 30; ++i)
 		_pool_floating_dmg_num.Add(PCBPCreateWidgetFloatingDMGNumber());
 }
+void AHD_PC::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("Tap", IE_Pressed, this, &AHD_PC::TapPressed);
+	InputComponent->BindAction("Tap", IE_Released, this, &AHD_PC::TapReleased);
+}
+void AHD_PC::TapPressed() { _is_tap_pressed = true; }
+void AHD_PC::TapReleased() { _is_tap_pressed = false; }
 void AHD_PC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//UHD_FunctionLibrary::GPrintString(3232, 1, "num : " + FString::FromInt(_pool_floating_dmg_num.Num()));
+	if (!_gm) return;
+	if (_is_tap_pressed)
+	{
+		GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel1, false, _tap_hit);
+		_gm->ChangeHeroPROJVelocity(_tap_hit.Location);
+	}
 }
 
 void AHD_PC::PCWorldStart()

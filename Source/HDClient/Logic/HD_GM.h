@@ -129,6 +129,8 @@ private:
 
 #pragma region Hero
 public:
+	void ChangeHeroPROJVelocity(const FVector& v_loc);
+
 	AHD_Hero* GetHero();
 private:
 	UPROPERTY()

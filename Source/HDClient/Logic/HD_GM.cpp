@@ -233,7 +233,7 @@ void AHD_GM::TickFriendAttack()
 	}
 	else if (_hero->GetInfoHero().atk_sk_status == EAttackSkillStatus::COOLDOWN && _hero->GetInfoHero().atk_basic_status == EAttackBasicStatus::DETECT)
 	{
-		_hero->HeroAttackBasicStart(FindMOBFirstByV2(_hero->GetActorLocation2D()));
+		_hero->HeroAttackBasicStart();
 	}
 
 	if (_cpan->GetInfoCPAN().atk_sk_status == EAttackSkillStatus::DETECT && _cpan->GetInfoCPAN().atk_basic_status != EAttackBasicStatus::TRY)
@@ -385,6 +385,11 @@ void AHD_GM::WaveNext()
 
 		_pc->PCWaveNext(_info_wld.round_stage, _info_wld.round_wave);
 	}
+}
+
+void AHD_GM::ChangeHeroPROJVelocity(const FVector& v_loc)
+{
+	_hero->HeroSetPROJVelocity(v_loc);
 }
 
 void AHD_GM::MOBSpawn(const FString& str_code_mob)

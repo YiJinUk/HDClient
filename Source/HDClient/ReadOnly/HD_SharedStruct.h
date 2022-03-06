@@ -588,6 +588,8 @@ public:
 	UPROPERTY()
 		int32 sk_cooldown_tick_max = 0;
 
+	UPROPERTY()
+		FVector look_loc = FVector::ZeroVector;
 
 	UPROPERTY()
 		float anim_rate_base = 0.f;

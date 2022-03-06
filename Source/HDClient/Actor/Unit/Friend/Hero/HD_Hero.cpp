@@ -45,6 +45,8 @@ void AHD_Hero::HeroInit(FDataHero* s_data_hero)
 	UnitSetStat(EUnitStatType::ARMOR_HEAL_TICK, EUnitStatBy::NO, -99999);
 	UnitSetStat(EUnitStatType::ARMOR_RECOVERY_TICK, EUnitStatBy::NO, -99999);
 	UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, -99999);
+
+	//_info_hero.proj_velocity_2d = FVector2D(1.f);
 }
 void AHD_Hero::HeroWaveEndInit()
 {
@@ -126,37 +128,34 @@ void AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
 		break;
 	}
 }
-void AHD_Hero::HeroAttackBasicStart(AHD_Monster* target)
+void AHD_Hero::HeroAttackBasicStart()
 {
-	if (target)
-	{
-		//이미 기본공격시도중입니다
-		if (_info_hero.atk_basic_status == EAttackBasicStatus::TRY) return;
+	//이미 기본공격시도중입니다
+	if (_info_hero.atk_basic_status == EAttackBasicStatus::TRY) return;
 
-		_info_hero.atk_basic_status = EAttackBasicStatus::TRY;
-		_info_hero.target = target;
-		_info_hero.as_delay = 0;
-		SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), _info_hero.target->GetActorLocation()), 0.f));
-		_anim_instance->Montage_Play(_info_hero.wp_equip->GetInfoWP().anim_attack_basic, (_info_hero.GetASTotal() / 60.f) / _info_hero.anim_rate_base);
-	}
+	_info_hero.atk_basic_status = EAttackBasicStatus::TRY;
+	_info_hero.as_delay = 0;
+	_anim_instance->Montage_Play(_info_hero.wp_equip->GetInfoWP().anim_attack_basic, (_info_hero.GetASTotal() / 60.f) / _info_hero.anim_rate_base);
 }
 void AHD_Hero::HeroAttackBasicNotify()
 {
-	if (!_info_hero.target || !_info_hero.target->GetInfoUnit().is_hit_valid)
-	{
-		//UHD_FunctionLibrary::GSaveLog("HeroAttackBasicNotify.Target InValid", "Hero Attack.txt");
-		/*피해를 주려고 했지만 애니메이션도중 적의 상태가 피격이 무효하게 바뀌었습니다*/
-		_info_hero.atk_basic_status = EAttackBasicStatus::DETECT;
-		_info_hero.as_delay = _info_hero.GetASTotalDelay();
-	}
-	else
-	{
-		//UHD_FunctionLibrary::GSaveLog("HeroAttackBasicNotify.Target Valid Attack", "Hero Attack.txt");
-		/*피해를 주고 다시 기본공격대기상태로 돌아갑니다*/
-		//무기마다 기본공격양상이 다르기 때문에 무기클래스에서 공격을 시도합니다
-		_info_hero.wp_equip->WPAttackBasic(_info_hero.target);
-		_info_hero.atk_basic_status = EAttackBasicStatus::DELAY;
-	}
+	//if (!_info_hero.target || !_info_hero.target->GetInfoUnit().is_hit_valid)
+	//{
+	//	//UHD_FunctionLibrary::GSaveLog("HeroAttackBasicNotify.Target InValid", "Hero Attack.txt");
+	//	/*피해를 주려고 했지만 애니메이션도중 적의 상태가 피격이 무효하게 바뀌었습니다*/
+	//	_info_hero.atk_basic_status = EAttackBasicStatus::DETECT;
+	//	_info_hero.as_delay = _info_hero.GetASTotalDelay();
+	//}
+	//else
+	//{
+	//	//UHD_FunctionLibrary::GSaveLog("HeroAttackBasicNotify.Target Valid Attack", "Hero Attack.txt");
+	//	/*피해를 주고 다시 기본공격대기상태로 돌아갑니다*/
+	//	//무기마다 기본공격양상이 다르기 때문에 무기클래스에서 공격을 시도합니다
+	//	_info_hero.wp_equip->WPAttackBasic(_info_hero.target);
+	//	_info_hero.atk_basic_status = EAttackBasicStatus::DELAY;
+	//}
+	_info_hero.wp_equip->WPAttackBasic(_info_hero.target, FVector2D(_info_hero.look_loc.X, _info_hero.look_loc.Y));
+	_info_hero.atk_basic_status = EAttackBasicStatus::DELAY;
 }
 void AHD_Hero::UnitDoAttackBasic(AHD_Unit* unit_target)
 {
@@ -194,7 +193,6 @@ void AHD_Hero::HeroAttackSkillStart()
 		_info_hero.atk_sk_status = EAttackSkillStatus::TRY;
 		_info_hero.target = mob_target;
 		_info_hero.sk_cooldown_tick = 0;
-		SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), _info_hero.target->GetActorLocation()), 0.f));
 		_anim_instance->Montage_Play(_info_hero.anim_attack_sk);
 	}
 }
@@ -311,4 +309,9 @@ const int32 AHD_Hero::UnitGetStat(const EUnitStatType e_stat_type)
 	return int32();
 }
 
+void AHD_Hero::HeroSetPROJVelocity(const FVector& v_look_loc)
+{ 
+	_info_hero.look_loc = v_look_loc;
+	SetActorRotation(FRotator(0.f, UHD_FunctionLibrary::GetFindLookRotatorYawByV3(GetActorLocation(), v_look_loc), 0.f));
+}
 const FInfoHero& AHD_Hero::GetInfoHero() { return _info_hero; }

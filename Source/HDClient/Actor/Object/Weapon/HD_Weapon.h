@@ -35,6 +35,6 @@ protected:
 
 #pragma region Attack.Basic
 public:
-	virtual void WPAttackBasic(AHD_Monster* target);
+	virtual void WPAttackBasic(AHD_Monster* target, const FVector2D& v2_dest);
 #pragma endregion
 };
