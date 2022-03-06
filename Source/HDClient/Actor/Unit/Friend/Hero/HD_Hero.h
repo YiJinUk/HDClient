@@ -31,8 +31,7 @@ public:
 private:
 	UPROPERTY()
 		FInfoHero _info_hero;
-	UPROPERTY()
-		UHD_GI* _gi = nullptr;
+	
 #pragma endregion
 
 #pragma region Weapon

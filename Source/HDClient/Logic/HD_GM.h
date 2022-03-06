@@ -57,12 +57,13 @@ private:
 	void TickCheckSpawnEnemy();
 	void TickMOBMoveAndAttack(const float f_delta_time);
 	void TickPROJMoveAndAttack(const float f_delta_time);
-	void TickFriendMP();
 
 	void TickHeroHealArmor();
 	void TickHeroReduceCooldown();
-	void TickHeroReduceAS();
-	void TickHeroAttack();
+
+	void TickFriendCooldown();
+	void TickFriendReduceAS();
+	void TickFriendAttack();
 
 	void TickCheckWaveEnd();
 #pragma endregion

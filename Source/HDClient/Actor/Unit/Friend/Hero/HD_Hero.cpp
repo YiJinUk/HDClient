@@ -14,7 +14,6 @@
 
 void AHD_Hero::HeroPostInit(FDataHero* s_data_hero)
 {
-	_gi = GetWorld()->GetGameInstance<UHD_GI>();
 	_info_hero.hp_base = s_data_hero->GetHP();
 	_info_hero.hp_max_base = s_data_hero->GetHP();
 
@@ -106,26 +105,6 @@ void AHD_Hero::HeroUpdateHealArmor(const uint8 i_tick_1frame)
 		break;
 	}
 }
-void AHD_Hero::HeroUpdateReduceCooldown(const uint8 i_tick_1frame)
-{
-	switch (_info_hero.atk_sk_status)
-	{
-	case EAttackSkillStatus::DETECT:
-		break;
-	case EAttackSkillStatus::TRY:
-		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
-		break;
-	case EAttackSkillStatus::COOLDOWN:
-		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
-		if (UnitGetStat(EUnitStatType::SK_COOLDOWN_TICK) >= _info_hero.sk_cooldown_tick_max)
-		{
-			_info_hero.atk_sk_status = EAttackSkillStatus::DETECT;
-		}
-		break;
-	default:
-		break;
-	}
-}
 
 void AHD_Hero::HeroUpdateAS(const uint8 i_tick_1frame)
 {
@@ -184,6 +163,26 @@ void AHD_Hero::UnitDoAttackBasic(AHD_Unit* unit_target)
 	_gm->BattleSend(this, unit_target, _info_hero.GetAttackBasicDMG(), EAttackType::BASIC);
 }
 
+void AHD_Hero::HeroUpdateReduceCooldown(const uint8 i_tick_1frame)
+{
+	switch (_info_hero.atk_sk_status)
+	{
+	case EAttackSkillStatus::DETECT:
+		break;
+	case EAttackSkillStatus::TRY:
+		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
+		break;
+	case EAttackSkillStatus::COOLDOWN:
+		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
+		if (UnitGetStat(EUnitStatType::SK_COOLDOWN_TICK) >= _info_hero.sk_cooldown_tick_max)
+		{
+			_info_hero.atk_sk_status = EAttackSkillStatus::DETECT;
+		}
+		break;
+	default:
+		break;
+	}
+}
 void AHD_Hero::HeroAttackSkillStart()
 {
 	AHD_Monster* mob_target = _gm->FindMOBFirstByV2(GetActorLocation2D());
@@ -211,7 +210,7 @@ void AHD_Hero::HeroAttackSKNotify()
 	{
 		/*피해를 주고 다시 기본공격대기상태로 돌아갑니다*/
 		//무기마다 기본공격양상이 다르기 때문에 무기클래스에서 공격을 시도합니다
-		_gm->PROJSpawn("PROJ10001", GetActorLocation(), this, _info_hero.target);
+		_gm->PROJSpawn("PROJ10003", GetActorLocation(), this, _info_hero.target);
 		_info_hero.atk_sk_status = EAttackSkillStatus::COOLDOWN;
 	}
 }

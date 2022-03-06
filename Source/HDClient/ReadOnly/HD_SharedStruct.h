@@ -62,7 +62,10 @@ enum class EPROJAttackType : uint8
 {
 	HERO_ATTACK_BASIC,
 	HERO_ATTACK_SKILL,
+	CPAN_ATTACK_BASIC,
+	CPAN_ATTACK_SKILL,
 	MONSTER_ATTACK_BASIC,
+	MONSTER_ATTACK_SKILL,
 };
 
 UENUM()
@@ -270,22 +273,32 @@ protected:
 		FString _code = "0";
 
 	UPROPERTY(EditAnywhere, Category = "Projectile")
-		FString _code_proj = "0";
+		FString _code_proj_basic = "0";
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		FString _code_proj_sk = "0";
 
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _str = 0;
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _as = 0;
 
+	UPROPERTY(EditAnywhere, Category = "Stat.Skill")
+		FString _sk_code = "0";
+
 	UPROPERTY(EditAnywhere, Category = "Animation")
 		UAnimMontage* _anim_attack_basic = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		UAnimMontage* _anim_attack_sk = nullptr;
 public:
 	FORCEINLINE const TSubclassOf<AHD_Companion>& GetClassCPAN() { return _class_cpan; }
 	FORCEINLINE const FString& GetCode() { return _code; }
-	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
+	FORCEINLINE const FString& GetCodePROJBasic() { return _code_proj_basic; }
+	FORCEINLINE const FString& GetCodePROJSK() { return _code_proj_sk; }
 	FORCEINLINE const int32 GetSTR() { return _str; }
 	FORCEINLINE const int32 GetAS() { return _as; }
+	FORCEINLINE const FString& GetCodeSK() { return _sk_code; }
 	FORCEINLINE UAnimMontage* GetAnimAttackBasic() { return _anim_attack_basic; }
+	FORCEINLINE UAnimMontage* GetAnimAttackSK() { return _anim_attack_sk; }
 };
 USTRUCT(BlueprintType)
 struct FDataWeapon : public FTableRowBase
@@ -644,10 +657,14 @@ public:
 	UPROPERTY()
 		EAttackBasicStatus atk_basic_status = EAttackBasicStatus::DELAY;
 	UPROPERTY()
+		EAttackSkillStatus atk_sk_status = EAttackSkillStatus::COOLDOWN;
+	UPROPERTY()
 		AHD_Monster* target = nullptr;
 
 	UPROPERTY()
-		FString code_proj = "0";
+		FString code_proj_basic = "0";
+	UPROPERTY()
+		FString code_proj_sk = "0";
 
 	UPROPERTY()
 		int32 str_base = 0;
@@ -658,12 +675,26 @@ public:
 	UPROPERTY()
 		int32 as_delay = 0;
 
+	FDataSkill* sk_data = nullptr;
+	UPROPERTY()
+		int32 sk_ap_base = 100;
+	UPROPERTY()
+		int32 sk_cooldown_tick = 0;
+	UPROPERTY()
+		int32 sk_cooldown_tick_max = 0;
+
+	UPROPERTY()
+		float anim_rate_base = 0.f;
+
 	UPROPERTY()
 		UAnimMontage* anim_attack_basic = nullptr;
+	UPROPERTY()
+		UAnimMontage* anim_attack_sk = nullptr;
 public:
 	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
 	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
+	FORCEINLINE const int32 GetSKAPTotal() const { return sk_ap_base; }
 
 	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
 	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }

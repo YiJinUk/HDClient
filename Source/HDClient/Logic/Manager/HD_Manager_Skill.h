@@ -8,8 +8,10 @@
 #include "HD_Manager_Skill.generated.h"
 
 class AHD_GM;
+class AHD_Unit;
 class AHD_Hero;
 class AHD_Monster;
+class AHD_Companion;
 
 /**
  * 
@@ -21,9 +23,11 @@ class HDCLIENT_API AHD_Manager_Skill : public AHD_Manager_Master
 	
 public:
 	void SKPostInit(AHD_GM* gm);
-
-	void DoSkillHero(AHD_Hero* hero, AHD_Monster* mob, const FDataSkill* s_data_sk);
 private:
 	UPROPERTY()
 		AHD_GM* _gm = nullptr;
+
+public:
+	void DoSkillHero(AHD_Hero* hero, AHD_Monster* mob, const FDataSkill* s_data_sk);
+	void DoSkillCPAN(AHD_Companion* cpan, AHD_Unit* unit, const FDataSkill* s_data_sk);
 };

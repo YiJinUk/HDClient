@@ -4,6 +4,7 @@
 #include "Actor/Unit/HD_Unit.h"
 #include "Logic/Animation/HD_AM.h"
 #include "Logic/HD_GM.h"
+#include "Logic/HD_GI.h"
 
 #include "Components/SkeletalMeshComponent.h"
 
@@ -37,6 +38,7 @@ void AHD_Unit::UnitPostInit(AHD_PC* pc, const EUnitClassType e_unit_type)
 		_anim_instance = Cast<UHD_AM>(_skeletal_mesh->GetAnimInstance());
 	if(_anim_instance)
 		_anim_instance->AMPostInit(this);
+	_gi = GetWorld()->GetGameInstance<UHD_GI>();
 	_gm = GetWorld()->GetAuthGameMode<AHD_GM>();
 	_pc = pc;
 

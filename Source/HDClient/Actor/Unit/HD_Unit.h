@@ -9,6 +9,7 @@
 
 class UHD_AM;
 class UHD_AM_Hero;
+class UHD_GI;
 class AHD_GM;
 class AHD_PC;
 
@@ -37,6 +38,8 @@ protected:
 
 	UPROPERTY()
 		UHD_AM* _anim_instance = nullptr;
+	UPROPERTY()
+		UHD_GI* _gi = nullptr;
 	UPROPERTY()
 		AHD_GM* _gm = nullptr;
 	UPROPERTY()

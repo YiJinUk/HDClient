@@ -102,15 +102,24 @@ void AHD_GM::Tick(float DeltaTime)
 		if (_spawned_monsters.Num() >= 1)
 		{
 			FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_monsters[0]->GetInfoMOB().atk_basic_status);
-			UHD_FunctionLibrary::GPrintString(10, 1, str_enum, FColor::Red);
-			UHD_FunctionLibrary::GPrintString(11, 1, FString::FromInt(_spawned_monsters[0]->GetInfoMOB().as_delay), FColor::Red);
+			UHD_FunctionLibrary::GPrintString(10, 1, "MONSTER : " + str_enum, FColor::Red);
+			UHD_FunctionLibrary::GPrintString(11, 1, "MONSTER : " + FString::FromInt(_spawned_monsters[0]->GetInfoMOB().as_delay), FColor::Red);
 		}
 		if (_hero)
 		{
 
 			FString str_enum = enumPtr->GetNameStringByIndex((int32)_hero->GetInfoHero().atk_basic_status);
-			UHD_FunctionLibrary::GPrintString(1, 1, str_enum);
-			UHD_FunctionLibrary::GPrintString(2, 1, FString::FromInt(_hero->GetInfoHero().as_delay));
+			UHD_FunctionLibrary::GPrintString(1, 1, "HERO : " + str_enum);
+			UHD_FunctionLibrary::GPrintString(2, 1, "HERO : " + FString::FromInt(_hero->GetInfoHero().as_delay));
+			//UHD_FunctionLibrary::GSaveLog("Tick.Hero ASDelay : "+ FString::FromInt(_hero->GetInfoHero().as_delay)+ " // Hero Status : " + str_enum, "Hero Attack.txt");
+			//UHD_FunctionLibrary::GSaveLog("Tick.Hero Status : " + str_enum, "Hero Attack.txt");
+		}
+		if (_cpan)
+		{
+
+			FString str_enum = enumPtr->GetNameStringByIndex((int32)_cpan->GetInfoCPAN().atk_basic_status);
+			UHD_FunctionLibrary::GPrintString(21, 1, "COMPANION : " + str_enum, FColor::Turquoise);
+			UHD_FunctionLibrary::GPrintString(22, 1, "COMPANION : " + FString::FromInt(_hero->GetInfoHero().as_delay),FColor::Turquoise);
 			//UHD_FunctionLibrary::GSaveLog("Tick.Hero ASDelay : "+ FString::FromInt(_hero->GetInfoHero().as_delay)+ " // Hero Status : " + str_enum, "Hero Attack.txt");
 			//UHD_FunctionLibrary::GSaveLog("Tick.Hero Status : " + str_enum, "Hero Attack.txt");
 		}
@@ -135,8 +144,10 @@ void AHD_GM::Tick(float DeltaTime)
 
 		TickHeroHealArmor();
 		TickHeroReduceCooldown();
-		TickHeroReduceAS();
-		TickHeroAttack();
+
+		TickFriendCooldown();
+		TickFriendReduceAS();
+		TickFriendAttack();
 
 		TickCheckWaveEnd();
 		break;
@@ -198,23 +209,25 @@ void AHD_GM::TickPROJMoveAndAttack(const float f_delta_time)
 		(*proj)->PROJMoveAndAttack(f_delta_time);
 	}
 }
-void AHD_GM::TickFriendMP()
-{
-
-}
 void AHD_GM::TickHeroHealArmor()
 {
 	_hero->HeroUpdateHealArmor(_info_wld.tick_unit_by_1frame);
 }
 void AHD_GM::TickHeroReduceCooldown()
 {
+	_cpan->CPANUpdateReduceCooldown(_info_wld.tick_unit_by_1frame);
 	_hero->HeroUpdateReduceCooldown(_info_wld.tick_unit_by_1frame);
 }
-void AHD_GM::TickHeroReduceAS()
+void AHD_GM::TickFriendCooldown()
+{
+
+}
+void AHD_GM::TickFriendReduceAS()
 {
 	_hero->HeroUpdateAS(_info_wld.tick_unit_by_1frame);
+	_cpan->CPANUpdateAS(_info_wld.tick_unit_by_1frame);
 }
-void AHD_GM::TickHeroAttack()
+void AHD_GM::TickFriendAttack()
 {
 	if (_hero->GetInfoHero().atk_sk_status == EAttackSkillStatus::DETECT && _hero->GetInfoHero().atk_basic_status != EAttackBasicStatus::TRY)
 	{
@@ -223,6 +236,15 @@ void AHD_GM::TickHeroAttack()
 	else if (_hero->GetInfoHero().atk_sk_status == EAttackSkillStatus::COOLDOWN && _hero->GetInfoHero().atk_basic_status == EAttackBasicStatus::DETECT)
 	{
 		_hero->HeroAttackBasicStart(FindMOBFirstByV2(_hero->GetActorLocation2D()));
+	}
+
+	if (_cpan->GetInfoCPAN().atk_sk_status == EAttackSkillStatus::DETECT && _cpan->GetInfoCPAN().atk_basic_status != EAttackBasicStatus::TRY)
+	{
+		_cpan->CPANAttackSkillStart();
+	}
+	else if (_cpan->GetInfoCPAN().atk_sk_status == EAttackSkillStatus::COOLDOWN && _cpan->GetInfoCPAN().atk_basic_status == EAttackBasicStatus::DETECT)
+	{
+		_cpan->CPANAttackBasicStart(FindMOBFirstByV2(_cpan->GetActorLocation2D()));
 	}
 }
 void AHD_GM::TickCheckWaveEnd()
@@ -325,6 +347,7 @@ void AHD_GM::WaveStart()
 void AHD_GM::WaveEnd()
 {
 	_hero->HeroWaveEndInit();
+	_cpan->CPANWaveEndInit();
 	PROJAllPoolIn();
 
 	_info_wld.wld_status = EWorldStatus::WAVE_END;

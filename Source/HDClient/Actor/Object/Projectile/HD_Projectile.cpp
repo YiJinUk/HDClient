@@ -150,9 +150,12 @@ void AHD_Projectile::PROJAttack(AHD_Unit* unit_target)
 	{
 	case EPROJAttackType::HERO_ATTACK_BASIC:
 	case EPROJAttackType::MONSTER_ATTACK_BASIC:
+	case EPROJAttackType::CPAN_ATTACK_BASIC:
 		_info_proj.owner->UnitDoAttackBasic(unit_target);
 		break;
 	case EPROJAttackType::HERO_ATTACK_SKILL:
+	case EPROJAttackType::MONSTER_ATTACK_SKILL:
+	case EPROJAttackType::CPAN_ATTACK_SKILL:
 		_info_proj.owner->UnitDoAttackSK(unit_target);
 		break;
 	default:
