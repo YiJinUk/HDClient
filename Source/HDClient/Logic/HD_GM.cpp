@@ -79,14 +79,14 @@ void AHD_GM::GMPostInit()
 	_manager_fx = wld->SpawnActor<AHD_Manager_FX>(s_param);
 	_manager_sk = wld->SpawnActor<AHD_Manager_Skill>(s_param);
 
-	_manager_pool->PoolPostInit(_gi, this);
+	_manager_pool->PoolPostInit(_gi, this, _pc);
 	_manager_battle->BattlePostInit(_pc);
 	_manager_fx->FXPostInit(_gi);
 	_manager_sk->SKPostInit(this);
 
 	/*영웅 동료 마법석 초기화*/
-	_hero->UnitPostInit(EUnitClassType::HERO);
-	_hero->HeroPostInit(_pc, _gi->GetDataHero());
+	_hero->UnitPostInit(_pc, EUnitClassType::HERO);
+	_hero->HeroPostInit(_gi->GetDataHero());
 
 	/*플레이어 초기화*/
 	ChangeWeaponStartByCode("WP00101");
@@ -253,6 +253,7 @@ void AHD_GM::WorldStart()
 	_wave_spawn_enemies = s_wave->GetSpawnEnemies();
 	_info_wld.round_stage = s_wave->GetStageRound();
 	_info_wld.round_wave = s_wave->GetWaveRound();
+	_info_wave.wave_type = s_wave->GetWaveType();
 
 	/*웨이브정보 초기화*/
 	_info_wave.spawn_enemy_interval_max =_gi->GetDataGame()->GetWaveEnemySpawnInterval();
@@ -319,7 +320,7 @@ void AHD_GM::WaveStart()
 	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
 	_info_wld.wld_status = EWorldStatus::WAVE_PLAY;
 
-	_pc->PCWaveStart();
+	_pc->PCWaveStart(_info_wave.wave_type);
 }
 void AHD_GM::WaveEnd()
 {
@@ -332,6 +333,8 @@ void AHD_GM::WaveEnd()
 }
 void AHD_GM::WaveNext()
 {
+	_info_wave.InitInfoWave();
+
 	/*웨이브에 등장할 적데이터 복제하기*/
 	++_info_wld.round_total;
 	const TArray<FDataWave*>& arr_data_waves = _gi->GetDataWaves();
@@ -350,6 +353,8 @@ void AHD_GM::WaveNext()
 		_wave_spawn_enemies = s_wave->GetSpawnEnemies();
 		_info_wld.round_stage = s_wave->GetStageRound();
 		_info_wld.round_wave = s_wave->GetWaveRound();
+
+		_info_wave.wave_type = s_wave->GetWaveType();
 
 		_pc->PCWaveNext(_info_wld.round_stage, _info_wld.round_wave);
 	}

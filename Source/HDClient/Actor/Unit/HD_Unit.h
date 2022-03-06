@@ -10,6 +10,7 @@
 class UHD_AM;
 class UHD_AM_Hero;
 class AHD_GM;
+class AHD_PC;
 
 UCLASS()
 class HDCLIENT_API AHD_Unit : public AActor
@@ -19,7 +20,7 @@ class HDCLIENT_API AHD_Unit : public AActor
 #pragma region Init
 public:	
 	AHD_Unit();
-	void UnitPostInit(const EUnitClassType e_unit_type);
+	void UnitPostInit(AHD_PC* pc, const EUnitClassType e_unit_type);
 	void UnitSetActiveTick(const bool b_is_active);
 
 	FVector2D GetActorLocation2D();
@@ -38,6 +39,8 @@ protected:
 		UHD_AM* _anim_instance = nullptr;
 	UPROPERTY()
 		AHD_GM* _gm = nullptr;
+	UPROPERTY()
+		AHD_PC* _pc = nullptr;
 
 	UPROPERTY()
 		FInfoUnit _info_unit;

@@ -6,6 +6,7 @@
 #include "Logic/HD_FunctionLibrary.h"
 #include "Logic/Animation/HD_AM_Monster.h"
 #include "Logic/HD_GM.h"
+#include "Logic/HD_PC.h"
 #include "UI/World/Monster/HD_UI_Monster_HeadUp.h"
 
 #include "Components/WidgetComponent.h"
@@ -40,6 +41,7 @@ void AHD_Monster::MOBPostInit(FDataMonster* s_data_enemy)
 
 	_ui_monster_headup = Cast<UHD_UI_Monster_HeadUp>(_ui_headup->GetUserWidgetObject());
 	_anim_instance_monster = Cast<UHD_AM_Monster>(_skeletal_mesh->GetAnimInstance());
+	_info_monster.is_boss = s_data_enemy->GetIsBoss();
 
 	_info_monster.code_proj = s_data_enemy->GetCodePROJ();
 	_info_monster.hp_max = s_data_enemy->GetHP();
@@ -62,8 +64,15 @@ void AHD_Monster::MOBInit(const int64 i_id, const FVector v_loc_spawn)
 
 	_anim_instance_monster->AMSetIsDeath(false);
 
-	_ui_monster_headup->SetVisibility(ESlateVisibility::Visible);
-	_ui_monster_headup->UIEnemyHeadUpInit(this);
+	if (_info_monster.is_boss)
+	{
+		_ui_monster_headup->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		_ui_monster_headup->SetVisibility(ESlateVisibility::Visible);
+		_ui_monster_headup->UIEnemyHeadUpInit(this);
+	}
 }
 void AHD_Monster::MOBToHomeInit()
 {
@@ -129,6 +138,7 @@ void AHD_Monster::MOBAttackBasicNotify()
 void AHD_Monster::MOBAttackBasic()
 {
 	//override
+	_gm->PROJSpawn(_info_monster.code_proj, GetActorLocation(), this, _info_monster.target, _info_monster.target->GetActorLocation2D());
 }
 void AHD_Monster::UnitDoAttackBasic(AHD_Unit* unit_target)
 {
@@ -168,7 +178,10 @@ void AHD_Monster::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy
 	{
 	case EUnitStatType::HP:
 		UnitSetHP(_info_monster.hp, _info_monster.hp_max, i_value);
-		_ui_monster_headup->UIEnemyHeadUpSetHPBar(_info_monster.GetHPRate());
+		if (_info_monster.is_boss)
+			_pc->PCUIUpdateBossHPRate(_info_monster.GetHPRate());
+		else
+			_ui_monster_headup->UIEnemyHeadUpSetHPBar(_info_monster.GetHPRate());
 		break;
 	case EUnitStatType::AS_DEALY:
 		UnitSetAS(_info_monster.as_delay, _info_monster.GetASTotalDelay(), i_value);

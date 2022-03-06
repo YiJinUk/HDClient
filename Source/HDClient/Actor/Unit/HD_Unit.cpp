@@ -31,13 +31,14 @@ AHD_Unit::AHD_Unit()
 	}
 }
 
-void AHD_Unit::UnitPostInit(const EUnitClassType e_unit_type)
+void AHD_Unit::UnitPostInit(AHD_PC* pc, const EUnitClassType e_unit_type)
 {
 	if(_skeletal_mesh)
 		_anim_instance = Cast<UHD_AM>(_skeletal_mesh->GetAnimInstance());
 	if(_anim_instance)
 		_anim_instance->AMPostInit(this);
 	_gm = GetWorld()->GetAuthGameMode<AHD_GM>();
+	_pc = pc;
 
 	_info_unit.unit_type = e_unit_type;
 }

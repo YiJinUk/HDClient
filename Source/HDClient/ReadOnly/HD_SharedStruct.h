@@ -37,6 +37,12 @@ enum class EWorldStatus : uint8
 	WORLD_GAME_OVER,//세계에서 영웅이 죽었습니다
 };
 UENUM()
+enum class EWaveType : uint8
+{
+	MONSTER,
+	BOSS,
+};
+UENUM()
 enum class EUnitClassType : uint8
 {
 	ENEMY,
@@ -162,11 +168,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "General")
 		uint8 _wave_round = 0;
 	UPROPERTY(EditAnywhere, Category = "General")
+		EWaveType _wave_type = EWaveType::MONSTER;
+	UPROPERTY(EditAnywhere, Category = "General")
 		TArray<FDataWaveSpawnEnemy> _spawn_enemies;
 
 public:
 	FORCEINLINE const uint8 GetStageRound() const { return _stage_round; }
 	FORCEINLINE const uint8 GetWaveRound() const { return _wave_round; }
+	FORCEINLINE const EWaveType GetWaveType() const { return _wave_type; }
 	FORCEINLINE const TArray<FDataWaveSpawnEnemy>& GetSpawnEnemies() const { return _spawn_enemies; }
 };
 USTRUCT(BlueprintType)
@@ -218,6 +227,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 		FString _code_proj = "0";
 
+	UPROPERTY(EditAnywhere, Category = "Detail")
+		bool _is_boss = false;
+
 	UPROPERTY(EditAnywhere, Category = "Stat")
 		int32 _hp = 0;
 	UPROPERTY(EditAnywhere, Category = "Stat")
@@ -233,6 +245,7 @@ public:
 	FORCEINLINE const TSubclassOf<AHD_Monster>& GetClassMOB() { return _class_monster; }
 	FORCEINLINE const FString& GetCode() { return _code; }
 	FORCEINLINE const FString& GetCodePROJ() { return _code_proj; }
+	FORCEINLINE const bool GetIsBoss() { return _is_boss; }
 	FORCEINLINE const int32 GetHP() { return _hp; }
 	FORCEINLINE const int32 GetSTR() { return _str; }
 	FORCEINLINE const int32 GetAS() { return _as; }
@@ -395,6 +408,8 @@ struct FInfoWave
 
 public:
 	UPROPERTY()
+		EWaveType wave_type = EWaveType::MONSTER;
+	UPROPERTY()
 		uint8 spawn_enemy_interval_current = 0;
 	UPROPERTY()
 		uint8 spawn_enemy_interval_max = 0;
@@ -402,7 +417,7 @@ public:
 	void InitInfoWave()
 	{
 		spawn_enemy_interval_current = 0;
-		spawn_enemy_interval_max = 0;
+		wave_type = EWaveType::MONSTER;
 	}
 };
 
@@ -539,6 +554,9 @@ public:
 
 	UPROPERTY()
 		FString code_proj = "0";
+
+	UPROPERTY()
+		bool is_boss = false;
 
 	UPROPERTY()
 		int32 hp = 0;

@@ -12,10 +12,9 @@
 #include "Logic/HD_PC.h"
 #include "Logic/HD_GI.h"
 
-void AHD_Hero::HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero)
+void AHD_Hero::HeroPostInit(FDataHero* s_data_hero)
 {
 	_gi = GetWorld()->GetGameInstance<UHD_GI>();
-	_pc = pc;
 	_info_hero.hp_base = s_data_hero->GetHP();
 	_info_hero.hp_max_base = s_data_hero->GetHP();
 

@@ -23,7 +23,7 @@ void AHD_PC::PCPostInit()
 void AHD_PC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UHD_FunctionLibrary::GPrintString(3232, 1, "num : " + FString::FromInt(_pool_floating_dmg_num.Num()));
+	//UHD_FunctionLibrary::GPrintString(3232, 1, "num : " + FString::FromInt(_pool_floating_dmg_num.Num()));
 }
 
 void AHD_PC::PCWorldStart()
@@ -48,9 +48,9 @@ void AHD_PC::PCUIWorldClearToHome()
 	_ui_main->UIMainClearToHome();
 }
 
-void AHD_PC::PCWaveStart()
+void AHD_PC::PCWaveStart(const EWaveType e_wave_type)
 {
-	_ui_main->UIMainWaveStart();
+	_ui_main->UIMainWaveStart(e_wave_type);
 }
 void AHD_PC::PCWaveEnd()
 {
@@ -59,6 +59,11 @@ void AHD_PC::PCWaveEnd()
 void AHD_PC::PCWaveNext(const int32 i_round_stage, const int32 i_round_wave)
 {
 	_ui_main->UIMainWaveNext(i_round_stage, i_round_wave);
+}
+
+void AHD_PC::PCUIUpdateBossHPRate(const float f_boss_hp_rate)
+{
+	_ui_main->UIMainUpdateBossHPRate(f_boss_hp_rate);
 }
 
 void AHD_PC::PCUIUpdateStat(const EUnitStatType e_unit_stat_type, const EUnitStatBy e_unit_stat_by, const int32 i_value, const float f_value)

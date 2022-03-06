@@ -48,8 +48,9 @@ void UHD_UI_Main::UIMainClearToHome()
 	_ui_world->UIWorldClearToHome();
 }
 
-void UHD_UI_Main::UIMainWaveStart()
+void UHD_UI_Main::UIMainWaveStart(const EWaveType e_wave_type)
 {
+	_ui_info_top->InfoTopWaveStart(e_wave_type);
 	_ui_world->UIWorldWaveStart();
 }
 void UHD_UI_Main::UIMainWaveEnd()
@@ -60,6 +61,11 @@ void UHD_UI_Main::UIMainWaveNext(const int32 i_round_stage, const int32 i_round_
 {
 	_ui_info_top->InfoTopSetRound(i_round_stage, i_round_wave);
 	_ui_world->UIWorldWaveNext();
+}
+
+void UHD_UI_Main::UIMainUpdateBossHPRate(const float f_boss_hp_rate)
+{
+	_ui_info_top->InfoTopSetBossHPBar(f_boss_hp_rate);
 }
 
 void UHD_UI_Main::UIMainUpdateStat(const EUnitStatType e_unit_stat_type, const EUnitStatBy e_unit_stat_by, const int32 i_value, const float f_value)

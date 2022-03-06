@@ -5,6 +5,7 @@
 #include "Logic/HD_FunctionLibrary.h"
 #include "Logic/HD_GI.h"
 #include "Logic/HD_GM.h"
+#include "Logic/HD_PC.h"
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Actor/Object/Projectile/HD_Projectile.h"
 #include "Actor/Unit/Monster/HD_Monster.h"
@@ -13,9 +14,10 @@ AHD_Manager_Pool::AHD_Manager_Pool()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
-void AHD_Manager_Pool::PoolPostInit(UHD_GI* gi, AHD_GM* gm)
+void AHD_Manager_Pool::PoolPostInit(UHD_GI* gi, AHD_GM* gm, AHD_PC* pc)
 {
 	_gi = gi;
+	_pc = pc;
 	_spawn_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	/*무기 풀 초기화*/
@@ -75,7 +77,7 @@ AHD_Monster* AHD_Manager_Pool::PoolGetMOB(const FString& str_code_mob)
 			return nullptr;
 		}
 		AHD_Monster* mob_spawn = GetWorld()->SpawnActor<AHD_Monster>(s_data_mob->GetClassMOB(), _spawn_param); // 풀링 매니저
-		mob_spawn->UnitPostInit(EUnitClassType::ENEMY);
+		mob_spawn->UnitPostInit(_pc, EUnitClassType::ENEMY);
 		mob_spawn->MOBPostInit(s_data_mob);
 		return mob_spawn;
 	}

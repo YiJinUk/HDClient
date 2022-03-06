@@ -9,6 +9,7 @@
 
 class UHD_GI;
 class AHD_GM;
+class AHD_PC;
 class AHD_Weapon;
 class AHD_Monster;
 class AHD_Projectile;
@@ -25,10 +26,12 @@ class HDCLIENT_API AHD_Manager_Pool : public AHD_Manager_Master
 protected:
 	AHD_Manager_Pool();
 public:
-	void PoolPostInit(UHD_GI* gi, AHD_GM* gm);
+	void PoolPostInit(UHD_GI* gi, AHD_GM* gm, AHD_PC* pc);
 private:
 	UPROPERTY()
-		UHD_GI* _gi = nullptr;;
+		UHD_GI* _gi = nullptr;
+	UPROPERTY()
+		AHD_PC* _pc = nullptr;
 	FActorSpawnParameters _spawn_param = FActorSpawnParameters();
 #pragma endregion
 

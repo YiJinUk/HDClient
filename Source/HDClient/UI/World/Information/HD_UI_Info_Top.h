@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ReadOnly/HD_SharedStruct.h"
 #include "UI/HD_UI_Master.h"
 #include "HD_UI_Info_Top.generated.h"
 
 class UTextBlock;
+class UProgressBar;
 
 /**
  * 
@@ -24,6 +26,11 @@ private:
 	UPROPERTY(Meta = (BindWidget))
 		UTextBlock* _wave = nullptr;
 
+	UPROPERTY(Meta = (BindWidget))
+		UProgressBar* _boss_hp_bar = nullptr;
+
 public:
+	void InfoTopWaveStart(const EWaveType e_wave_type);
 	void InfoTopSetRound(const int32 i_round_stage, const int32 i_round_wave);
+	void InfoTopSetBossHPBar(const float f_boss_hp_rate);
 };

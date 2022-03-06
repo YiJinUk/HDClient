@@ -22,7 +22,7 @@ class HDCLIENT_API AHD_Hero : public AHD_Friend
 
 #pragma region Init
 public:
-	void HeroPostInit(AHD_PC* pc, FDataHero* s_data_hero);
+	void HeroPostInit(FDataHero* s_data_hero);
 	void HeroInit(FDataHero* s_data_hero);
 	void HeroWaveEndInit();
 	void HeroToHomeInit();
@@ -33,8 +33,6 @@ private:
 		FInfoHero _info_hero;
 	UPROPERTY()
 		UHD_GI* _gi = nullptr;
-	UPROPERTY()
-		AHD_PC* _pc = nullptr;
 #pragma endregion
 
 #pragma region Weapon

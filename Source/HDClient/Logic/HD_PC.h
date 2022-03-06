@@ -50,9 +50,14 @@ public:
 
 #pragma region Stage,Wave
 public:
-	void PCWaveStart();
+	void PCWaveStart(const EWaveType e_wave_type);
 	void PCWaveEnd();
 	void PCWaveNext(const int32 i_round_stage, const int32 i_round_wave);
+#pragma endregion
+
+#pragma region Monster
+public:
+	void PCUIUpdateBossHPRate(const float f_boss_hp_rate);
 #pragma endregion
 
 #pragma region UI
@@ -70,4 +75,6 @@ private:
 	UPROPERTY()
 		TArray<UHD_UI_FloatingDMGNumber*> _pool_floating_dmg_num;
 #pragma endregion
+
+
 };
