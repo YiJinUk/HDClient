@@ -3,6 +3,7 @@
 
 #include "Logic/HD_PC.h"
 #include "HD_GM.h"
+#include "HD_FunctionLibrary.h"
 #include "UI/HD_UI_Main.h"
 #include "UI/World/FloatingDMGNumber/HD_UI_FloatingDMGNumber.h"
 
@@ -15,6 +16,14 @@ void AHD_PC::PCPostInit()
 
 	_ui_main = PCBPCreateWidgetMain();
 	_ui_main->UIMainPostInit();
+
+	for (int32 i = 0; i < 30; ++i)
+		_pool_floating_dmg_num.Add(PCBPCreateWidgetFloatingDMGNumber());
+}
+void AHD_PC::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	UHD_FunctionLibrary::GPrintString(3232, 1, "num : " + FString::FromInt(_pool_floating_dmg_num.Num()));
 }
 
 void AHD_PC::PCWorldStart()
@@ -64,7 +73,7 @@ void AHD_PC::PCUIFloatingDMGNumber(const FVector& v_loc, const int32 i_dmg)
 
 	FVector2D v_loc_floating;
 	UGameplayStatics::ProjectWorldToScreen(this, v_loc, v_loc_floating);
-	v_loc_floating += FVector2D(10.f, -50.f);
+	v_loc_floating += FVector2D(10.f, -50.f); // Offset
 
 	slot->AddToViewport();
 	slot->SetPositionInViewport(v_loc_floating);

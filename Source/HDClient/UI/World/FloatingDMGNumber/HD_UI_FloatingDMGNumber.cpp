@@ -3,22 +3,24 @@
 
 #include "UI/World/FloatingDMGNumber/HD_UI_FloatingDMGNumber.h"
 #include "Logic/HD_PC.h"
+#include "Logic/HD_FunctionLibrary.h"
 
 #include "Components/TextBlock.h"
 
-void UHD_UI_FloatingDMGNumber::NativeConstruct()
+void UHD_UI_FloatingDMGNumber::UIBPPostInit()
 {
-	Super::NativeConstruct();
 	_pc = Cast<AHD_PC>(GetOwningPlayer());
+	AnimationEvent.BindDynamic(this, &UHD_UI_FloatingDMGNumber::AnimFinished);
+
+	BindToAnimationFinished(_anim, AnimationEvent);
 }
 void UHD_UI_FloatingDMGNumber::PlaySlot(const int32 i_number)
 {
 	_number->SetText(FText::AsNumber(i_number));
 	PlayAnimation(_anim);
-	GetWorld()->GetTimerManager().SetTimer(_timer_TimerAnimationFinished, this, &UHD_UI_FloatingDMGNumber::TimerAnimationFinished, 1.5f, false);
 }
 
-void UHD_UI_FloatingDMGNumber::TimerAnimationFinished()
+void UHD_UI_FloatingDMGNumber::AnimFinished()
 {
 	_pc->PoolInFloatingDMGNum(this);
 	RemoveFromViewport();

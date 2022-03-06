@@ -58,6 +58,26 @@ void AHD_Unit::UnitSetActiveTickChild(const bool b_is_active)
 	//override
 }
 
+void AHD_Unit::UnitSetAS(int32& i_as_delay, const int32 i_as_delay_total, const int32 i_tick_1frame)
+{
+	if (i_as_delay < i_as_delay_total)
+		i_as_delay += i_tick_1frame;
+	if (i_as_delay <= 0)
+		i_as_delay = 0;
+}
+void AHD_Unit::UnitSetHP(int32& i_hp, const int32 i_hp_max, const int32 i_value)
+{
+	i_hp += i_value;
+	if (i_hp <= 0)
+	{
+		i_hp = 0;
+	}
+	else if (i_hp > i_hp_max)
+	{
+		i_hp = i_hp_max;
+	}
+}
+
 void AHD_Unit::UnitHit(const FBattleHitResult& s_battle_hit_result) {	/*override*/ }
 void AHD_Unit::UnitDeath() {	/*override*/ }
 

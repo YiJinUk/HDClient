@@ -167,21 +167,11 @@ void AHD_Monster::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy
 	switch (e_stat_type)
 	{
 	case EUnitStatType::HP:
-		_info_monster.hp += i_value;
-		if (_info_monster.hp <= 0)
-		{
-			_info_monster.hp = 0;
-		}
-		else if(_info_monster.hp > _info_monster.hp_max)
-		{
-			_info_monster.hp = _info_monster.hp_max;
-		}
-
+		UnitSetHP(_info_monster.hp, _info_monster.hp_max, i_value);
 		_ui_monster_headup->UIEnemyHeadUpSetHPBar(_info_monster.GetHPRate());
 		break;
 	case EUnitStatType::AS_DEALY:
-		if (_info_monster.as_delay < _info_monster.GetASTotalDelay())
-			_info_monster.as_delay += i_value;
+		UnitSetAS(_info_monster.as_delay, _info_monster.GetASTotalDelay(), i_value);
 		break;
 	default:
 		break;

@@ -240,16 +240,7 @@ void AHD_Hero::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_
 	switch (e_stat_type)
 	{
 	case EUnitStatType::HP:
-		_info_hero.hp_base += i_value;
-		if (_info_hero.hp_base <= 0)
-		{
-			_info_hero.hp_base = 0;
-		}
-		else if (_info_hero.hp_base > _info_hero.hp_max_base)
-		{
-			_info_hero.hp_base = _info_hero.hp_max_base;
-		}
-
+		UnitSetHP(_info_hero.hp_base, _info_hero.hp_max_base, i_value);
 		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetHPRate());
 		break;
 	case EUnitStatType::ARMOR:
@@ -280,10 +271,7 @@ void AHD_Hero::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_
 		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetArmorRecoveryRate());
 		break;
 	case EUnitStatType::AS_DEALY:
-		if (_info_hero.as_delay < _info_hero.GetASTotalDelay())
-			_info_hero.as_delay += i_value;
-		if (_info_hero.as_delay <= 0)
-			_info_hero.as_delay = 0;
+		UnitSetAS(_info_hero.as_delay, _info_hero.GetASTotalDelay(), i_value);
 		break;
 	case EUnitStatType::SK_COOLDOWN_TICK:
 		if (_info_hero.sk_cooldown_tick < _info_hero.sk_cooldown_tick_max)

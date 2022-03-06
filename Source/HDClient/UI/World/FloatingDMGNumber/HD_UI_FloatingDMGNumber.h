@@ -18,8 +18,9 @@ class HDCLIENT_API UHD_UI_FloatingDMGNumber : public UHD_UI_Master
 	GENERATED_BODY()
 	
 
-protected:
-	virtual void NativeConstruct() override;
+public:
+	UFUNCTION(BlueprintCallable)
+		void UIBPPostInit();
 private:
 	UPROPERTY(Meta = (BindWidget))
 		UTextBlock* _number = nullptr;
@@ -31,7 +32,8 @@ private:
 public:
 	void PlaySlot(const int32 i_number);
 private:
-	FTimerHandle _timer_TimerAnimationFinished;
-	void TimerAnimationFinished();
+	FWidgetAnimationDynamicEvent AnimationEvent;
+	UFUNCTION()
+		void AnimFinished();
 
 };

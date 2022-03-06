@@ -23,6 +23,7 @@ class HDCLIENT_API AHD_PC : public APlayerController
 public:
 	void PCPostInit();
 protected:
+	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintImplementableEvent)
 		void PCBPPostInit();
 	UFUNCTION(BlueprintImplementableEvent)
