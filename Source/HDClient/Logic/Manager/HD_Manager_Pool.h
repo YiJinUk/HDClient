@@ -50,6 +50,15 @@ private:
 		TSet<AHD_Weapon*> _pool_wp_only_equip;
 #pragma endregion
 
+#pragma region Companion
+public:
+	AHD_Companion* PoolGetCPAN(const FString& str_code_cpan);
+	void PoolInCPAN(AHD_Companion* cpan);
+private:
+	UPROPERTY()
+		TSet<AHD_Companion*> _pool_cpan;
+#pragma endregion
+
 #pragma region Monster
 public:
 	AHD_Monster* PoolGetMOB(const FString& str_code_mob);
@@ -60,15 +69,6 @@ private:
 	TMap<FString, TArray<AHD_Monster*>> _pool_mob;
 	UPROPERTY()
 		TArray<AHD_Monster*> _q_death_mob;
-#pragma endregion
-
-#pragma region Companion
-public:
-	AHD_Companion* PoolGetCPAN(const FString& str_code_cpan);
-	void PoolInCPAN(AHD_Companion* cpan);
-private:
-	UPROPERTY()
-		TSet<AHD_Companion*> _pool_cpan;
 #pragma endregion
 
 #pragma region Projectile

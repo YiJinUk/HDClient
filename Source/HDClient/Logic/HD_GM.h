@@ -59,9 +59,8 @@ private:
 	void TickPROJMoveAndAttack(const float f_delta_time);
 
 	void TickHeroHealArmor();
-	void TickHeroReduceCooldown();
 
-	void TickFriendCooldown();
+	void TickFriendReduceCooldown();
 	void TickFriendReduceAS();
 	void TickFriendAttack();
 

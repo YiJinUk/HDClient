@@ -85,6 +85,8 @@ void AHD_GM::GMPostInit()
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(_pc, EUnitClassType::HERO);
 	_hero->HeroPostInit(_gi->GetDataHero());
+	_ms->UnitPostInit(_pc, EUnitClassType::MS);
+	_ms->MSPostInit(_gi->GetDataMS());
 
 	ChangeCPANStartByCode("CPAN00001");
 
@@ -143,9 +145,8 @@ void AHD_GM::Tick(float DeltaTime)
 		TickPROJMoveAndAttack(DeltaTime);
 
 		TickHeroHealArmor();
-		TickHeroReduceCooldown();
 
-		TickFriendCooldown();
+		TickFriendReduceCooldown();
 		TickFriendReduceAS();
 		TickFriendAttack();
 
@@ -213,14 +214,11 @@ void AHD_GM::TickHeroHealArmor()
 {
 	_hero->HeroUpdateHealArmor(_info_wld.tick_unit_by_1frame);
 }
-void AHD_GM::TickHeroReduceCooldown()
+void AHD_GM::TickFriendReduceCooldown()
 {
-	_cpan->CPANUpdateReduceCooldown(_info_wld.tick_unit_by_1frame);
 	_hero->HeroUpdateReduceCooldown(_info_wld.tick_unit_by_1frame);
-}
-void AHD_GM::TickFriendCooldown()
-{
-
+	_cpan->CPANUpdateReduceCooldown(_info_wld.tick_unit_by_1frame);
+	_ms->MSUpdateReduceCooldown(_info_wld.tick_unit_by_1frame);
 }
 void AHD_GM::TickFriendReduceAS()
 {
@@ -245,6 +243,11 @@ void AHD_GM::TickFriendAttack()
 	else if (_cpan->GetInfoCPAN().atk_sk_status == EAttackSkillStatus::COOLDOWN && _cpan->GetInfoCPAN().atk_basic_status == EAttackBasicStatus::DETECT)
 	{
 		_cpan->CPANAttackBasicStart(FindMOBFirstByV2(_cpan->GetActorLocation2D()));
+	}
+
+	if (_ms->GetInfoMS().atk_sk_status == EAttackSkillStatus::DETECT)
+	{
+		_ms->MSAttackSkillStart();
 	}
 }
 void AHD_GM::TickCheckWaveEnd()
@@ -280,8 +283,9 @@ void AHD_GM::WorldStart()
 	/*웨이브정보 초기화*/
 	_info_wave.spawn_enemy_interval_max =_gi->GetDataGame()->GetWaveEnemySpawnInterval();
 
-	/*영웅 초기화*/
+	/*영웅 마법석 초기화*/
 	_hero->HeroInit(_gi->GetDataHero());
+	_ms->MSInit(_gi->GetDataMS());
 
 	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
 	_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;

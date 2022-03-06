@@ -12,6 +12,7 @@ class AHD_Unit;
 class AHD_Hero;
 class AHD_Monster;
 class AHD_Companion;
+class AHD_MagicStone;
 
 /**
  * 
@@ -30,4 +31,5 @@ private:
 public:
 	void DoSkillHero(AHD_Hero* hero, AHD_Monster* mob, const FDataSkill* s_data_sk);
 	void DoSkillCPAN(AHD_Companion* cpan, AHD_Unit* unit, const FDataSkill* s_data_sk);
+	void DoSkillMS(AHD_MagicStone* ms, AHD_Monster* mob, const FDataSkill* s_data_sk);
 };

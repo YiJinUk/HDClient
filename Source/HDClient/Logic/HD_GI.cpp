@@ -11,10 +11,12 @@ UHD_GI::UHD_GI()
 	if (DT_WAVE.Succeeded()) { _dt_wave = DT_WAVE.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_HERO(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Hero.HDDT_Hero"));
 	if (DT_HERO.Succeeded()) { _dt_hero = DT_HERO.Object; }
-	static ConstructorHelpers::FObjectFinder<UDataTable> DT_MOB(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Monster.HDDT_Monster"));
-	if (DT_MOB.Succeeded()) { _dt_mob = DT_MOB.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_CPAN(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Companion.HDDT_Companion"));
 	if (DT_CPAN.Succeeded()) { _dt_cpan = DT_CPAN.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_MS(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_MagicStone.HDDT_MagicStone"));
+	if (DT_MS.Succeeded()) { _dt_ms = DT_MS.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_MOB(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Monster.HDDT_Monster"));
+	if (DT_MOB.Succeeded()) { _dt_mob = DT_MOB.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_WEAPON(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Weapon.HDDT_Weapon"));
 	if (DT_WEAPON.Succeeded()) { _dt_weapon = DT_WEAPON.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_PROJ(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Projectile.HDDT_Projectile"));
@@ -31,6 +33,7 @@ void UHD_GI::GIPostInit()
 	_dt_wave->GetAllRows("0", _data_waves);
 	_data_game = _dt_game->FindRow<FDataGame>("GAME00001", "0");
 	_data_hero = _dt_hero->FindRow<FDataHero>("HERO00001", "0");
+	_data_ms = _dt_ms->FindRow<FDataMS>("MS00001", "0");
 }
 
 FDataMonster* UHD_GI::FindDataMOBByCode(const FString& str_code_mob) { return _dt_mob->FindRow<FDataMonster>(*str_code_mob, "0"); }
@@ -44,3 +47,4 @@ const TArray<FDataCPAN*>& UHD_GI::GetDataCPANs() { return _data_cpans; }
 const TArray<FDataWave*>& UHD_GI::GetDataWaves() { return _data_waves; }
 FDataGame* UHD_GI::GetDataGame() { return _data_game; }
 FDataHero* UHD_GI::GetDataHero() { return _data_hero; }
+FDataMS* UHD_GI::GetDataMS() { return _data_ms; }
