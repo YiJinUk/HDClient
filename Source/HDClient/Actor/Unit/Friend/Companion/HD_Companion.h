@@ -7,6 +7,7 @@
 #include "HD_Companion.generated.h"
 
 class AHD_Monster;
+class UHD_UI_HeadUp_CPAN;
 
 /**
  * 
@@ -18,11 +19,15 @@ class HDCLIENT_API AHD_Companion : public AHD_Friend
 
 #pragma region Init
 public:
+	AHD_Companion();
 	void CPANPostInit(FDataCPAN* s_data_cpan);
 	void CPANInit(const FVector& v_loc_spawn);
 	void CPANWaveEndInit();
 	const FInfoCPAN& GetInfoCPAN();
 protected:
+	UPROPERTY()
+		UHD_UI_HeadUp_CPAN* _ui_headup_cpan = nullptr;
+
 	UPROPERTY()
 		FInfoCPAN _info_cpan;
 #pragma endregion

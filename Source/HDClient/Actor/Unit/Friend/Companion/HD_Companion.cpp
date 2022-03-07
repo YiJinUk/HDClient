@@ -8,9 +8,24 @@
 #include "Logic/HD_GM.h"
 #include "Logic/HD_GI.h"
 #include "Logic/Manager/HD_Manager_Skill.h"
+#include "UI/World/HeadUp/HD_UI_HeadUp_CPAN.h"
 
+#include "Components/WidgetComponent.h"
+
+AHD_Companion::AHD_Companion()
+{
+	PrimaryActorTick.bCanEverTick = false;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/HeadUp/HDWB_UI_HeadUp_CPAN"));
+	if (W_HEAD_NOTIFY_BP.Succeeded() && _ui_headup)
+	{
+		_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
+	}
+}
 void AHD_Companion::CPANPostInit(FDataCPAN* s_data_cpan)
 {
+	_ui_headup_cpan = Cast<UHD_UI_HeadUp_CPAN>(_ui_headup->GetUserWidgetObject());
+
 	_info_cpan.code = s_data_cpan->GetCode();
 	_info_cpan.anim_attack_basic = s_data_cpan->GetAnimAttackBasic();
 	_info_cpan.anim_attack_sk = s_data_cpan->GetAnimAttackSK();
@@ -21,7 +36,7 @@ void AHD_Companion::CPANPostInit(FDataCPAN* s_data_cpan)
 
 	_info_cpan.sk_data = _gi->FindDataSKByCode(s_data_cpan->GetCodeSK());
 	_info_cpan.sk_ap_base = 100;
-	_info_cpan.sk_cooldown_tick_max = _info_cpan.sk_data->GetCooldown();
+	_info_cpan.sk_cooldown_tick_max_base = _info_cpan.sk_data->GetCooldown();
 	_info_cpan.sk_cooldown_tick = 0;
 
 	_info_cpan.anim_rate_base = _info_cpan.as_base / 60.f;
@@ -114,7 +129,7 @@ void AHD_Companion::CPANUpdateReduceCooldown(const uint8 i_tick_1frame)
 		break;
 	case EAttackSkillStatus::COOLDOWN:
 		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
-		if (UnitGetStat(EUnitStatType::SK_COOLDOWN_TICK) >= _info_cpan.sk_cooldown_tick_max)
+		if (UnitGetStat(EUnitStatType::SK_COOLDOWN_TICK) >= _info_cpan.GetCDTickMaxTotal())
 		{
 			_info_cpan.atk_sk_status = EAttackSkillStatus::DETECT;
 		}
@@ -144,7 +159,7 @@ void AHD_Companion::CPANAttackSKNotify()
 	if (!_info_cpan.target || !_info_cpan.target->GetInfoUnit().is_hit_valid)
 	{
 		_info_cpan.atk_sk_status = EAttackSkillStatus::DETECT;
-		_info_cpan.sk_cooldown_tick = _info_cpan.sk_cooldown_tick_max;
+		_info_cpan.sk_cooldown_tick = _info_cpan.GetCDTickMaxTotal();
 	}
 	else
 	{
@@ -175,7 +190,8 @@ void AHD_Companion::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStat
 		UnitSetAS(_info_cpan.as_delay, _info_cpan.GetASTotalDelay(), i_value);
 		break;
 	case EUnitStatType::SK_COOLDOWN_TICK:
-		UnitSetCooldown(_info_cpan.sk_cooldown_tick, _info_cpan.sk_cooldown_tick_max, i_value);
+		UnitSetCooldown(_info_cpan.sk_cooldown_tick, _info_cpan.GetCDTickMaxTotal(), i_value);
+		_ui_headup_cpan->UISetCooldown(_info_cpan.GetCDRate());
 		break;
 	default:
 		break;

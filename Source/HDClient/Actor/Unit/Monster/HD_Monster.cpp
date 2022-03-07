@@ -7,7 +7,7 @@
 #include "Logic/Animation/HD_AM_Monster.h"
 #include "Logic/HD_GM.h"
 #include "Logic/HD_PC.h"
-#include "UI/World/Monster/HD_UI_Monster_HeadUp.h"
+#include "UI/World/HeadUp/HD_UI_HeadUp_Monster.h"
 
 #include "Components/WidgetComponent.h"
 
@@ -15,31 +15,17 @@ AHD_Monster::AHD_Monster(FObjectInitializer const& object_initializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	_ui_headup = object_initializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("_ui_headup"));
-	if (_ui_headup)
+	static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/HeadUp/HDWB_UI_HeadUp_Monster"));
+	if (W_HEAD_NOTIFY_BP.Succeeded() && _ui_headup)
 	{
-		_ui_headup->SetupAttachment(GetRootComponent());
-		_ui_headup->SetGenerateOverlapEvents(false);
-		_ui_headup->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		_ui_headup->CanCharacterStepUpOn = ECB_No;
-		_ui_headup->SetWidgetSpace(EWidgetSpace::Screen);
-		_ui_headup->SetDrawAtDesiredSize(true);
-
-		static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/Monster/HDWB_UI_Monster_HeadUp"));
-		if (W_HEAD_NOTIFY_BP.Succeeded())
-		{
-			if (_ui_headup)
-			{
-				_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
-			}
-		}
+		_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
 	}
 }
 void AHD_Monster::MOBPostInit(FDataMonster* s_data_enemy)
 {
 	if (!s_data_enemy) return;
 
-	_ui_monster_headup = Cast<UHD_UI_Monster_HeadUp>(_ui_headup->GetUserWidgetObject());
+	_ui_monster_headup = Cast<UHD_UI_HeadUp_Monster>(_ui_headup->GetUserWidgetObject());
 	_anim_instance_monster = Cast<UHD_AM_Monster>(_skeletal_mesh->GetAnimInstance());
 	_info_monster.is_boss = s_data_enemy->GetIsBoss();
 

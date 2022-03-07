@@ -7,6 +7,7 @@
 #include "Logic/HD_GI.h"
 
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
 
 AHD_Unit::AHD_Unit()
 {
@@ -29,6 +30,18 @@ AHD_Unit::AHD_Unit()
 		_skeletal_mesh->bComponentUseFixedSkelBounds = true;
 		_skeletal_mesh->bEnableUpdateRateOptimizations = true;
 		_skeletal_mesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	}
+
+	//_ui_headup = object_initializer.CreateDefaultSubobject<UWidgetComponent>(this, TEXT("_ui_headup"));
+	_ui_headup = CreateDefaultSubobject<UWidgetComponent>("_ui_headup");
+	if (_ui_headup)
+	{
+		_ui_headup->SetupAttachment(GetRootComponent());
+		_ui_headup->SetGenerateOverlapEvents(false);
+		_ui_headup->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		_ui_headup->CanCharacterStepUpOn = ECB_No;
+		_ui_headup->SetWidgetSpace(EWidgetSpace::Screen);
+		_ui_headup->SetDrawAtDesiredSize(true);
 	}
 }
 

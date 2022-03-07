@@ -6,7 +6,7 @@
 #include "Actor/Unit/HD_Unit.h"
 #include "HD_Monster.generated.h"
 
-class UHD_UI_Monster_HeadUp;
+class UHD_UI_HeadUp_Monster;
 class UHD_AM_Monster;
 
 /**
@@ -28,10 +28,8 @@ public:
 private:
 	void UnitSetActiveTickChild(const bool b_is_active) override;
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class UWidgetComponent* _ui_headup = nullptr;
 	UPROPERTY()
-		UHD_UI_Monster_HeadUp* _ui_monster_headup = nullptr;
+		UHD_UI_HeadUp_Monster* _ui_monster_headup = nullptr;
 	UPROPERTY()
 		UHD_AM_Monster* _anim_instance_monster = nullptr;
 

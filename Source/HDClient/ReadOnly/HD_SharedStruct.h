@@ -698,7 +698,7 @@ public:
 	UPROPERTY()
 		int32 sk_cooldown_tick = 0;
 	UPROPERTY()
-		int32 sk_cooldown_tick_max = 0;
+		int32 sk_cooldown_tick_max_base = 0;
 
 	UPROPERTY()
 		float anim_rate_base = 0.f;
@@ -712,9 +712,12 @@ public:
 	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base + dmg_base_by_bf; }
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
 	FORCEINLINE const int32 GetSKAPTotal() const { return sk_ap_base; }
+	FORCEINLINE const int32 GetCDTickMaxTotal() const { return sk_cooldown_tick_max_base; }
 
 	FORCEINLINE const int32 GetAttackBasicDMG() const { return (float)GetSTRTotal() * (GetDMGTotal() * 0.01f); }
 	FORCEINLINE const int32 GetASTotalDelay() const { return (60.f / float(GetASTotal())) * 60.f; }
+
+	FORCEINLINE const float GetCDRate() const { return (float)sk_cooldown_tick / (float)GetCDTickMaxTotal(); }
 };
 
 USTRUCT()
@@ -743,11 +746,14 @@ public:
 	UPROPERTY()
 		int32 sk_cooldown_tick = 0;
 	UPROPERTY()
-		int32 sk_cooldown_tick_max = 0;
+		int32 sk_cooldown_tick_max_base = 0;
 
 public:
 	FORCEINLINE const int32 GetINTTotal() const { return int_base; }
 	FORCEINLINE const int32 GetMPTotal() const { return mp_base; }
+	FORCEINLINE const int32 GetCDTickMaxTotal() const { return sk_cooldown_tick_max_base; }
+
+	FORCEINLINE const float GetCDRate() const { return (float)sk_cooldown_tick / (float)GetCDTickMaxTotal(); }
 };
 
 

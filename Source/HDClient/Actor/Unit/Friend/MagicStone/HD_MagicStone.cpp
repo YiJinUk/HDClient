@@ -9,9 +9,24 @@
 #include "Logic/Manager/HD_Manager_Skill.h"
 #include "Logic/HD_GM.h"
 #include "Logic/HD_GI.h"
+#include "UI/World/HeadUp/HD_UI_HeadUp_MS.h"
 
+#include "Components/WidgetComponent.h"
+
+AHD_MagicStone::AHD_MagicStone()
+{
+	PrimaryActorTick.bCanEverTick = false;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/HeadUp/HDWB_UI_HeadUp_MS"));
+	if (W_HEAD_NOTIFY_BP.Succeeded() && _ui_headup)
+	{
+		_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
+	}
+}
 void AHD_MagicStone::MSPostInit(FDataMS* s_data_ms)
 {
+	_ui_headup_ms = Cast<UHD_UI_HeadUp_MS>(_ui_headup->GetUserWidgetObject());
+
 	_info_ms.code = s_data_ms->GetCode();
 	_info_ms.int_base = s_data_ms->GetINT();
 	_info_ms.mp_base = s_data_ms->GetMP();
@@ -23,7 +38,7 @@ void AHD_MagicStone::MSInit(FDataMS* s_data_ms)
 	_info_ms.target = nullptr;
 
 	_info_ms.sk_data = _gi->FindDataSKByCode(s_data_ms->GetCodeSK());
-	_info_ms.sk_cooldown_tick_max = _info_ms.sk_data->GetCooldown();
+	_info_ms.sk_cooldown_tick_max_base = _info_ms.sk_data->GetCooldown();
 
 	UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, -99999);
 }
@@ -39,7 +54,7 @@ void AHD_MagicStone::MSUpdateReduceCooldown(const uint8 i_tick_1frame)
 		break;
 	case EAttackSkillStatus::COOLDOWN:
 		UnitSetStat(EUnitStatType::SK_COOLDOWN_TICK, EUnitStatBy::NO, i_tick_1frame);
-		if (UnitGetStat(EUnitStatType::SK_COOLDOWN_TICK) >= _info_ms.sk_cooldown_tick_max)
+		if (UnitGetStat(EUnitStatType::SK_COOLDOWN_TICK) >= _info_ms.GetCDTickMaxTotal())
 		{
 			_info_ms.atk_sk_status = EAttackSkillStatus::DETECT;
 		}
@@ -70,7 +85,8 @@ void AHD_MagicStone::UnitSetStat(const EUnitStatType e_stat_type, const EUnitSta
 	switch (e_stat_type)
 	{
 	case EUnitStatType::SK_COOLDOWN_TICK:
-		UnitSetCooldown(_info_ms.sk_cooldown_tick, _info_ms.sk_cooldown_tick_max, i_value);
+		UnitSetCooldown(_info_ms.sk_cooldown_tick, _info_ms.GetCDTickMaxTotal(), i_value);
+		_ui_headup_ms->UISetCooldown(_info_ms.GetCDRate());
 		break;
 	default:
 		break;

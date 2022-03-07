@@ -6,6 +6,8 @@
 #include "Actor/Unit/Friend/HD_Friend.h"
 #include "HD_MagicStone.generated.h"
 
+class UHD_UI_HeadUp_MS;
+
 /**
  * 
  */
@@ -16,6 +18,7 @@ class HDCLIENT_API AHD_MagicStone : public AHD_Friend
 	
 #pragma region Init
 public:
+	AHD_MagicStone();
 	void MSPostInit(FDataMS* s_data_ms);
 	void MSInit(FDataMS* s_data_ms);
 	//void HeroWaveEndInit();
@@ -24,8 +27,9 @@ public:
 	const FInfoMS& GetInfoMS();
 private:
 	UPROPERTY()
+		UHD_UI_HeadUp_MS* _ui_headup_ms = nullptr;
+	UPROPERTY()
 		FInfoMS _info_ms;
-
 #pragma endregion
 
 #pragma region Attack.Skill

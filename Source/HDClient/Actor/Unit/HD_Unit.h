@@ -32,9 +32,10 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere)
 		class USceneComponent* _root_scene = nullptr;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class USkeletalMeshComponent* _skeletal_mesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UWidgetComponent* _ui_headup = nullptr;
 
 	UPROPERTY()
 		UHD_AM* _anim_instance = nullptr;

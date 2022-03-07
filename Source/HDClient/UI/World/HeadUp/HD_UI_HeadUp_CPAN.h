@@ -4,29 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "UI/HD_UI_Master.h"
-#include "HD_UI_Monster_HeadUp.generated.h"
+#include "HD_UI_HeadUp_CPAN.generated.h"
 
 class UProgressBar;
-class AHD_Monster;
 
 /**
  * 
  */
 UCLASS()
-class HDCLIENT_API UHD_UI_Monster_HeadUp : public UHD_UI_Master
+class HDCLIENT_API UHD_UI_HeadUp_CPAN : public UHD_UI_Master
 {
 	GENERATED_BODY()
-
+	
 #pragma region Init
-public:
-	void UIEnemyHeadUpInit(AHD_Monster* mob_owner);
 private:
 	UPROPERTY(Meta = (BindWidget))
-		UProgressBar* _hp_bar;
+		UProgressBar* _cooldown = nullptr;
 #pragma endregion
 
 public:
-	void UIEnemyHeadUpSetHPBar(const float f_hp_rate);
-
+	void UISetCooldown(const float f_cd_rate);
 
 };
