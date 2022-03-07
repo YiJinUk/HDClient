@@ -13,6 +13,7 @@ class AHD_Hero;
 class AHD_Monster;
 class AHD_Companion;
 class AHD_MagicStone;
+class AHD_Manager_Buff;
 
 /**
  * 
@@ -23,11 +24,12 @@ class HDCLIENT_API AHD_Manager_Skill : public AHD_Manager_Master
 	GENERATED_BODY()
 	
 public:
-	void SKPostInit(AHD_GM* gm);
+	void SKPostInit(AHD_GM* gm, AHD_Manager_Buff* manager_bf);
 private:
 	UPROPERTY()
 		AHD_GM* _gm = nullptr;
-
+	UPROPERTY()
+		AHD_Manager_Buff* _manager_bf = nullptr;
 public:
 	void DoSkillHero(AHD_Hero* hero, AHD_Monster* mob, const FDataSkill* s_data_sk);
 	void DoSkillCPAN(AHD_Companion* cpan, AHD_Unit* unit, const FDataSkill* s_data_sk);

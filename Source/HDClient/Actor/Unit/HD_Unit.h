@@ -61,6 +61,12 @@ public:
 	virtual void UnitDeath();
 #pragma endregion
 
+#pragma region Buff
+public:
+	void UnitAddBF(const int64 i_gid_bf);
+	void UnitRemoveBF(const int64 i_gid_bf);
+#pragma endregion
+
 #pragma region Stat
 public:
 	/*
@@ -72,7 +78,9 @@ public:
 	virtual void UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_stat_by, const int32 i_value);
 	virtual const int32 UnitGetStat(const EUnitStatType e_stat_type);
 protected:
+	void UnitSetDMG(int32& i_dmg, const int32 i_value);
 	void UnitSetAS(int32& i_as_delay, const int32 i_as_delay_total ,const int32 i_tick_1frame);
 	void UnitSetHP(int32& i_hp, const int32 i_hp_max, const int32 i_value);
+	void UnitSetCooldown(int32& i_cooldown_tick, const int32 i_cooldown_tick_max, const int32 i_tick_1frame);
 #pragma endregion
 };

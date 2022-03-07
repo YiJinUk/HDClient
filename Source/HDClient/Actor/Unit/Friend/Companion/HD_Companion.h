@@ -22,7 +22,7 @@ public:
 	void CPANInit(const FVector& v_loc_spawn);
 	void CPANWaveEndInit();
 	const FInfoCPAN& GetInfoCPAN();
-private:
+protected:
 	UPROPERTY()
 		FInfoCPAN _info_cpan;
 #pragma endregion
@@ -44,7 +44,7 @@ protected:
 public:
 	void CPANUpdateReduceCooldown(const uint8 i_tick_1frame);
 	void CPANAttackSkillStart();
-	void CPANAttackSKNotify();
+	virtual void CPANAttackSKNotify();
 	void UnitDoAttackSK(AHD_Unit* unit_target) override;
 #pragma endregion
 

@@ -93,8 +93,6 @@ enum class EAttackSkillStatus : uint8
 	COOLDOWN,//스킬공격.쿨다운
 };
 
-
-
 UENUM()
 enum class EUnitStatType : uint8
 {
@@ -102,6 +100,7 @@ enum class EUnitStatType : uint8
 	ARMOR,
 	ARMOR_HEAL_TICK,
 	ARMOR_RECOVERY_TICK,
+	DMG,
 	AS_DEALY,
 	SK_COOLDOWN_TICK,
 };
@@ -111,6 +110,7 @@ enum class EUnitStatBy : uint8
 	NO,
 	ENEMY,
 	HERO,
+	BUFF,
 };
 
 UENUM()
@@ -127,6 +127,25 @@ enum class EVFXType : uint8
 	NO,
 	PROJECTILE,
 	HIT,
+};
+
+UENUM()
+enum class EBuffPhase : uint8
+{
+	IMMEDIATELY,
+};
+UENUM()
+enum class EBuffTimer : uint8
+{
+	TIMER,
+};
+UENUM()
+enum class EBuffOverlap : uint8
+{
+	NEW,
+	VALUE,
+	TIME,
+	VALUE_TIME,
 };
 
 
@@ -448,6 +467,21 @@ public:
 	FORCEINLINE const int32 GetValue2() const { return _value_2; }
 	FORCEINLINE const int32 GetValue3() const { return _value_3; }
 };
+
+USTRUCT(BlueprintType)
+struct FDataBuff : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		int32 _id = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Description")
+		FString _desc = "0";
+public:
+	FORCEINLINE const int32 GetID() const { return _id; }
+};
 #pragma endregion
 
 USTRUCT()
@@ -528,6 +562,9 @@ public:
 	//T : 피격을 받을 수 있는 상태입니다
 	UPROPERTY()
 		bool is_hit_valid = true;
+
+	UPROPERTY()
+		TArray<int64> gid_bfs;
 };
 
 USTRUCT()
@@ -574,6 +611,8 @@ public:
 		int32 str_base = 0;
 	UPROPERTY()
 		int32 dmg_base = 100;
+	UPROPERTY()
+		int32 dmg_base_by_bf = 0;
 
 	UPROPERTY()
 		int32 as_base = 0;
@@ -603,7 +642,7 @@ public:
 	FORCEINLINE const int32 GetHPTotal() const { return hp_base; }
 	FORCEINLINE const int32 GetHPMaxTotal() const { return hp_max_base; }
 	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
-	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
+	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base + dmg_base_by_bf; }
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
 	FORCEINLINE const int32 GetArmorHeadTotal() const { return armor_heal_base; }
 	FORCEINLINE const int32 GetArmorRecoveryTotal() const { return armor_recovery_base; }
@@ -619,7 +658,6 @@ public:
 	FORCEINLINE const float GetSKCooldownRate() const { return (float)sk_cooldown_tick / (float)sk_cooldown_tick_max; }
 
 };
-
 
 USTRUCT()
 struct FInfoCPAN
@@ -647,6 +685,9 @@ public:
 	UPROPERTY()
 		int32 dmg_base = 100;
 	UPROPERTY()
+		int32 dmg_base_by_bf = 0;
+
+	UPROPERTY()
 		int32 as_base = 0;
 	UPROPERTY()
 		int32 as_delay = 0;
@@ -668,7 +709,7 @@ public:
 		UAnimMontage* anim_attack_sk = nullptr;
 public:
 	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
-	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
+	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base + dmg_base_by_bf; }
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
 	FORCEINLINE const int32 GetSKAPTotal() const { return sk_ap_base; }
 
@@ -717,7 +758,7 @@ struct FInfoMonster
 
 public:
 	UPROPERTY()
-		int64 id = 0;
+		int64 gid = 0;
 	UPROPERTY()
 		FString code = "0";
 
@@ -747,6 +788,9 @@ public:
 	UPROPERTY()
 		int32 dmg_base = 100;
 	UPROPERTY()
+		int32 dmg_base_by_bf = 0;
+
+	UPROPERTY()
 		int32 as_base = 0;
 	UPROPERTY()
 		int32 as_delay = 0;
@@ -766,7 +810,7 @@ public:
 		UAnimMontage* anim_attack_basic = nullptr;
 public:
 	FORCEINLINE const int32 GetSTRTotal() const { return str_base; }
-	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base; }
+	FORCEINLINE const int32 GetDMGTotal() const { return dmg_base + dmg_base_by_bf; }
 	FORCEINLINE const int32 GetASTotal() const { return as_base; }
 
 	FORCEINLINE const float GetHPRate() const { return (float)hp / (float)hp_max; }
@@ -808,7 +852,7 @@ struct FInfoProjectile
 
 public:
 	UPROPERTY()
-		int64 id = 0;
+		int64 gid = 0;
 	UPROPERTY()
 		FString code = "0";
 	UPROPERTY()
@@ -829,6 +873,44 @@ public:
 		FVector2D velocity = FVector2D::ZeroVector;
 
 	FDataVFX* vfx = nullptr;
+};
+
+USTRUCT()
+struct FInfoBuff
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		int64 gid = 0;
+	UPROPERTY()
+		int32 id = 0;
+
+	UPROPERTY()
+		EBuffPhase bf_phase = EBuffPhase::IMMEDIATELY;
+	UPROPERTY()
+		EBuffTimer bf_timer = EBuffTimer::TIMER;
+	UPROPERTY()
+		EBuffOverlap bf_overlap = EBuffOverlap::NEW;
+	UPROPERTY()
+		FString unique = "0";
+
+	UPROPERTY()
+		AHD_Unit* caster = nullptr;
+	UPROPERTY()
+		AHD_Unit* casted = nullptr;
+
+	UPROPERTY()
+		int32 value_1 = 0;
+	UPROPERTY()
+		int32 value_2 = 0;
+	UPROPERTY()
+		int32 value_3 = 0;
+
+	//버프타이머가 무엇인지에 따라 역할이 달라집니다
+	//버프타이머가 타이머라면 남은틱, 카운트라면 남은횟수 등 달라집니다 한번에 여기서 관리합니다
+	UPROPERTY()
+		int32 life = 0;
 };
 
 USTRUCT()

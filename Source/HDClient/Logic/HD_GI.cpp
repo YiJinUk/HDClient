@@ -25,6 +25,8 @@ UHD_GI::UHD_GI()
 	if (DT_VFX.Succeeded()) { _dt_vfx = DT_VFX.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_SK(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Skill.HDDT_Skill"));
 	if (DT_SK.Succeeded()) { _dt_sk = DT_SK.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_BF(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Buff.HDDT_Buff"));
+	if (DT_BF.Succeeded()) { _dt_bf = DT_BF.Object; }
 }
 void UHD_GI::GIPostInit()
 {
@@ -41,6 +43,7 @@ FDataCPAN* UHD_GI::FindDataCPANByCode(const FString& str_code_cpan) { return _dt
 FDataProjectile* UHD_GI::FindDataPROJByCode(const FString& str_code_proj) { return _dt_proj->FindRow<FDataProjectile>(*str_code_proj, "0"); }
 FDataVFX* UHD_GI::FindDataVFXByCode(const FString& str_code_vfx) { return _dt_vfx->FindRow<FDataVFX>(*str_code_vfx, "0"); }
 FDataSkill* UHD_GI::FindDataSKByCode(const FString& str_code_sk) { return _dt_sk->FindRow<FDataSkill>(*str_code_sk, "0"); }
+FDataBuff* UHD_GI::FindDataBFByCode(const FString& str_code_bf) { return _dt_bf->FindRow<FDataBuff>(*str_code_bf, "0"); }
 
 const TArray<FDataWeapon*>& UHD_GI::GetDataWeapons() { return _data_wps; }
 const TArray<FDataCPAN*>& UHD_GI::GetDataCPANs() { return _data_cpans; }

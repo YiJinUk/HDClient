@@ -266,14 +266,21 @@ void AHD_Hero::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy e_
 
 		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetArmorRecoveryRate());
 		break;
+	case EUnitStatType::DMG:
+		switch (e_stat_by)
+		{
+		case EUnitStatBy::BUFF:
+			UnitSetDMG(_info_hero.dmg_base_by_bf, i_value);
+			break;
+		default:
+			break;
+		}
+		break;
 	case EUnitStatType::AS_DEALY:
 		UnitSetAS(_info_hero.as_delay, _info_hero.GetASTotalDelay(), i_value);
 		break;
 	case EUnitStatType::SK_COOLDOWN_TICK:
-		if (_info_hero.sk_cooldown_tick < _info_hero.sk_cooldown_tick_max)
-			_info_hero.sk_cooldown_tick += i_value;
-		if (_info_hero.sk_cooldown_tick <= 0)
-			_info_hero.sk_cooldown_tick = 0;
+		UnitSetCooldown(_info_hero.sk_cooldown_tick, _info_hero.sk_cooldown_tick_max, i_value);
 		_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetSKCooldownRate());
 		break;
 	default:
@@ -295,6 +302,9 @@ const int32 AHD_Hero::UnitGetStat(const EUnitStatType e_stat_type)
 		break;
 	case EUnitStatType::ARMOR_RECOVERY_TICK:
 		return _info_hero.armor_recovery_tick;
+		break;
+	case EUnitStatType::DMG:
+		return _info_hero.dmg_base;
 		break;
 	case EUnitStatType::AS_DEALY:
 		return _info_hero.as_delay;

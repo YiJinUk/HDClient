@@ -19,6 +19,7 @@ class AHD_Manager_Battle;
 class AHD_Manager_Weapon;
 class AHD_Manager_FX;
 class AHD_Manager_Skill;
+class AHD_Manager_Buff;
 
 /**
  * 
@@ -35,11 +36,11 @@ protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+public:
+	const int64 GidGenerate();
 private:
 	//어플 실행후 첫 호출지점입니다
 	void GMPostInit();
-
-	const int64 IdGenerate();
 private:
 	UPROPERTY()
 		UHD_GI* _gi = nullptr;
@@ -49,7 +50,7 @@ private:
 	UPROPERTY()
 		bool _is_call_BeginPlay = false;
 	UPROPERTY()
-		int64 _id_generator = 0;
+		int64 _gid_generator = 0;
 #pragma endregion
 
 #pragma region Tick
@@ -114,6 +115,8 @@ private:
 		AHD_Manager_FX* _manager_fx = nullptr;
 	UPROPERTY()
 		AHD_Manager_Skill* _manager_sk = nullptr;
+	UPROPERTY()
+		AHD_Manager_Buff* _manager_bf = nullptr;
 
 	UPROPERTY()
 		class USplineComponent* _spline_component = nullptr;

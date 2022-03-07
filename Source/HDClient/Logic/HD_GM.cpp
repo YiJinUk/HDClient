@@ -19,6 +19,7 @@
 #include "Manager/HD_Manager_Weapon.h"
 #include "Manager/HD_Manager_FX.h"
 #include "Manager/HD_Manager_Skill.h"
+#include "Manager/HD_Manager_Buff.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
@@ -76,11 +77,13 @@ void AHD_GM::GMPostInit()
 	_manager_wp = wld->SpawnActor<AHD_Manager_Weapon>(s_param);
 	_manager_fx = wld->SpawnActor<AHD_Manager_FX>(s_param);
 	_manager_sk = wld->SpawnActor<AHD_Manager_Skill>(s_param);
+	_manager_bf = wld->SpawnActor<AHD_Manager_Buff>(s_param);
 
 	_manager_pool->PoolPostInit(_gi, this, _pc);
 	_manager_battle->BattlePostInit(_pc);
 	_manager_fx->FXPostInit(_gi);
-	_manager_sk->SKPostInit(this);
+	_manager_sk->SKPostInit(this, _manager_bf);
+	_manager_bf->BFPostInit(this, _gi);
 
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(_pc, EUnitClassType::HERO);
@@ -151,6 +154,8 @@ void AHD_GM::Tick(float DeltaTime)
 		TickFriendAttack();
 
 		TickCheckWaveEnd();
+
+		_manager_bf->BFTick();
 		break;
 	default:
 		break;
@@ -397,13 +402,13 @@ void AHD_GM::MOBSpawn(const FString& str_code_mob)
 	AHD_Monster* mob_spawn = _manager_pool->PoolGetMOB(str_code_mob);
 	if (!mob_spawn) return;
 
-	mob_spawn->MOBInit(IdGenerate(), _gi->GetDataGame()->GetEnemySpawnLocation());
+	mob_spawn->MOBInit(GidGenerate(), _gi->GetDataGame()->GetEnemySpawnLocation());
 
 	_spawned_monsters.Add(mob_spawn);
 }
 void AHD_GM::MOBDeath(AHD_Monster* mob_death)
 {
-	MOBRemoveSpawnedById(mob_death->GetInfoMOB().id);
+	MOBRemoveSpawnedById(mob_death->GetInfoMOB().gid);
 	_manager_pool->PoolMOBDeath(mob_death);
 }
 void AHD_GM::MOBRemoveSpawnedById(const int64 i_id_mob)
@@ -413,7 +418,7 @@ void AHD_GM::MOBRemoveSpawnedById(const int64 i_id_mob)
 	for (int32 i = 0, i_len = _spawned_monsters.Num(); i < i_len; ++i)
 	{
 		mob = _spawned_monsters[i];
-		if (mob && mob->GetInfoMOB().id == i_id_mob)
+		if (mob && mob->GetInfoMOB().gid == i_id_mob)
 		{
 			_spawned_monsters.RemoveAtSwap(i);
 			return;
@@ -430,7 +435,7 @@ AHD_Monster* AHD_GM::FindMOBFirstByV2(const FVector2D& v2_loc_center, const int6
 	for (AHD_Monster* mob_spawned : _spawned_monsters)
 	{
 		/*개미가 유효한지*/
-		if (mob_spawned && mob_spawned->GetInfoUnit().is_hit_valid && mob_spawned->GetInfoMOB().id != i_id_mob_except)
+		if (mob_spawned && mob_spawned->GetInfoUnit().is_hit_valid && mob_spawned->GetInfoMOB().gid != i_id_mob_except)
 		{
 			/*개미의 이동거리가 타겟후보보다 더 이동했는지*/
 			i_travel_dist_total_tmp = mob_spawned->GetInfoMOB().lane_dist;
@@ -454,7 +459,7 @@ AHD_Monster* AHD_GM::FindMOBNearByV2(const FVector2D& v2_loc_center, const int64
 	for (AHD_Monster* mob_spawned : _spawned_monsters)
 	{
 		/*개미가 유효한지*/
-		if (mob_spawned && mob_spawned->GetInfoUnit().is_hit_valid && mob_spawned->GetInfoMOB().id != i_id_mob_except)
+		if (mob_spawned && mob_spawned->GetInfoUnit().is_hit_valid && mob_spawned->GetInfoMOB().gid != i_id_mob_except)
 		{
 			/*가장 가까운 개미인지*/
 			i_dist_candidate_tmp = UHD_FunctionLibrary::GetDistance2DByVector(v2_loc_center, mob_spawned->GetActorLocation2D());
@@ -508,7 +513,7 @@ void AHD_GM::PROJSpawn(const FString& str_code_proj, const FVector& v_loc_spawn,
 	FDataProjectile* s_data_proj = _gi->FindDataPROJByCode(str_code_proj);
 	AHD_Projectile* proj = _manager_pool->PoolGetPROJ(s_data_proj);
 
-	proj->PROJInit(IdGenerate(), s_data_proj, v_loc_spawn, unit_owner, unit_target, v2_dest);
+	proj->PROJInit(GidGenerate(), s_data_proj, v_loc_spawn, unit_owner, unit_target, v2_dest);
 
 	_spawned_projs.Add(proj);
 }
@@ -533,6 +538,6 @@ void AHD_GM::PROJAllPoolIn()
 }
 void AHD_GM::BattleSend(AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type) { _manager_battle->BattleRecv(atk, def, i_dmg, e_atk_type); }
 
-const int64 AHD_GM::IdGenerate() { return ++_id_generator; }
+const int64 AHD_GM::GidGenerate() { return ++_gid_generator; }
 AHD_Hero* AHD_GM::GetHero() { return _hero; }
 AHD_Manager_Skill* AHD_GM::GetManagerSK() { return _manager_sk; }

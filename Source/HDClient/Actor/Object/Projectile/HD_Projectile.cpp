@@ -32,7 +32,7 @@ void AHD_Projectile::PROJInit(const int64 i_id, FDataProjectile* s_data_proj, co
 {
 	SetActorLocation(FVector(v_loc_spawn.X, v_loc_spawn.Y, __LOC_Z));
 
-	_info_proj.id = i_id;
+	_info_proj.gid = i_id;
 	_info_proj.target = unit_target;
 	_info_proj.owner = unit_owner;
 	_info_proj.move_type = s_data_proj->GetPROJMoveType();

@@ -140,16 +140,14 @@ void AHD_Companion::CPANAttackSkillStart()
 }
 void AHD_Companion::CPANAttackSKNotify()
 {
+	//override
 	if (!_info_cpan.target || !_info_cpan.target->GetInfoUnit().is_hit_valid)
 	{
-		/*피해를 주려고 했지만 애니메이션도중 적의 상태가 피격이 무효하게 바뀌었습니다*/
 		_info_cpan.atk_sk_status = EAttackSkillStatus::DETECT;
 		_info_cpan.sk_cooldown_tick = _info_cpan.sk_cooldown_tick_max;
 	}
 	else
 	{
-		/*피해를 주고 다시 기본공격대기상태로 돌아갑니다*/
-		//무기마다 기본공격양상이 다르기 때문에 무기클래스에서 공격을 시도합니다
 		_gm->PROJSpawn(_info_cpan.code_proj_sk, GetActorLocation(), this, _info_cpan.target);
 		_info_cpan.atk_sk_status = EAttackSkillStatus::COOLDOWN;
 	}
@@ -163,15 +161,21 @@ void AHD_Companion::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStat
 {
 	switch (e_stat_type)
 	{
+	case EUnitStatType::DMG:
+		switch (e_stat_by)
+		{
+		case EUnitStatBy::BUFF:
+			UnitSetDMG(_info_cpan.dmg_base_by_bf, i_value);
+			break;
+		default:
+			break;
+		}
+		break;
 	case EUnitStatType::AS_DEALY:
 		UnitSetAS(_info_cpan.as_delay, _info_cpan.GetASTotalDelay(), i_value);
 		break;
 	case EUnitStatType::SK_COOLDOWN_TICK:
-		if (_info_cpan.sk_cooldown_tick < _info_cpan.sk_cooldown_tick_max)
-			_info_cpan.sk_cooldown_tick += i_value;
-		if (_info_cpan.sk_cooldown_tick <= 0)
-			_info_cpan.sk_cooldown_tick = 0;
-
+		UnitSetCooldown(_info_cpan.sk_cooldown_tick, _info_cpan.sk_cooldown_tick_max, i_value);
 		break;
 	default:
 		break;
@@ -181,6 +185,9 @@ const int32 AHD_Companion::UnitGetStat(const EUnitStatType e_stat_type)
 {
 	switch (e_stat_type)
 	{
+	case EUnitStatType::DMG:
+		return _info_cpan.dmg_base;
+		break;
 	case EUnitStatType::AS_DEALY:
 		return _info_cpan.as_delay;
 		break;

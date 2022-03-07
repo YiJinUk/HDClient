@@ -29,6 +29,7 @@ public:
 	FDataProjectile* FindDataPROJByCode(const FString& str_code_proj);
 	FDataVFX* FindDataVFXByCode(const FString& str_code_vfx);
 	FDataSkill* FindDataSKByCode(const FString& str_code_sk);
+	FDataBuff* FindDataBFByCode(const FString& str_code_bf);
 
 	const TArray<FDataWeapon*>& GetDataWeapons();
 	const TArray<FDataCPAN*>& GetDataCPANs();
@@ -47,6 +48,7 @@ private:
 	UDataTable* _dt_proj = nullptr;
 	UDataTable* _dt_vfx = nullptr;
 	UDataTable* _dt_sk = nullptr;
+	UDataTable* _dt_bf = nullptr;
 
 	TArray<FDataWeapon*> _data_wps;
 	TArray<FDataCPAN*> _data_cpans;

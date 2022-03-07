@@ -61,6 +61,15 @@ void AHD_Unit::UnitSetActiveTickChild(const bool b_is_active)
 	//override
 }
 
+void AHD_Unit::UnitAddBF(const int64 i_gid_bf) { _info_unit.gid_bfs.Add(i_gid_bf); }
+void AHD_Unit::UnitRemoveBF(const int64 i_gid_bf) { _info_unit.gid_bfs.Remove(i_gid_bf); }
+
+void AHD_Unit::UnitSetDMG(int32& i_dmg, const int32 i_value)
+{
+	i_dmg += i_value;
+	if (i_dmg <= 0)
+		i_dmg = 0;
+}
 void AHD_Unit::UnitSetAS(int32& i_as_delay, const int32 i_as_delay_total, const int32 i_tick_1frame)
 {
 	if (i_as_delay < i_as_delay_total)
@@ -79,6 +88,13 @@ void AHD_Unit::UnitSetHP(int32& i_hp, const int32 i_hp_max, const int32 i_value)
 	{
 		i_hp = i_hp_max;
 	}
+}
+void AHD_Unit::UnitSetCooldown(int32& i_cooldown_tick, const int32 i_cooldown_tick_max, const int32 i_tick_1frame)
+{
+	if (i_cooldown_tick < i_cooldown_tick_max)
+		i_cooldown_tick += i_tick_1frame;
+	if (i_cooldown_tick <= 0)
+		i_cooldown_tick = 0;
 }
 
 void AHD_Unit::UnitHit(const FBattleHitResult& s_battle_hit_result) {	/*override*/ }

@@ -14,4 +14,6 @@ class HDCLIENT_API AHD_CPAN00001 : public AHD_Companion
 {
 	GENERATED_BODY()
 	
+private:
+	void CPANAttackSKNotify() override;
 };

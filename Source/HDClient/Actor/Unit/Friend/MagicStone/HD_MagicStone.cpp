@@ -70,11 +70,7 @@ void AHD_MagicStone::UnitSetStat(const EUnitStatType e_stat_type, const EUnitSta
 	switch (e_stat_type)
 	{
 	case EUnitStatType::SK_COOLDOWN_TICK:
-		if (_info_ms.sk_cooldown_tick < _info_ms.sk_cooldown_tick_max)
-			_info_ms.sk_cooldown_tick += i_value;
-		if (_info_ms.sk_cooldown_tick <= 0)
-			_info_ms.sk_cooldown_tick = 0;
-		//_pc->PCUIUpdateStat(e_stat_type, e_stat_by, 0, _info_hero.GetSKCooldownRate());
+		UnitSetCooldown(_info_ms.sk_cooldown_tick, _info_ms.sk_cooldown_tick_max, i_value);
 		break;
 	default:
 		break;

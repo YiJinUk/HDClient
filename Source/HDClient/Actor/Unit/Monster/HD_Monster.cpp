@@ -54,7 +54,7 @@ void AHD_Monster::MOBPostInit(FDataMonster* s_data_enemy)
 void AHD_Monster::MOBInit(const int64 i_id, const FVector v_loc_spawn)
 {
 	UnitSetActiveTick(true);
-	_info_monster.id = i_id;
+	_info_monster.gid = i_id;
 	_info_monster.hp = _info_monster.hp_max;
 	_info_monster.death_to_pool_tick = 0;
 	_info_monster.is_death = false;
@@ -183,6 +183,16 @@ void AHD_Monster::UnitSetStat(const EUnitStatType e_stat_type, const EUnitStatBy
 		else
 			_ui_monster_headup->UIEnemyHeadUpSetHPBar(_info_monster.GetHPRate());
 		break;
+	case EUnitStatType::DMG:
+		switch (e_stat_by)
+		{
+		case EUnitStatBy::BUFF:
+			UnitSetDMG(_info_monster.dmg_base_by_bf, i_value);
+			break;
+		default:
+			break;
+		}
+		break;
 	case EUnitStatType::AS_DEALY:
 		UnitSetAS(_info_monster.as_delay, _info_monster.GetASTotalDelay(), i_value);
 		break;
@@ -196,6 +206,9 @@ const int32 AHD_Monster::UnitGetStat(const EUnitStatType e_stat_type)
 	{
 	case EUnitStatType::HP:
 		return _info_monster.hp;
+		break;
+	case EUnitStatType::DMG:
+		return _info_monster.dmg_base;
 		break;
 	case EUnitStatType::AS_DEALY:
 		return _info_monster.as_delay;
