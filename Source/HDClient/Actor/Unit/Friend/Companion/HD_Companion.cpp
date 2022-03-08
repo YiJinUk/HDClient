@@ -16,11 +16,11 @@ AHD_Companion::AHD_Companion()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/HeadUp/HDWB_UI_HeadUp_CPAN"));
-	if (W_HEAD_NOTIFY_BP.Succeeded() && _ui_headup)
-	{
-		_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
-	}
+	//static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/HeadUp/HDWB_UI_HeadUp_CPAN"));
+	//if (W_HEAD_NOTIFY_BP.Succeeded() && _ui_headup)
+	//{
+	//	_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
+	//}
 }
 void AHD_Companion::CPANPostInit(FDataCPAN* s_data_cpan)
 {

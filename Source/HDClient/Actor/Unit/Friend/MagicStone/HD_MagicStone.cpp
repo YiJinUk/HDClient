@@ -23,9 +23,10 @@ AHD_MagicStone::AHD_MagicStone()
 		_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
 	}
 }
-void AHD_MagicStone::MSPostInit(FDataMS* s_data_ms)
+void AHD_MagicStone::MSPostInit(FDataMS* s_data_ms, const FVector& v_loc_spawn)
 {
 	_ui_headup_ms = Cast<UHD_UI_HeadUp_MS>(_ui_headup->GetUserWidgetObject());
+	SetActorLocation(v_loc_spawn);
 
 	_info_ms.code = s_data_ms->GetCode();
 	_info_ms.int_base = s_data_ms->GetINT();

@@ -66,7 +66,10 @@ void AHD_Manager_Buff::BFInit(FInfoBuff* s_info_bf_new, const FString& str_code_
 
 void AHD_Manager_Buff::BFEnd(FInfoBuff* s_info_bf)
 {
-
+	BFFinish(s_info_bf);
+	s_info_bf->casted->UnitRemoveBF(s_info_bf->gid);
+	_active_bfs.Remove(s_info_bf->gid);
+	AddInfoBF(s_info_bf);
 }
 
 void AHD_Manager_Buff::BFTick()
@@ -87,9 +90,7 @@ void AHD_Manager_Buff::BFTick()
 		if (s_info_bf->life <= 0)
 		{
 			/*버프 종료*/
-			BFFinish(s_info_bf);
-			s_info_bf->casted->UnitRemoveBF(s_info_bf->gid);
-			_active_bfs.Remove(s_info_bf->gid);
+			BFEnd(s_info_bf);
 		}
 	}
 }

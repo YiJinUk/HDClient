@@ -52,13 +52,18 @@ void AHD_GM::GMPostInit()
 	UWorld* wld = GetWorld();
 	_gi = wld->GetGameInstance<UHD_GI>();
 	_gi->GIPostInit();
-	
-	/*월드에 존재하는 영웅, 동료, 마법석액터 가져오기*/
+
+	/*월드에 영웅 가져오기*/
 	TArray<AActor*> arr_found_actor;
 	UGameplayStatics::GetAllActorsOfClass(wld, AHD_Hero::StaticClass(), arr_found_actor);
 	if (arr_found_actor.Num() >= 1) { _hero = Cast<AHD_Hero>(arr_found_actor[0]); }
-	UGameplayStatics::GetAllActorsOfClass(wld, AHD_MagicStone::StaticClass(), arr_found_actor);
-	if (arr_found_actor.Num() >= 1) { _ms = Cast<AHD_MagicStone>(arr_found_actor[0]); }
+
+	//마법석 생성
+	FActorSpawnParameters _spawn_param = FActorSpawnParameters();
+	_spawn_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	_ms = GetWorld()->SpawnActor<AHD_MagicStone>(_gi->GetDataMS()->GetClassMS(), _spawn_param); // 풀링 매니저
+	_ms->UnitPostInit(_pc, EUnitClassType::MS);
+	_ms->MSPostInit(_gi->GetDataMS(), _gi->GetDataGame()->GetMSSpawnLocation());
 
 	/*월드에 존재하는 스플라인액터를 통해 스플라인컴포넌트 가져오기*/
 	UGameplayStatics::GetAllActorsOfClass(wld, AHD_Spline::StaticClass(), arr_found_actor);
@@ -88,8 +93,7 @@ void AHD_GM::GMPostInit()
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(_pc, EUnitClassType::HERO);
 	_hero->HeroPostInit(_gi->GetDataHero());
-	_ms->UnitPostInit(_pc, EUnitClassType::MS);
-	_ms->MSPostInit(_gi->GetDataMS());
+	
 
 	ChangeCPANStartByCode("CPAN00001");
 
@@ -101,34 +105,34 @@ void AHD_GM::GMPostInit()
 void AHD_GM::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
-	if (enumPtr)
-	{
-		if (_spawned_monsters.Num() >= 1)
-		{
-			FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_monsters[0]->GetInfoMOB().atk_basic_status);
-			UHD_FunctionLibrary::GPrintString(10, 1, "MONSTER : " + str_enum, FColor::Red);
-			UHD_FunctionLibrary::GPrintString(11, 1, "MONSTER : " + FString::FromInt(_spawned_monsters[0]->GetInfoMOB().as_delay), FColor::Red);
-		}
-		if (_hero)
-		{
+	//const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EAttackBasicStatus"), true);
+	//if (enumPtr)
+	//{
+	//	if (_spawned_monsters.Num() >= 1)
+	//	{
+	//		FString str_enum = enumPtr->GetNameStringByIndex((int32)_spawned_monsters[0]->GetInfoMOB().atk_basic_status);
+	//		UHD_FunctionLibrary::GPrintString(10, 1, "MONSTER : " + str_enum, FColor::Red);
+	//		UHD_FunctionLibrary::GPrintString(11, 1, "MONSTER : " + FString::FromInt(_spawned_monsters[0]->GetInfoMOB().as_delay), FColor::Red);
+	//	}
+	//	if (_hero)
+	//	{
 
-			FString str_enum = enumPtr->GetNameStringByIndex((int32)_hero->GetInfoHero().atk_basic_status);
-			UHD_FunctionLibrary::GPrintString(1, 1, "HERO : " + str_enum);
-			UHD_FunctionLibrary::GPrintString(2, 1, "HERO : " + FString::FromInt(_hero->GetInfoHero().as_delay));
-			//UHD_FunctionLibrary::GSaveLog("Tick.Hero ASDelay : "+ FString::FromInt(_hero->GetInfoHero().as_delay)+ " // Hero Status : " + str_enum, "Hero Attack.txt");
-			//UHD_FunctionLibrary::GSaveLog("Tick.Hero Status : " + str_enum, "Hero Attack.txt");
-		}
-		if (_cpan)
-		{
+	//		FString str_enum = enumPtr->GetNameStringByIndex((int32)_hero->GetInfoHero().atk_basic_status);
+	//		UHD_FunctionLibrary::GPrintString(1, 1, "HERO : " + str_enum);
+	//		UHD_FunctionLibrary::GPrintString(2, 1, "HERO : " + FString::FromInt(_hero->GetInfoHero().as_delay));
+	//		//UHD_FunctionLibrary::GSaveLog("Tick.Hero ASDelay : "+ FString::FromInt(_hero->GetInfoHero().as_delay)+ " // Hero Status : " + str_enum, "Hero Attack.txt");
+	//		//UHD_FunctionLibrary::GSaveLog("Tick.Hero Status : " + str_enum, "Hero Attack.txt");
+	//	}
+	//	if (_cpan)
+	//	{
 
-			FString str_enum = enumPtr->GetNameStringByIndex((int32)_cpan->GetInfoCPAN().atk_basic_status);
-			UHD_FunctionLibrary::GPrintString(21, 1, "COMPANION : " + str_enum, FColor::Turquoise);
-			UHD_FunctionLibrary::GPrintString(22, 1, "COMPANION : " + FString::FromInt(_hero->GetInfoHero().as_delay),FColor::Turquoise);
-			//UHD_FunctionLibrary::GSaveLog("Tick.Hero ASDelay : "+ FString::FromInt(_hero->GetInfoHero().as_delay)+ " // Hero Status : " + str_enum, "Hero Attack.txt");
-			//UHD_FunctionLibrary::GSaveLog("Tick.Hero Status : " + str_enum, "Hero Attack.txt");
-		}
-	}
+	//		FString str_enum = enumPtr->GetNameStringByIndex((int32)_cpan->GetInfoCPAN().atk_basic_status);
+	//		UHD_FunctionLibrary::GPrintString(21, 1, "COMPANION : " + str_enum, FColor::Turquoise);
+	//		UHD_FunctionLibrary::GPrintString(22, 1, "COMPANION : " + FString::FromInt(_hero->GetInfoHero().as_delay),FColor::Turquoise);
+	//		UHD_FunctionLibrary::GPrintString(220, 1, "Test Int : " + FString::FromInt(0x5f3759df));
+	//		UHD_FunctionLibrary::GPrintString(221, 1, "Test Float : " + FString::SanitizeFloat(0x5f3759df));
+	//	}
+	//}
 
 	if (_info_wld.wld_status != EWorldStatus::HOME)
 		++_info_wld.tick_total;
@@ -294,7 +298,6 @@ void AHD_GM::WorldStart()
 
 	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
 	_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;
-
 	/*Debug*/
 	if (_spline_component)
 	{
@@ -303,7 +306,7 @@ void AHD_GM::WorldStart()
 			DrawDebugLine(GetWorld(), 
 				_spline_component->GetLocationAtDistanceAlongSpline(i, ESplineCoordinateSpace::World),
 				_spline_component->GetLocationAtDistanceAlongSpline(i + 1, ESplineCoordinateSpace::World),
-				FColor::Red, false, 10000.f, (uint8)'\000', 3.f);
+				FColor::Red, false, 10000.f, 0, 3.f);
 		}
 	}
 }

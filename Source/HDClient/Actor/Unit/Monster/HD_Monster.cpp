@@ -15,11 +15,11 @@ AHD_Monster::AHD_Monster(FObjectInitializer const& object_initializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/HeadUp/HDWB_UI_HeadUp_Monster"));
-	if (W_HEAD_NOTIFY_BP.Succeeded() && _ui_headup)
-	{
-		_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
-	}
+	//static ConstructorHelpers::FClassFinder<UUserWidget> W_HEAD_NOTIFY_BP(TEXT("/Game/_HDClient/UI/World/HeadUp/HDWB_UI_HeadUp_Monster"));
+	//if (W_HEAD_NOTIFY_BP.Succeeded() && _ui_headup)
+	//{
+	//	_ui_headup->SetWidgetClass(W_HEAD_NOTIFY_BP.Class);
+	//}
 }
 void AHD_Monster::MOBPostInit(FDataMonster* s_data_enemy)
 {

@@ -15,18 +15,21 @@ UCLASS()
 class HDCLIENT_API AHD_MagicStone : public AHD_Friend
 {
 	GENERATED_BODY()
-	
+
 #pragma region Init
 public:
 	AHD_MagicStone();
-	void MSPostInit(FDataMS* s_data_ms);
+	void MSPostInit(FDataMS* s_data_ms, const FVector& v_loc_spawn);
 	void MSInit(FDataMS* s_data_ms);
 	//void HeroWaveEndInit();
 	//void HeroToHomeInit();
 
 	const FInfoMS& GetInfoMS();
-private:
-	UPROPERTY()
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+		void MSBPPostInit();
+protected:
+	UPROPERTY(BlueprintReadWrite)
 		UHD_UI_HeadUp_MS* _ui_headup_ms = nullptr;
 	UPROPERTY()
 		FInfoMS _info_ms;

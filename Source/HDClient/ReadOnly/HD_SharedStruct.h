@@ -160,11 +160,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Wave")
 		uint8 _wave_enemy_spawn_interval = 0;
 
+	UPROPERTY(EditAnywhere, Category = "Companion")
+		FVector _cpan_spawn_location = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, Category = "MagicStone")
+		FVector _ms_spawn_location = FVector::ZeroVector;
 	UPROPERTY(EditAnywhere, Category = "Monster")
 		FVector _enemy_spawn_location = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, Category = "Companion")
-		FVector _cpan_spawn_location = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 		int32 _proj_speed = 2500;
@@ -172,8 +174,9 @@ protected:
 		int32 _proj_detect_range = 150;
 public:
 	FORCEINLINE const uint8 GetWaveEnemySpawnInterval() { return _wave_enemy_spawn_interval; }
-	FORCEINLINE const FVector& GetEnemySpawnLocation() { return _enemy_spawn_location; }
 	FORCEINLINE const FVector& GetCPANSpawnLocation() { return _cpan_spawn_location; }
+	FORCEINLINE const FVector& GetMSSpawnLocation() { return _ms_spawn_location; }
+	FORCEINLINE const FVector& GetEnemySpawnLocation() { return _enemy_spawn_location; }
 	FORCEINLINE const int32 GetPROJSpeed() { return _proj_speed; }
 	FORCEINLINE const int32 GetPROJDetectRange() { return _proj_detect_range; }
 };
