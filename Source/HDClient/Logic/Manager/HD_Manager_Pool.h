@@ -14,8 +14,10 @@ class AHD_Weapon;
 class AHD_Monster;
 class AHD_Companion;
 class AHD_Projectile;
+class AHD_Reward;
+class AHD_Portal;
 
-/**PoolGetMOB
+/**
  * 
  */
 UCLASS()
@@ -76,7 +78,23 @@ public:
 	AHD_Projectile* PoolGetPROJ(FDataProjectile* s_data_proj);
 	void PoolInPROJ(AHD_Projectile* proj);
 private:
-	TArray<AHD_Projectile*, TInlineAllocator<100>> _pool_proj;
+	TArray<AHD_Projectile*, TInlineAllocator<50>> _pool_proj;
+#pragma endregion
+
+#pragma region Reward
+public:
+	AHD_Reward* PoolGetReward();
+	void PoolInReward(AHD_Reward* reward);
+private:
+	TArray<AHD_Reward*, TInlineAllocator<6>> _pool_reward;
+#pragma endregion
+
+#pragma region Portal
+public:
+	AHD_Portal* PoolGetPortal();
+	void PoolInPortal(AHD_Portal* portal);
+private:
+	TArray<AHD_Portal*, TInlineAllocator<6>> _pool_portal;
 #pragma endregion
 
 };

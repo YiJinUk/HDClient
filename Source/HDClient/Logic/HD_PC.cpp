@@ -42,7 +42,7 @@ void AHD_PC::Tick(float DeltaTime)
 
 void AHD_PC::PCWorldStart()
 {
-	_gm->WorldStart();
+	//_gm->WorldStart();
 	_ui_main->UIMainWorldStart();
 }
 void AHD_PC::PCWorldGameOver()
@@ -78,6 +78,11 @@ void AHD_PC::PCWaveNext(const int32 i_round_stage, const int32 i_round_wave)
 void AHD_PC::PCUIUpdateBossHPRate(const float f_boss_hp_rate)
 {
 	_ui_main->UIMainUpdateBossHPRate(f_boss_hp_rate);
+}
+
+void AHD_PC::PCUIRewardToSelect()
+{
+	_ui_main->UIMainRewardToSelect();
 }
 
 void AHD_PC::PCUIUpdateStat(const EUnitStatType e_unit_stat_type, const EUnitStatBy e_unit_stat_by, const int32 i_value, const float f_value)

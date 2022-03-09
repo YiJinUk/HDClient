@@ -17,6 +17,8 @@ class AHD_Unit;
 class AHD_Hero;
 class AHD_Companion;
 class AHD_MagicStone;
+class AHD_Reward;
+class AHD_Portal;
 
 /**
  * 
@@ -44,6 +46,13 @@ enum class EWaveType : uint8
 	MONSTER,
 	BOSS,
 };
+
+UENUM()
+enum class EPlayerStatType : uint8
+{
+	GOLD,
+};
+
 UENUM()
 enum class EUnitClassType : uint8
 {
@@ -148,6 +157,21 @@ enum class EBuffOverlap : uint8
 	VALUE_TIME,
 };
 
+UENUM()
+enum class ERewardType : uint8
+{
+	NO,
+	GOLD,
+	HP_MAX,
+};
+UENUM()
+enum class ERewardBy : uint8
+{
+	BASE,
+	SELECT,
+};
+
+
 
 #pragma region Data
 USTRUCT(BlueprintType)
@@ -167,11 +191,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Monster")
 		FVector _enemy_spawn_location = FVector::ZeroVector;
 
-
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 		int32 _proj_speed = 2500;
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 		int32 _proj_detect_range = 150;
+
+	UPROPERTY(EditAnywhere, Category = "Reward")
+		TSubclassOf<AHD_Reward> reward_class;
+	UPROPERTY(EditAnywhere, Category = "Reward")
+		TArray<ERewardType> rewards_active;
+
+	UPROPERTY(EditAnywhere, Category = "Portal")
+		TSubclassOf<AHD_Portal> portal_class;
 public:
 	FORCEINLINE const uint8 GetWaveEnemySpawnInterval() { return _wave_enemy_spawn_interval; }
 	FORCEINLINE const FVector& GetCPANSpawnLocation() { return _cpan_spawn_location; }
@@ -179,6 +210,9 @@ public:
 	FORCEINLINE const FVector& GetEnemySpawnLocation() { return _enemy_spawn_location; }
 	FORCEINLINE const int32 GetPROJSpeed() { return _proj_speed; }
 	FORCEINLINE const int32 GetPROJDetectRange() { return _proj_detect_range; }
+	FORCEINLINE const TSubclassOf<AHD_Reward>& GetRewardClass() { return reward_class; }
+	FORCEINLINE const TArray<ERewardType>& GetRewardsActive() { return rewards_active; }
+	FORCEINLINE const TSubclassOf<AHD_Portal>& GetPortalClass() { return portal_class; }
 };
 USTRUCT(BlueprintType)
 struct FDataWaveSpawnEnemy : public FTableRowBase
@@ -485,6 +519,28 @@ protected:
 public:
 	FORCEINLINE const int32 GetID() const { return _id; }
 };
+
+USTRUCT(BlueprintType)
+struct FDataReward : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		ERewardType _reward_type = ERewardType::GOLD;
+	UPROPERTY(EditAnywhere, Category = "General")
+		int32 _value = 0;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+		UTexture2D* _icon = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Description")
+		FString _desc = "0";
+public:
+	FORCEINLINE const ERewardType GetRewardType() const { return _reward_type; }
+	FORCEINLINE const int32 GetValue() const { return _value; }
+	FORCEINLINE UTexture2D* GetIcon() { return _icon; }
+};
 #pragma endregion
 
 USTRUCT()
@@ -538,6 +594,11 @@ public:
 	UPROPERTY()
 		uint8 spawn_enemy_interval_max = 0;
 
+	UPROPERTY()
+		TArray<ERewardType> rewards_base;
+	UPROPERTY()
+		ERewardType reward_select = ERewardType::NO;
+public:
 	void InitInfoWave()
 	{
 		spawn_enemy_interval_current = 0;
@@ -551,7 +612,8 @@ struct FInfoPlayer
 	GENERATED_BODY()
 
 public:
-
+	UPROPERTY()
+		int32 gold = 0;//금화
 };
 
 USTRUCT()
@@ -920,6 +982,23 @@ public:
 	//버프타이머가 타이머라면 남은틱, 카운트라면 남은횟수 등 달라집니다 한번에 여기서 관리합니다
 	UPROPERTY()
 		int32 life = 0;
+};
+
+USTRUCT()
+struct FInfoReward
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		ERewardType reward_type = ERewardType::GOLD;
+	UPROPERTY()
+		int32 value = 0;
+	UPROPERTY()
+		FString value_str = "0";
+
+	UPROPERTY()
+		UTexture2D* icon = nullptr;
 };
 
 USTRUCT()

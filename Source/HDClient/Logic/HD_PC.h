@@ -73,6 +73,11 @@ public:
 	void PCUIUpdateBossHPRate(const float f_boss_hp_rate);
 #pragma endregion
 
+#pragma region Reward
+public:
+	void PCUIRewardToSelect();
+#pragma endregion
+
 #pragma region UI
 public:
 	void PCUIUpdateStat(const EUnitStatType e_unit_stat_type, const EUnitStatBy e_unit_stat_by, const int32 i_value = 0, const float f_value = 0.f);

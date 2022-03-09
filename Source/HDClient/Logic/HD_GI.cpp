@@ -27,6 +27,8 @@ UHD_GI::UHD_GI()
 	if (DT_SK.Succeeded()) { _dt_sk = DT_SK.Object; }
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_BF(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Buff.HDDT_Buff"));
 	if (DT_BF.Succeeded()) { _dt_bf = DT_BF.Object; }
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_REWARD(TEXT("/Game/_HDClient/ReadOnly/Data/HDDT_Reward.HDDT_Reward"));
+	if (DT_REWARD.Succeeded()) { _dt_reward = DT_REWARD.Object; }
 }
 void UHD_GI::GIPostInit()
 {
@@ -36,6 +38,13 @@ void UHD_GI::GIPostInit()
 	_data_game = _dt_game->FindRow<FDataGame>("GAME00001", "0");
 	_data_hero = _dt_hero->FindRow<FDataHero>("HERO00001", "0");
 	_data_ms = _dt_ms->FindRow<FDataMS>("MS00001", "0");
+
+	TArray<FDataReward*> arr_data_reward;
+	_dt_reward->GetAllRows("0", arr_data_reward);
+	for (FDataReward* s_data_reward : arr_data_reward)
+	{
+		_data_rewards.Add(s_data_reward->GetRewardType(), s_data_reward);
+	}
 }
 
 FDataMonster* UHD_GI::FindDataMOBByCode(const FString& str_code_mob) { return _dt_mob->FindRow<FDataMonster>(*str_code_mob, "0"); }
@@ -44,6 +53,7 @@ FDataProjectile* UHD_GI::FindDataPROJByCode(const FString& str_code_proj) { retu
 FDataVFX* UHD_GI::FindDataVFXByCode(const FString& str_code_vfx) { return _dt_vfx->FindRow<FDataVFX>(*str_code_vfx, "0"); }
 FDataSkill* UHD_GI::FindDataSKByCode(const FString& str_code_sk) { return _dt_sk->FindRow<FDataSkill>(*str_code_sk, "0"); }
 FDataBuff* UHD_GI::FindDataBFByCode(const FString& str_code_bf) { return _dt_bf->FindRow<FDataBuff>(*str_code_bf, "0"); }
+FDataReward* UHD_GI::FindDataRewardByType(const ERewardType e_reward_type) { return *(_data_rewards.Find(e_reward_type)); }
 
 const TArray<FDataWeapon*>& UHD_GI::GetDataWeapons() { return _data_wps; }
 const TArray<FDataCPAN*>& UHD_GI::GetDataCPANs() { return _data_cpans; }

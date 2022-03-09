@@ -14,12 +14,14 @@ class AHD_Hero;
 class AHD_MagicStone;
 class AHD_Companion;
 class AHD_Monster;
+class AHD_Portal;
 class AHD_Manager_Pool;
 class AHD_Manager_Battle;
 class AHD_Manager_Weapon;
 class AHD_Manager_FX;
 class AHD_Manager_Skill;
 class AHD_Manager_Buff;
+class AHD_Manager_Reward;
 
 /**
  * 
@@ -93,17 +95,24 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 		void WaveStart();
-	void WaveNext();
+	void WaveNext(const ERewardType e_reward_type_select);
+
+	void WaveOpenPortal();
+
+	const FInfoWave& GetInfoWave();
 private:
 	void WaveEnd();
 private:
 	UPROPERTY()
 		FInfoWave _info_wave;
+	UPROPERTY()
+		TArray<AHD_Portal*> _open_portals;
 #pragma endregion
 
 #pragma region Manager,Spline
 public:
 	AHD_Manager_Skill* GetManagerSK();
+	AHD_Manager_Reward* GetManagerReward();
 private:
 	UPROPERTY()
 		AHD_Manager_Pool* _manager_pool = nullptr;
@@ -117,12 +126,16 @@ private:
 		AHD_Manager_Skill* _manager_sk = nullptr;
 	UPROPERTY()
 		AHD_Manager_Buff* _manager_bf = nullptr;
+	UPROPERTY()
+		AHD_Manager_Reward* _manager_reward = nullptr;
 
 	UPROPERTY()
 		class USplineComponent* _spline_component = nullptr;
 #pragma endregion
 
 #pragma region Player
+public:
+	void PlayerSetStat(const EPlayerStatType e_player_stat_type, const int32 i_value);
 private:
 	UPROPERTY()
 		AHD_PC* _pc = nullptr;
@@ -185,6 +198,11 @@ private:
 private:
 	UPROPERTY()
 		TSet<AHD_Projectile*> _spawned_projs;
+#pragma endregion
+
+#pragma region Reward
+public:
+	void RewardSelectSend(const ERewardType e_reward_type, const ERewardBy e_reward_by);
 #pragma endregion
 
 #pragma region Battle

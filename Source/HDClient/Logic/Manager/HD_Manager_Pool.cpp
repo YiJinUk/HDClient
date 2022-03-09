@@ -8,6 +8,8 @@
 #include "Logic/HD_PC.h"
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Actor/Object/Projectile/HD_Projectile.h"
+#include "Actor/Object/HD_Reward.h"
+#include "Actor/Object/HD_Portal.h"
 #include "Actor/Unit/Monster/HD_Monster.h"
 #include "Actor/Unit/Friend/Companion/HD_Companion.h"
 
@@ -40,6 +42,22 @@ void AHD_Manager_Pool::PoolPostInit(UHD_GI* gi, AHD_GM* gm, AHD_PC* pc)
 		cpan->UnitPostInit(_pc, EUnitClassType::CPAN);
 		cpan->CPANPostInit(s_data_cpan);
 		PoolInCPAN(cpan);
+	}
+
+	/*보상오브젝트 풀 초기화*/
+	for (int32 i = 0; i < 6; ++i)
+	{
+		AHD_Reward* reward = GetWorld()->SpawnActor<AHD_Reward>(_gi->GetDataGame()->GetRewardClass(), _spawn_param);
+		reward->RewardPostInit();
+		PoolInReward(reward);
+	}
+
+	/*포탈 풀 초기화*/
+	for (int32 i = 0; i < 6; ++i)
+	{
+		AHD_Portal* portal = GetWorld()->SpawnActor<AHD_Portal>(_gi->GetDataGame()->GetPortalClass(), _spawn_param);
+		portal->PortalPostInit();
+		PoolInPortal(portal);
 	}
 }
 
@@ -149,4 +167,40 @@ void AHD_Manager_Pool::PoolInPROJ(AHD_Projectile* proj)
 	if (!proj) return;
 	proj->PROJSetActiveTick(false);
 	_pool_proj.Add(proj);
+}
+
+AHD_Reward* AHD_Manager_Pool::PoolGetReward()
+{
+	if (_pool_reward.Num() <= 0)
+	{
+		return GetWorld()->SpawnActor<AHD_Reward>(_gi->GetDataGame()->GetRewardClass(), _spawn_param); // 풀링 매니저
+	}
+	else
+	{
+		return _pool_reward.Pop();
+	}
+}
+void AHD_Manager_Pool::PoolInReward(AHD_Reward* reward)
+{
+	if (!reward) return;
+	reward->SetActorLocation(FVector(-1500.f));
+	_pool_reward.Add(reward);
+}
+
+AHD_Portal* AHD_Manager_Pool::PoolGetPortal()
+{
+	if (_pool_portal.Num() <= 0)
+	{
+		return GetWorld()->SpawnActor<AHD_Portal>(_gi->GetDataGame()->GetPortalClass(), _spawn_param); // 풀링 매니저
+	}
+	else
+	{
+		return _pool_portal.Pop();
+	}
+}
+void AHD_Manager_Pool::PoolInPortal(AHD_Portal* portal)
+{
+	if (!portal) return;
+	portal->SetActorLocation(FVector(-1500.f));
+	_pool_portal.Add(portal);
 }

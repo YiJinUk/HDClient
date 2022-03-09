@@ -13,6 +13,7 @@ class UHD_UI_Info;
 class UHD_UI_Main;
 class UHD_UI_GameOver;
 class UHD_UI_WorldClear;
+class UHD_UI_WaveClear;
 
 /**
  * 
@@ -21,9 +22,8 @@ UCLASS()
 class HDCLIENT_API UHD_UI_World : public UHD_UI_Master
 {
 	GENERATED_BODY()
+
 #pragma region Init
-protected:
-	virtual void NativeConstruct() override;
 public:
 	void WorldPostInit(UHD_UI_Main* ui_main);
 	void WorldInit();
@@ -34,6 +34,7 @@ private:
 	* index 0 : ui_info
 	* index 1 : game_over
 	* index 2 : world_clear
+	* index 3 : wave_clear
 	*/
 	UPROPERTY(Meta = (BindWidget))
 		UWidgetSwitcher* _switcher = nullptr;
@@ -43,11 +44,8 @@ private:
 		UHD_UI_GameOver* _ui_game_over = nullptr;
 	UPROPERTY(Meta = (BindWidget))
 		UHD_UI_WorldClear* _ui_world_clear = nullptr;
-
 	UPROPERTY(Meta = (BindWidget))
-		UButton* _wave_start = nullptr;
-	UPROPERTY(Meta = (BindWidget))
-		UButton* _wave_next = nullptr;
+		UHD_UI_WaveClear* _ui_wave_clear = nullptr;
 #pragma endregion
 
 public:
@@ -59,9 +57,5 @@ public:
 	void UIWorldWaveStart();
 	void UIWorldWaveEnd();
 	void UIWorldWaveNext();
-
-protected:
-	UFUNCTION(BlueprintCallable)
-		void ClickedWaveNext();
 
 };

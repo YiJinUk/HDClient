@@ -2,7 +2,7 @@
 
 
 #include "UI/Home/HD_UI_Home.h"
-//#include "Logic/HD_GM.h"
+#include "Logic/HD_GM.h"
 #include "Logic/HD_PC.h"
 
 #include "Components/Button.h"
@@ -15,10 +15,10 @@ void UHD_UI_Home::NativeConstruct()
 }
 void UHD_UI_Home::HomePostInit()
 {
-	//_gm = GetWorld()->GetAuthGameMode<AHD_GM>();
-	_pc = Cast<AHD_PC>(GetOwningPlayer());
+	_gm = GetWorld()->GetAuthGameMode<AHD_GM>();
+	//_pc = Cast<AHD_PC>(GetOwningPlayer());
 }
 void UHD_UI_Home::ClickedWorldStart()
 {
-	_pc->PCWorldStart();
+	_gm->WorldStart();
 }

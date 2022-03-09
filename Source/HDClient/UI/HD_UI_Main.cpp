@@ -6,6 +6,7 @@
 #include "World/HD_UI_World.h"
 #include "World/Information/HD_UI_Info_Bottom.h"
 #include "World/Information/HD_UI_Info_Top.h"
+#include "World/WaveClear/HD_UI_WaveClear.h"
 
 #include "Components/WidgetSwitcher.h"
 
@@ -68,6 +69,11 @@ void UHD_UI_Main::UIMainUpdateBossHPRate(const float f_boss_hp_rate)
 	_ui_info_top->InfoTopSetBossHPBar(f_boss_hp_rate);
 }
 
+void UHD_UI_Main::UIMainRewardToSelect()
+{
+	//_ui_wave_clear->UIWaveClearRewardToSelect();
+}
+
 void UHD_UI_Main::UIMainUpdateStat(const EUnitStatType e_unit_stat_type, const EUnitStatBy e_unit_stat_by, const int32 i_value, const float f_value)
 {
 	switch (e_unit_stat_type)
@@ -92,3 +98,4 @@ void UHD_UI_Main::UIMainUpdateStat(const EUnitStatType e_unit_stat_type, const E
 
 void UHD_UI_Main::UIMainSetUIInfoBottom(UHD_UI_Info_Bottom* ui_info_bottom) { _ui_info_bottom = ui_info_bottom; }
 void UHD_UI_Main::UIMainSetUIInfoTop(UHD_UI_Info_Top* ui_info_top) { _ui_info_top = ui_info_top; }
+void UHD_UI_Main::UIMainSetUIWaveClear(UHD_UI_WaveClear* ui_wave_clear) { _ui_wave_clear = ui_wave_clear; }

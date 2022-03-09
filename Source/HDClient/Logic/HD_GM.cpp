@@ -13,6 +13,7 @@
 #include "Actor/Object/Weapon/HD_Weapon.h"
 #include "Actor/Object/Projectile/HD_Projectile.h"
 #include "Actor/Object/HD_Spline.h"
+#include "Actor/Object/HD_Portal.h"
 
 #include "Manager/HD_Manager_Pool.h"
 #include "Manager/HD_Manager_Battle.h"
@@ -20,6 +21,7 @@
 #include "Manager/HD_Manager_FX.h"
 #include "Manager/HD_Manager_Skill.h"
 #include "Manager/HD_Manager_Buff.h"
+#include "Manager/HD_Manager_Reward.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
@@ -53,15 +55,16 @@ void AHD_GM::GMPostInit()
 	_gi = wld->GetGameInstance<UHD_GI>();
 	_gi->GIPostInit();
 
+	FActorSpawnParameters s_param;
+	s_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 	/*월드에 영웅 가져오기*/
 	TArray<AActor*> arr_found_actor;
 	UGameplayStatics::GetAllActorsOfClass(wld, AHD_Hero::StaticClass(), arr_found_actor);
 	if (arr_found_actor.Num() >= 1) { _hero = Cast<AHD_Hero>(arr_found_actor[0]); }
 
 	//마법석 생성
-	FActorSpawnParameters _spawn_param = FActorSpawnParameters();
-	_spawn_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_ms = GetWorld()->SpawnActor<AHD_MagicStone>(_gi->GetDataMS()->GetClassMS(), _spawn_param); // 풀링 매니저
+	_ms = GetWorld()->SpawnActor<AHD_MagicStone>(_gi->GetDataMS()->GetClassMS(), s_param); // 풀링 매니저
 	_ms->UnitPostInit(_pc, EUnitClassType::MS);
 	_ms->MSPostInit(_gi->GetDataMS(), _gi->GetDataGame()->GetMSSpawnLocation());
 
@@ -74,26 +77,27 @@ void AHD_GM::GMPostInit()
 	}
 
 	/*매니지클래스 생성후 초기화*/
-	FActorSpawnParameters s_param;
-	s_param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
 	_manager_pool = wld->SpawnActor<AHD_Manager_Pool>(s_param);
 	_manager_battle = wld->SpawnActor<AHD_Manager_Battle>(s_param);
 	_manager_wp = wld->SpawnActor<AHD_Manager_Weapon>(s_param);
 	_manager_fx = wld->SpawnActor<AHD_Manager_FX>(s_param);
 	_manager_sk = wld->SpawnActor<AHD_Manager_Skill>(s_param);
 	_manager_bf = wld->SpawnActor<AHD_Manager_Buff>(s_param);
+	_manager_reward = wld->SpawnActor<AHD_Manager_Reward>(s_param);
 
 	_manager_pool->PoolPostInit(_gi, this, _pc);
 	_manager_battle->BattlePostInit(_pc);
 	_manager_fx->FXPostInit(_gi);
 	_manager_sk->SKPostInit(this, _manager_bf);
 	_manager_bf->BFPostInit(this, _gi);
+	_manager_reward->RewardPostInit(_gi, this, _manager_pool);
 
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(_pc, EUnitClassType::HERO);
 	_hero->HeroPostInit(_gi->GetDataHero());
-	
+
+	/*웨이브정보 초기화*/
+	_info_wave.rewards_base.Add(ERewardType::GOLD);
 
 	ChangeCPANStartByCode("CPAN00001");
 
@@ -133,6 +137,8 @@ void AHD_GM::Tick(float DeltaTime)
 	//		UHD_FunctionLibrary::GPrintString(221, 1, "Test Float : " + FString::SanitizeFloat(0x5f3759df));
 	//	}
 	//}
+
+	UHD_FunctionLibrary::GPrintString(30, 1, "Gold : " + FString::FromInt(_info_player.gold));
 
 	if (_info_wld.wld_status != EWorldStatus::HOME)
 		++_info_wld.tick_total;
@@ -309,6 +315,11 @@ void AHD_GM::WorldStart()
 				FColor::Red, false, 10000.f, 0, 3.f);
 		}
 	}
+
+	_manager_reward->RewardInit();
+
+	WaveStart();
+	_pc->PCWorldStart();
 }
 void AHD_GM::WorldGameOver()
 {
@@ -364,11 +375,21 @@ void AHD_GM::WaveEnd()
 
 	_info_wld.wld_status = EWorldStatus::WAVE_END;
 
+	_manager_reward->RewardWaveEnd();
+
 	_pc->PCWaveEnd();
 }
-void AHD_GM::WaveNext()
+void AHD_GM::WaveNext(const ERewardType e_reward_type_select)
 {
 	_info_wave.InitInfoWave();
+	_info_wave.reward_select = e_reward_type_select;
+
+	/*포탈 초기화*/
+	for (AHD_Portal* portal_open : _open_portals)
+	{
+		_manager_pool->PoolInPortal(portal_open);
+	}
+	_open_portals.Empty(6);
 
 	/*웨이브에 등장할 적데이터 복제하기*/
 	++_info_wld.round_total;
@@ -392,7 +413,16 @@ void AHD_GM::WaveNext()
 		_info_wave.wave_type = s_wave->GetWaveType();
 
 		_pc->PCWaveNext(_info_wld.round_stage, _info_wld.round_wave);
+		_manager_reward->RewardInit();
+
+		WaveStart();
 	}
+}
+void AHD_GM::WaveOpenPortal()
+{
+	AHD_Portal* portal_open = _manager_pool->PoolGetPortal();
+	portal_open->PortalInit(ERewardType::GOLD, FVector(0.f));
+	_open_portals.Add(portal_open);
 }
 
 void AHD_GM::ChangeHeroPROJVelocity(const FVector& v_loc)
@@ -539,8 +569,25 @@ void AHD_GM::PROJAllPoolIn()
 		_spawned_projs.Empty(50);
 	}
 }
+
+void AHD_GM::PlayerSetStat(const EPlayerStatType e_player_stat_type, const int32 i_value)
+{
+	switch (e_player_stat_type)
+	{
+	case EPlayerStatType::GOLD:
+		_info_player.gold += i_value;
+		break;
+	default:
+		break;
+	}
+}
+
+void AHD_GM::RewardSelectSend(const ERewardType e_reward_type, const ERewardBy e_reward_by) { _manager_reward->RewardSelectStart(e_reward_type, e_reward_by); }
+
 void AHD_GM::BattleSend(AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type) { _manager_battle->BattleRecv(atk, def, i_dmg, e_atk_type); }
 
 const int64 AHD_GM::GidGenerate() { return ++_gid_generator; }
 AHD_Hero* AHD_GM::GetHero() { return _hero; }
 AHD_Manager_Skill* AHD_GM::GetManagerSK() { return _manager_sk; }
+AHD_Manager_Reward* AHD_GM::GetManagerReward() { return _manager_reward; }
+const FInfoWave& AHD_GM::GetInfoWave() { return _info_wave; }

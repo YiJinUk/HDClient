@@ -30,6 +30,7 @@ public:
 	FDataVFX* FindDataVFXByCode(const FString& str_code_vfx);
 	FDataSkill* FindDataSKByCode(const FString& str_code_sk);
 	FDataBuff* FindDataBFByCode(const FString& str_code_bf);
+	FDataReward* FindDataRewardByType(const ERewardType e_reward_type);
 
 	const TArray<FDataWeapon*>& GetDataWeapons();
 	const TArray<FDataCPAN*>& GetDataCPANs();
@@ -49,10 +50,12 @@ private:
 	UDataTable* _dt_vfx = nullptr;
 	UDataTable* _dt_sk = nullptr;
 	UDataTable* _dt_bf = nullptr;
+	UDataTable* _dt_reward = nullptr;
 
 	TArray<FDataWeapon*> _data_wps;
 	TArray<FDataCPAN*> _data_cpans;
 	TArray<FDataWave*> _data_waves;
+	TMap<ERewardType, FDataReward*> _data_rewards;
 	FDataGame* _data_game = nullptr;
 	FDataHero* _data_hero = nullptr;
 	FDataMS* _data_ms = nullptr;

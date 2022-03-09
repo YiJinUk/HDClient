@@ -23,10 +23,10 @@ protected:
 public:
 	void HomePostInit();
 private:
-	//UPROPERTY()
-		//AHD_GM* _gm = nullptr;
 	UPROPERTY()
-		AHD_PC* _pc = nullptr;
+		AHD_GM* _gm = nullptr;
+	//UPROPERTY()
+		//AHD_PC* _pc = nullptr;
 
 	UPROPERTY(Meta = (BindWidget), Transient)
 		UButton* _world_start = nullptr;
