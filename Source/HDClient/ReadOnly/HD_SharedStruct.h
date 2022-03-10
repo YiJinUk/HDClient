@@ -52,6 +52,7 @@ UENUM()
 enum class EPlayerStatType : uint8
 {
 	GOLD,
+	SOUL,
 };
 
 UENUM()
@@ -164,6 +165,7 @@ enum class ERewardType : uint8
 	NO,
 	GOLD,
 	HP_MAX,
+	SOUL_MONSTER_WAVE,
 };
 UENUM()
 enum class ERewardBy : uint8
@@ -240,12 +242,17 @@ protected:
 		EWaveType _wave_type = EWaveType::MONSTER;
 	UPROPERTY(EditAnywhere, Category = "General")
 		TArray<FDataWaveSpawnEnemy> _spawn_enemies;
+	//해당 웨이브의 보상을 미리 제한합니다
+	//스테이지 보스방 등 에서 적용됩니다
+	UPROPERTY(EditAnywhere, Category = "Reward")
+		ERewardType _wave_reward_type = ERewardType::NO;
 
 public:
 	FORCEINLINE const uint8 GetStageRound() const { return _stage_round; }
 	FORCEINLINE const uint8 GetWaveRound() const { return _wave_round; }
 	FORCEINLINE const EWaveType GetWaveType() const { return _wave_type; }
 	FORCEINLINE const TArray<FDataWaveSpawnEnemy>& GetSpawnEnemies() const { return _spawn_enemies; }
+	FORCEINLINE const ERewardType GetWareRewardType() const { return _wave_reward_type; }
 };
 USTRUCT(BlueprintType)
 struct FDataHero : public FTableRowBase
@@ -599,7 +606,13 @@ public:
 		TArray<ERewardType> rewards_base;
 	UPROPERTY()
 		ERewardType reward_select = ERewardType::NO;
+	UPROPERTY()
+		ERewardType wave_reward_type = ERewardType::NO;
 public:
+	void InitInfoWave()
+	{
+		reward_select = ERewardType::NO;
+	}
 };
 
 USTRUCT()

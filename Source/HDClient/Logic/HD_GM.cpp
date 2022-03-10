@@ -285,6 +285,7 @@ void AHD_GM::WorldStart()
 	/*집에서 세계로 처음 진입했습니다. 초기화를 진행합니다*/
 	/*세계,웨이브정보구조체를 초기화합니다*/
 	_info_wld.InitInfoWorld();
+	_info_wave.InitInfoWave();
 
 	/*웨이브에 등장할 적데이터 복제하기*/
 	_info_wld.round_total = 0;
@@ -389,14 +390,29 @@ void AHD_GM::WaveEnd()
 	else
 	{
 		_manager_reward->RewardWaveEnd();
-
 		_pc->PCWaveEnd();
 	}
 }
 void AHD_GM::WaveOpenPortal()
 {
 	AHD_Portal* portal_open = _manager_pool->PoolGetPortal();
-	portal_open->PortalInit(ERewardType::GOLD, FVector(0.f));
+
+	/*
+	* 다음 웨이브가 보상이 제한된 웨이브인지 확인합니다. 다음 웨이브의 정보는 현재 웨이브가 끝날때 구해놨습니다
+	* 확인후 그에 맞는 포탈을 생성합니다
+	*/
+	if (_info_wave.wave_reward_type == ERewardType::NO)
+	{
+		/*보상이 제한되지 않았습니다. 랜덤한 보상의 포탈을 생성합니다*/
+		portal_open->PortalInit(ERewardType::GOLD, FVector(0.f));
+	}
+	else
+	{
+		/*보상이 제한되어 있습니다. 제한된 보상의 포탈을 1개만 생성합니다*/
+		portal_open->PortalInit(_info_wave.wave_reward_type, FVector(0.f));
+	}
+
+	
 	_open_portals.Add(portal_open);
 }
 void AHD_GM::WaveReadNextWave()
@@ -415,6 +431,7 @@ void AHD_GM::WaveReadNextWave()
 		_info_wld.round_stage = s_wave->GetStageRound();
 		_info_wld.round_wave = s_wave->GetWaveRound();
 		_info_wave.wave_type = s_wave->GetWaveType();
+		_info_wave.wave_reward_type = s_wave->GetWareRewardType();
 	}
 
 }

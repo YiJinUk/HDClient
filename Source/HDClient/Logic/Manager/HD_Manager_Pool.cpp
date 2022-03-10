@@ -173,7 +173,9 @@ AHD_Reward* AHD_Manager_Pool::PoolGetReward()
 {
 	if (_pool_reward.Num() <= 0)
 	{
-		return GetWorld()->SpawnActor<AHD_Reward>(_gi->GetDataGame()->GetRewardClass(), _spawn_param); // 풀링 매니저
+		AHD_Reward* reward = GetWorld()->SpawnActor<AHD_Reward>(_gi->GetDataGame()->GetRewardClass(), _spawn_param);
+		reward->RewardPostInit();
+		return reward;
 	}
 	else
 	{

@@ -24,6 +24,9 @@ void AHD_Manager_Reward::RewardPostInit(UHD_GI* gi, AHD_GM* gm, AHD_Manager_Pool
 		s_info_reward.icon = s_data_reward->GetIcon();
 
 		_info_reward_all.Add(e_reward_type, s_info_reward);
+
+		static int i_count = 0;
+		UHD_FunctionLibrary::GPrintString(211 + ++i_count, 10, FString::FromInt((uint8)e_reward_type));
 	}
 }
 
@@ -55,7 +58,7 @@ void AHD_Manager_Reward::RewardWaveEnd()
 		RewardSelectStart(s_info_reward_base->reward_type, ERewardBy::BASE);
 	}
 
-	/*세계에 선택보상오브젝트를 생성합니다. 선택보상이 없다면 GOLD를 보상합니다*/
+	/*세계에 선택보상오브젝트를 생성합니다*/
 	_reward_select  = _manager_pool->PoolGetReward();
 	_reward_select->RewardInit(_info_reward_select, FVector(0.f));
 }

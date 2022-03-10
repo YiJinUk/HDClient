@@ -10,6 +10,7 @@ void AHD_Reward::RewardPostInit()
 }
 void AHD_Reward::RewardInit(const FInfoReward* s_info_reward, const FVector& v_loc_spawn)
 {
+	if (!s_info_reward) return;
 	_reward_type = s_info_reward->reward_type;
 	SetActorLocation(v_loc_spawn);
 }
