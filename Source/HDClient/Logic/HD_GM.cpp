@@ -139,6 +139,7 @@ void AHD_GM::Tick(float DeltaTime)
 	//}
 
 	UHD_FunctionLibrary::GPrintString(30, 1, "Gold : " + FString::FromInt(_info_player.gold));
+	UHD_FunctionLibrary::GPrintString(40, 1, "WaveType : " + FString::FromInt((uint8)_info_wave.wave_type));
 
 	if (_info_wld.wld_status != EWorldStatus::HOME)
 		++_info_wld.tick_total;
@@ -284,16 +285,10 @@ void AHD_GM::WorldStart()
 	/*집에서 세계로 처음 진입했습니다. 초기화를 진행합니다*/
 	/*세계,웨이브정보구조체를 초기화합니다*/
 	_info_wld.InitInfoWorld();
-	_info_wave.InitInfoWave();
 
 	/*웨이브에 등장할 적데이터 복제하기*/
-	_info_wld.round_total = 1;
-	const TArray<FDataWave*>& arr_data_waves = _gi->GetDataWaves();
-	const FDataWave* s_wave = arr_data_waves[_info_wld.round_total - 1];
-	_wave_spawn_enemies = s_wave->GetSpawnEnemies();
-	_info_wld.round_stage = s_wave->GetStageRound();
-	_info_wld.round_wave = s_wave->GetWaveRound();
-	_info_wave.wave_type = s_wave->GetWaveType();
+	_info_wld.round_total = 0;
+	WaveReadNextWave();
 
 	/*웨이브정보 초기화*/
 	_info_wave.spawn_enemy_interval_max =_gi->GetDataGame()->GetWaveEnemySpawnInterval();
@@ -303,7 +298,7 @@ void AHD_GM::WorldStart()
 	_ms->MSInit(_gi->GetDataMS());
 
 	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
-	_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;
+	//_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;
 	/*Debug*/
 	if (_spline_component)
 	{
@@ -316,10 +311,8 @@ void AHD_GM::WorldStart()
 		}
 	}
 
-	_manager_reward->RewardInit();
-
-	WaveStart();
 	_pc->PCWorldStart();
+	WaveNextAndStart(_info_wave.reward_select);
 }
 void AHD_GM::WorldGameOver()
 {
@@ -360,28 +353,9 @@ void AHD_GM::WorldClearToHome()
 	_pc->PCUIWorldClearToHome();
 }
 
-void AHD_GM::WaveStart()
+void AHD_GM::WaveNextAndStart(const ERewardType e_reward_type_select)
 {
-	/*모든 과정을 거쳤으면 world_status를 변경합니다*/
-	_info_wld.wld_status = EWorldStatus::WAVE_PLAY;
-
-	_pc->PCWaveStart(_info_wave.wave_type);
-}
-void AHD_GM::WaveEnd()
-{
-	_hero->HeroWaveEndInit();
-	_cpan->CPANWaveEndInit();
-	PROJAllPoolIn();
-
-	_info_wld.wld_status = EWorldStatus::WAVE_END;
-
-	_manager_reward->RewardWaveEnd();
-
-	_pc->PCWaveEnd();
-}
-void AHD_GM::WaveNext(const ERewardType e_reward_type_select)
-{
-	_info_wave.InitInfoWave();
+	_info_wave.spawn_enemy_interval_current = 0;
 	_info_wave.reward_select = e_reward_type_select;
 
 	/*포탈 초기화*/
@@ -391,31 +365,32 @@ void AHD_GM::WaveNext(const ERewardType e_reward_type_select)
 	}
 	_open_portals.Empty(6);
 
-	/*웨이브에 등장할 적데이터 복제하기*/
-	++_info_wld.round_total;
-	const TArray<FDataWave*>& arr_data_waves = _gi->GetDataWaves();
-	_info_wld.wld_status = EWorldStatus::WAVE_STANDBY;
+	_manager_reward->RewardInit();
 
-	/*현재 웨이브가 마지막 웨이브인지*/
-	if (arr_data_waves.Num() < _info_wld.round_total)
+	_info_wld.wld_status = EWorldStatus::WAVE_PLAY;
+	_pc->PCWaveNextAndStart(_info_wld.round_stage, _info_wld.round_wave, _info_wave.wave_type);
+}
+void AHD_GM::WaveEnd()
+{
+	_hero->HeroWaveEndInit();
+	_cpan->CPANWaveEndInit();
+	PROJAllPoolIn();
+
+	_info_wld.wld_status = EWorldStatus::WAVE_END;
+
+	//웨이브가 종료되면 바로 다음웨이브데이터를 가져옵니다
+	WaveReadNextWave();
+
+	/*현재 클리어한 웨이브가 마지막웨이브라면 클리어UI를 띄우고 아니라면 다음 웨이브를 위한 준비를 합니다*/
+	if (_info_wave.wave_type == EWaveType::LAST_CLEAR)
 	{
-		/*모든 웨이브 클리어 게임승리*/
 		WorldClear();
 	}
 	else
 	{
-		/*다음 웨이브정보 불러오기*/
-		const FDataWave* s_wave = arr_data_waves[_info_wld.round_total - 1];
-		_wave_spawn_enemies = s_wave->GetSpawnEnemies();
-		_info_wld.round_stage = s_wave->GetStageRound();
-		_info_wld.round_wave = s_wave->GetWaveRound();
+		_manager_reward->RewardWaveEnd();
 
-		_info_wave.wave_type = s_wave->GetWaveType();
-
-		_pc->PCWaveNext(_info_wld.round_stage, _info_wld.round_wave);
-		_manager_reward->RewardInit();
-
-		WaveStart();
+		_pc->PCWaveEnd();
 	}
 }
 void AHD_GM::WaveOpenPortal()
@@ -423,6 +398,25 @@ void AHD_GM::WaveOpenPortal()
 	AHD_Portal* portal_open = _manager_pool->PoolGetPortal();
 	portal_open->PortalInit(ERewardType::GOLD, FVector(0.f));
 	_open_portals.Add(portal_open);
+}
+void AHD_GM::WaveReadNextWave()
+{
+	++_info_wld.round_total;
+	const TArray<FDataWave*>& arr_data_waves = _gi->GetDataWaves();
+	if (arr_data_waves.Num() < _info_wld.round_total)
+	{
+		/*마지막웨이브*/
+		_info_wave.wave_type = EWaveType::LAST_CLEAR;
+	}
+	else
+	{
+		const FDataWave* s_wave = arr_data_waves[_info_wld.round_total - 1];
+		_wave_spawn_enemies = s_wave->GetSpawnEnemies();
+		_info_wld.round_stage = s_wave->GetStageRound();
+		_info_wld.round_wave = s_wave->GetWaveRound();
+		_info_wave.wave_type = s_wave->GetWaveType();
+	}
+
 }
 
 void AHD_GM::ChangeHeroPROJVelocity(const FVector& v_loc)

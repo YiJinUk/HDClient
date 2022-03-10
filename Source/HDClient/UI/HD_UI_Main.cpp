@@ -49,19 +49,13 @@ void UHD_UI_Main::UIMainClearToHome()
 	_ui_world->UIWorldClearToHome();
 }
 
-void UHD_UI_Main::UIMainWaveStart(const EWaveType e_wave_type)
+void UHD_UI_Main::UIMainWaveNextAndStart(const int32 i_round_stage, const int32 i_round_wave, const EWaveType e_wave_type)
 {
-	_ui_info_top->InfoTopWaveStart(e_wave_type);
-	_ui_world->UIWorldWaveStart();
+	_ui_info_top->InfoTopWaveNextAndStart(i_round_stage, i_round_wave, e_wave_type);
 }
 void UHD_UI_Main::UIMainWaveEnd()
 {
 	_ui_world->UIWorldWaveEnd();
-}
-void UHD_UI_Main::UIMainWaveNext(const int32 i_round_stage, const int32 i_round_wave)
-{
-	_ui_info_top->InfoTopSetRound(i_round_stage, i_round_wave);
-	_ui_world->UIWorldWaveNext();
 }
 
 void UHD_UI_Main::UIMainUpdateBossHPRate(const float f_boss_hp_rate)

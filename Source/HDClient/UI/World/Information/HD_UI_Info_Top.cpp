@@ -13,7 +13,13 @@ void UHD_UI_Info_Top::InfoTopInit()
 	_boss_hp_bar->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UHD_UI_Info_Top::InfoTopWaveStart(const EWaveType e_wave_type)
+void UHD_UI_Info_Top::InfoTopWaveNextAndStart(const int32 i_round_stage, const int32 i_round_wave, const EWaveType e_wave_type)
+{
+	InfoTopSetRound(i_round_stage, i_round_wave);
+	InfoTopUpdateWaveType(e_wave_type);
+}
+
+void UHD_UI_Info_Top::InfoTopUpdateWaveType(const EWaveType e_wave_type)
 {
 	switch (e_wave_type)
 	{

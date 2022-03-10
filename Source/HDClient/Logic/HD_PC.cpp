@@ -62,17 +62,13 @@ void AHD_PC::PCUIWorldClearToHome()
 	_ui_main->UIMainClearToHome();
 }
 
-void AHD_PC::PCWaveStart(const EWaveType e_wave_type)
+void AHD_PC::PCWaveNextAndStart(const int32 i_round_stage, const int32 i_round_wave, const EWaveType e_wave_type)
 {
-	_ui_main->UIMainWaveStart(e_wave_type);
+	_ui_main->UIMainWaveNextAndStart(i_round_stage, i_round_wave, e_wave_type);
 }
 void AHD_PC::PCWaveEnd()
 {
 	_ui_main->UIMainWaveEnd();
-}
-void AHD_PC::PCWaveNext(const int32 i_round_stage, const int32 i_round_wave)
-{
-	_ui_main->UIMainWaveNext(i_round_stage, i_round_wave);
 }
 
 void AHD_PC::PCUIUpdateBossHPRate(const float f_boss_hp_rate)

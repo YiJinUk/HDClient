@@ -30,7 +30,10 @@ private:
 		UProgressBar* _boss_hp_bar = nullptr;
 
 public:
-	void InfoTopWaveStart(const EWaveType e_wave_type);
-	void InfoTopSetRound(const int32 i_round_stage, const int32 i_round_wave);
+	void InfoTopWaveNextAndStart(const int32 i_round_stage, const int32 i_round_wave, const EWaveType e_wave_type);
+
 	void InfoTopSetBossHPBar(const float f_boss_hp_rate);
+private:
+	void InfoTopUpdateWaveType(const EWaveType e_wave_type);
+	void InfoTopSetRound(const int32 i_round_stage, const int32 i_round_wave);
 };

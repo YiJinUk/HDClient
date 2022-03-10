@@ -93,15 +93,15 @@ private:
 
 #pragma region Stage,Wave
 public:
-	UFUNCTION(BlueprintCallable)
-		void WaveStart();
-	void WaveNext(const ERewardType e_reward_type_select);
+	void WaveNextAndStart(const ERewardType e_reward_type_select);
 
 	void WaveOpenPortal();
 
 	const FInfoWave& GetInfoWave();
 private:
 	void WaveEnd();
+
+	void WaveReadNextWave();
 private:
 	UPROPERTY()
 		FInfoWave _info_wave;

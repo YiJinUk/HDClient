@@ -45,6 +45,7 @@ enum class EWaveType : uint8
 {
 	MONSTER,
 	BOSS,
+	LAST_CLEAR,
 };
 
 UENUM()
@@ -599,11 +600,6 @@ public:
 	UPROPERTY()
 		ERewardType reward_select = ERewardType::NO;
 public:
-	void InitInfoWave()
-	{
-		spawn_enemy_interval_current = 0;
-		wave_type = EWaveType::MONSTER;
-	}
 };
 
 USTRUCT()
