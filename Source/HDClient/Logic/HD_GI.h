@@ -31,10 +31,13 @@ public:
 	FDataSkill* FindDataSKByCode(const FString& str_code_sk);
 	FDataBuff* FindDataBFByCode(const FString& str_code_bf);
 	FDataReward* FindDataRewardByType(const ERewardType e_reward_type);
+	FDataSPEC* FindDataSPECByCode(const FString& str_code_spec);
 
 	const TArray<FDataWeapon*>& GetDataWeapons();
 	const TArray<FDataCPAN*>& GetDataCPANs();
 	const TArray<FDataWave*>& GetDataWaves();
+	const TMap<ERewardType, FDataReward*>& GetDataRewards();
+	const TArray<FDataSPEC*>& GetDataSPECs();
 	FDataGame* GetDataGame();
 	FDataHero* GetDataHero();
 	FDataMS* GetDataMS();
@@ -51,13 +54,21 @@ private:
 	UDataTable* _dt_sk = nullptr;
 	UDataTable* _dt_bf = nullptr;
 	UDataTable* _dt_reward = nullptr;
+	UDataTable* _dt_spec = nullptr;
 
 	TArray<FDataWeapon*> _data_wps;
 	TArray<FDataCPAN*> _data_cpans;
 	TArray<FDataWave*> _data_waves;
+	TArray<FDataSPEC*> _data_specs;
 	TMap<ERewardType, FDataReward*> _data_rewards;
 	FDataGame* _data_game = nullptr;
 	FDataHero* _data_hero = nullptr;
 	FDataMS* _data_ms = nullptr;
+#pragma endregion
+
+#pragma region General
+public:
+	//min~max사이의 난수를 구합니다
+	int32 GetRandomByInt(const int32 i_min = 1, const int32 i_max = 100);
 #pragma endregion
 };

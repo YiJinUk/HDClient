@@ -40,6 +40,9 @@ private:
 	//주어진 기본보상의 갯수. 해당 변수값만큼 기본보상버튼을 누르고 받으면 선택보상을 받는 UI로 넘어갑니다
 	int8 _count_reward_base = 0;
 
+	//선택보상의 확률을 미리 저장한 배열입니다
+	UPROPERTY()
+		TArray<ERewardType> _rewards_select_rate;
 	FInfoReward* _info_reward_select = nullptr;
 	AHD_Reward* _reward_select = nullptr;
 #pragma endregion
@@ -48,6 +51,6 @@ public:
 	void RewardInit();
 	void RewardWaveEnd();
 
-
-	void RewardSelectStart(const ERewardType e_reward_type, const ERewardBy e_reward_by);
+	ERewardType GetRandomRewardType();
+	void RewardGetSelect(const ERewardType e_reward_type, const ERewardBy e_reward_by);
 };

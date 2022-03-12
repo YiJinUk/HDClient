@@ -166,6 +166,9 @@ enum class ERewardType : uint8
 	GOLD,
 	HP_MAX,
 	SOUL_MONSTER_WAVE,
+	SPEC01,
+	SPEC02,
+	SPEC03,
 };
 UENUM()
 enum class ERewardBy : uint8
@@ -175,8 +178,50 @@ enum class ERewardBy : uint8
 };
 
 
+UENUM()
+enum class EPowerType : uint8
+{
+	SPEC01,
+	SPEC02,
+	SPEC03,
+};
+UENUM()
+enum class ESPECAttackType : uint8
+{
+	NO,
+	BASIC_A,
+	BASIC_B,
+	BASIC_C,
+	BASIC_D,
+};
+UENUM()
+enum class ESPECTier : uint8
+{
+	TIER_1,
+	TIER_2,
+	TIER_3,
+	TIER_5,
+
+	TIER_MAX,//듀오티어인 5티어를 제외한 모든 티어의 특성을 획득했습니다
+};
+
+
 
 #pragma region Data
+USTRUCT(BlueprintType)
+struct FDataRewardSelectActive : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		ERewardType _reward_select_active = ERewardType::NO;
+	UPROPERTY(EditAnywhere, Category = "General")
+		int32 _reward_rate = 0;
+public:
+	FORCEINLINE const ERewardType GetRewardSelectActive() const { return _reward_select_active; }
+	FORCEINLINE const int32 GetRewardRate() const { return _reward_rate; }
+};
 USTRUCT(BlueprintType)
 struct FDataGame : public FTableRowBase
 {
@@ -201,8 +246,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Reward")
 		TSubclassOf<AHD_Reward> reward_class;
+	/*선택보상확률에 대한 배열입니다*/
 	UPROPERTY(EditAnywhere, Category = "Reward")
-		TArray<ERewardType> rewards_active;
+		TArray<FDataRewardSelectActive> rewards_select_active;
+
+	UPROPERTY(EditAnywhere, Category = "SPEC")
+		TArray<EPowerType> specs_active;
 
 	UPROPERTY(EditAnywhere, Category = "Portal")
 		TSubclassOf<AHD_Portal> portal_class;
@@ -214,7 +263,8 @@ public:
 	FORCEINLINE const int32 GetPROJSpeed() { return _proj_speed; }
 	FORCEINLINE const int32 GetPROJDetectRange() { return _proj_detect_range; }
 	FORCEINLINE const TSubclassOf<AHD_Reward>& GetRewardClass() { return reward_class; }
-	FORCEINLINE const TArray<ERewardType>& GetRewardsActive() { return rewards_active; }
+	FORCEINLINE const TArray<FDataRewardSelectActive>& GetRewardsSelectActive() { return rewards_select_active; }
+	FORCEINLINE const TArray<EPowerType>& GetSPECsActive() { return specs_active; }
 	FORCEINLINE const TSubclassOf<AHD_Portal>& GetPortalClass() { return portal_class; }
 };
 USTRUCT(BlueprintType)
@@ -549,6 +599,51 @@ public:
 	FORCEINLINE const int32 GetValue() const { return _value; }
 	FORCEINLINE UTexture2D* GetIcon() { return _icon; }
 };
+
+USTRUCT(BlueprintType)
+struct FDataSPEC : public FTableRowBase
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "General")
+		FString _code = "0";
+	UPROPERTY(EditAnywhere, Category = "General")
+		EPowerType _power_type = EPowerType::SPEC01;
+	UPROPERTY(EditAnywhere, Category = "General")
+		ESPECAttackType _spec_attack_type = ESPECAttackType::NO;
+	UPROPERTY(EditAnywhere, Category = "General")
+		ESPECTier _spec_tier = ESPECTier::TIER_1;
+
+	UPROPERTY(EditAnywhere, Category = "Only_Tier5")
+		EPowerType _power_type_sub = EPowerType::SPEC01;
+	//5티어 특성을 찍기위한 하위특성의 코드입니다. 5티어만 작성합니다
+	UPROPERTY(EditAnywhere, Category = "Only_Tier5")
+		FString _code_spec_need_1 = "Only_Tier5";
+	UPROPERTY(EditAnywhere, Category = "Only_Tier5")
+		FString _code_spec_need_2 = "Only_Tier5";
+
+	UPROPERTY(EditAnywhere, Category = "Value")
+		int32 _value_1 = 0;
+	UPROPERTY(EditAnywhere, Category = "Value")
+		int32 _value_2 = 0;
+	UPROPERTY(EditAnywhere, Category = "Value")
+		int32 _value_3 = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Description")
+		FString _desc = "0";
+public:
+	FORCEINLINE const FString& GetCode() const { return _code; }
+	FORCEINLINE const EPowerType GetPowerType() const { return _power_type; }
+	FORCEINLINE const ESPECAttackType GetSPECAttackType() const { return _spec_attack_type; }
+	FORCEINLINE const ESPECTier GetSPECTier() const { return _spec_tier; }
+	FORCEINLINE const EPowerType GetPowerTypeSub() const { return _power_type_sub; }
+	FORCEINLINE const FString& GetCodeSPECNeed1() const { return _code_spec_need_1; }
+	FORCEINLINE const FString& GetCodeSPECNeed2() const { return _code_spec_need_2; }
+	FORCEINLINE const int32 GetValue1() const { return _value_1; }
+	FORCEINLINE const int32 GetValue2() const { return _value_2; }
+	FORCEINLINE const int32 GetValue3() const { return _value_3; }
+};
 #pragma endregion
 
 USTRUCT()
@@ -623,6 +718,14 @@ struct FInfoPlayer
 public:
 	UPROPERTY()
 		int32 gold = 0;//금화
+	UPROPERTY()
+		TSet<FString> code_obtain_spec;//세계에서 얻은 특성코드들
+public:
+	void InitInfoPlayer()
+	{
+		gold = 0;
+		code_obtain_spec.Empty(10);
+	}
 };
 
 USTRUCT()

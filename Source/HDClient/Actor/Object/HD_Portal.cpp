@@ -36,6 +36,15 @@ void AHD_Portal::PortalInit(const ERewardType e_reward_type, const FVector& v_lo
 	case ERewardType::SOUL_MONSTER_WAVE:
 		_ui_headup_portal->UIPortalSetText("Soul_monster");
 		break;
+	case ERewardType::SPEC01:
+		_ui_headup_portal->UIPortalSetText("SPEC01");
+		break;
+	case ERewardType::SPEC02:
+		_ui_headup_portal->UIPortalSetText("SPEC02");
+		break;
+	case ERewardType::SPEC03:
+		_ui_headup_portal->UIPortalSetText("SPEC03");
+		break;
 	default:
 		break;
 	}

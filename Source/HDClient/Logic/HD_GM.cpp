@@ -22,9 +22,11 @@
 #include "Manager/HD_Manager_Skill.h"
 #include "Manager/HD_Manager_Buff.h"
 #include "Manager/HD_Manager_Reward.h"
+#include "Manager/HD_Manager_Power.h"
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Components/SplineComponent.h"
 
 DECLARE_STATS_GROUP(TEXT("HD_Tick"), STATGROUP_HD_Tick, STATCAT_Advanced);
@@ -84,6 +86,7 @@ void AHD_GM::GMPostInit()
 	_manager_sk = wld->SpawnActor<AHD_Manager_Skill>(s_param);
 	_manager_bf = wld->SpawnActor<AHD_Manager_Buff>(s_param);
 	_manager_reward = wld->SpawnActor<AHD_Manager_Reward>(s_param);
+	_manager_power = wld->SpawnActor<AHD_Manager_Power>(s_param);
 
 	_manager_pool->PoolPostInit(_gi, this, _pc);
 	_manager_battle->BattlePostInit(_pc);
@@ -91,6 +94,7 @@ void AHD_GM::GMPostInit()
 	_manager_sk->SKPostInit(this, _manager_bf);
 	_manager_bf->BFPostInit(this, _gi);
 	_manager_reward->RewardPostInit(_gi, this, _manager_pool);
+	_manager_power->PowerPostInit(_gi, this);
 
 	/*영웅 동료 마법석 초기화*/
 	_hero->UnitPostInit(_pc, EUnitClassType::HERO);
@@ -286,6 +290,10 @@ void AHD_GM::WorldStart()
 	/*세계,웨이브정보구조체를 초기화합니다*/
 	_info_wld.InitInfoWorld();
 	_info_wave.InitInfoWave();
+	_info_player.InitInfoPlayer();
+
+	/*매니저클래스 초기화*/
+	_manager_power->PowerInit();
 
 	/*웨이브에 등장할 적데이터 복제하기*/
 	_info_wld.round_total = 0;
@@ -404,7 +412,20 @@ void AHD_GM::WaveOpenPortal()
 	if (_info_wave.wave_reward_type == ERewardType::NO)
 	{
 		/*보상이 제한되지 않았습니다. 랜덤한 보상의 포탈을 생성합니다*/
-		portal_open->PortalInit(ERewardType::GOLD, FVector(0.f));
+		ERewardType e_reward_next = _manager_reward->GetRandomRewardType();
+
+		switch (e_reward_next)
+		{
+		case ERewardType::SPEC01:
+		case ERewardType::SPEC02:
+		case ERewardType::SPEC03:
+			_manager_power->PowerCalcRewardSPECInit(e_reward_next);
+			break;
+		default:
+			break;
+		}
+
+		portal_open->PortalInit(e_reward_next, FVector(0.f));
 	}
 	else
 	{
@@ -593,7 +614,30 @@ void AHD_GM::PlayerSetStat(const EPlayerStatType e_player_stat_type, const int32
 	}
 }
 
-void AHD_GM::RewardSelectSend(const ERewardType e_reward_type, const ERewardBy e_reward_by) { _manager_reward->RewardSelectStart(e_reward_type, e_reward_by); }
+void AHD_GM::RewardSelectClicked(const ERewardType e_reward_type, const ERewardBy e_reward_by)
+{
+	switch (e_reward_type)
+	{
+	case ERewardType::SOUL_MONSTER_WAVE:
+	case ERewardType::GOLD:
+		//재화 획득후 바로 포탈이 열립니다
+		_manager_reward->RewardGetSelect(e_reward_type, e_reward_by);
+		WaveOpenPortal();
+		break;
+	case ERewardType::SPEC01:
+	case ERewardType::SPEC02:
+	case ERewardType::SPEC03:	
+		//파워보상을 선택했습니다. 어떤특성을 찍을지 유저에게 UI로 표시합니다
+		break;
+	default:
+		break;
+	}
+}
+
+void AHD_GM::SPECRewardClicked(const FString& str_code_spec)
+{
+
+}
 
 void AHD_GM::BattleSend(AHD_Unit* atk, AHD_Unit* def, const int32 i_dmg, const EAttackType e_atk_type) { _manager_battle->BattleRecv(atk, def, i_dmg, e_atk_type); }
 

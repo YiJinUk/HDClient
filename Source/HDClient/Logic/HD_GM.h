@@ -22,6 +22,7 @@ class AHD_Manager_FX;
 class AHD_Manager_Skill;
 class AHD_Manager_Buff;
 class AHD_Manager_Reward;
+class AHD_Manager_Power;
 
 /**
  * 
@@ -128,6 +129,8 @@ private:
 		AHD_Manager_Buff* _manager_bf = nullptr;
 	UPROPERTY()
 		AHD_Manager_Reward* _manager_reward = nullptr;
+	UPROPERTY()
+		AHD_Manager_Power* _manager_power = nullptr;
 
 	UPROPERTY()
 		class USplineComponent* _spline_component = nullptr;
@@ -202,7 +205,13 @@ private:
 
 #pragma region Reward
 public:
-	void RewardSelectSend(const ERewardType e_reward_type, const ERewardBy e_reward_by);
+	void RewardSelectClicked(const ERewardType e_reward_type, const ERewardBy e_reward_by);
+#pragma endregion
+
+#pragma region SPEC
+public:
+	/*세계에 깔린 특성보상을 눌러서 보상을 받을 수 있습니다*/
+	void SPECRewardClicked(const FString& str_code_spec);
 #pragma endregion
 
 #pragma region Battle

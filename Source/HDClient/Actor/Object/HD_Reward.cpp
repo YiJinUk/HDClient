@@ -17,5 +17,5 @@ void AHD_Reward::RewardInit(const FInfoReward* s_info_reward, const FVector& v_l
 
 void AHD_Reward::ClickedReward()
 {
-	_gm->RewardSelectSend(_reward_type, ERewardBy::SELECT);
+	_gm->RewardSelectClicked(_reward_type, ERewardBy::SELECT);
 }
