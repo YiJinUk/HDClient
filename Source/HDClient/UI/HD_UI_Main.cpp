@@ -53,9 +53,13 @@ void UHD_UI_Main::UIMainWaveNextAndStart(const int32 i_round_stage, const int32 
 {
 	_ui_info_top->InfoTopWaveNextAndStart(i_round_stage, i_round_wave, e_wave_type);
 }
-void UHD_UI_Main::UIMainWaveEnd()
+void UHD_UI_Main::UIMainWaveClear()
 {
-	_ui_world->UIWorldWaveEnd();
+	_ui_world->UIWorldWaveClear();
+}
+void UHD_UI_Main::UIMainWaveClearReward()
+{
+	_ui_wave_clear->UIWaveClearReward();
 }
 
 void UHD_UI_Main::UIMainUpdateBossHPRate(const float f_boss_hp_rate)

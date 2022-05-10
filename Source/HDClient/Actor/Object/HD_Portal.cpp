@@ -54,5 +54,5 @@ void AHD_Portal::PortalInit(const ERewardType e_reward_type, const FVector& v_lo
 
 void AHD_Portal::ClickedPortal()
 {
-	_gm->WaveNextAndStart(_reward_type);
+	_gm->WaveNextAndStart();
 }

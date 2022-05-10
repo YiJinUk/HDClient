@@ -101,7 +101,7 @@ void AHD_GM::GMPostInit()
 	_hero->HeroPostInit(_gi->GetDataHero());
 
 	/*웨이브정보 초기화*/
-	_info_wave.rewards_base.Add(ERewardType::GOLD);
+	//_info_wave.rewards_base.Add(ERewardType::GOLD);
 
 	ChangeCPANStartByCode("CPAN00001");
 
@@ -168,7 +168,7 @@ void AHD_GM::Tick(float DeltaTime)
 		TickFriendReduceAS();
 		TickFriendAttack();
 
-		TickCheckWaveEnd();
+		TickCheckWaveClear();
 
 		_manager_bf->BFTick();
 		break;
@@ -270,7 +270,7 @@ void AHD_GM::TickFriendAttack()
 		_ms->MSAttackSkillStart();
 	}
 }
-void AHD_GM::TickCheckWaveEnd()
+void AHD_GM::TickCheckWaveClear()
 {
 	if (_spawned_monsters.Num() >= 1) return;
 	for (FDataWaveSpawnEnemy& s_wave_spawn_enemy : _wave_spawn_enemies)
@@ -281,7 +281,7 @@ void AHD_GM::TickCheckWaveEnd()
 		}
 	}
 
-	WaveEnd();
+	WaveClear();
 }
 
 void AHD_GM::WorldStart()
@@ -292,8 +292,12 @@ void AHD_GM::WorldStart()
 	_info_wave.InitInfoWave();
 	_info_player.InitInfoPlayer();
 
+	/*플레이어정보 초기화*/
+	_info_player.reward_random_count = _gi->GetDataGame()->GetRewardRandomCount();
+
 	/*매니저클래스 초기화*/
 	_manager_power->PowerInit();
+	_manager_reward->RewardInit();
 
 	/*웨이브에 등장할 적데이터 복제하기*/
 	_info_wld.round_total = 0;
@@ -321,7 +325,7 @@ void AHD_GM::WorldStart()
 	}
 
 	_pc->PCWorldStart();
-	WaveNextAndStart(_info_wave.reward_select);
+	WaveNextAndStart();
 }
 void AHD_GM::WorldGameOver()
 {
@@ -362,10 +366,9 @@ void AHD_GM::WorldClearToHome()
 	_pc->PCUIWorldClearToHome();
 }
 
-void AHD_GM::WaveNextAndStart(const ERewardType e_reward_type_select)
+void AHD_GM::WaveNextAndStart()
 {
 	_info_wave.spawn_enemy_interval_current = 0;
-	_info_wave.reward_select = e_reward_type_select;
 
 	/*포탈 초기화*/
 	for (AHD_Portal* portal_open : _open_portals)
@@ -374,18 +377,18 @@ void AHD_GM::WaveNextAndStart(const ERewardType e_reward_type_select)
 	}
 	_open_portals.Empty(6);
 
-	_manager_reward->RewardInit();
+	_manager_reward->RewardWaveNext();
 
 	_info_wld.wld_status = EWorldStatus::WAVE_PLAY;
 	_pc->PCWaveNextAndStart(_info_wld.round_stage, _info_wld.round_wave, _info_wave.wave_type);
 }
-void AHD_GM::WaveEnd()
+void AHD_GM::WaveClear()
 {
 	_hero->HeroWaveEndInit();
 	_cpan->CPANWaveEndInit();
 	PROJAllPoolIn();
 
-	_info_wld.wld_status = EWorldStatus::WAVE_END;
+	_info_wld.wld_status = EWorldStatus::WAVE_CLEAR;
 
 	//웨이브가 종료되면 바로 다음웨이브데이터를 가져옵니다
 	WaveReadNextWave();
@@ -397,44 +400,49 @@ void AHD_GM::WaveEnd()
 	}
 	else
 	{
-		_manager_reward->RewardWaveEnd();
-		_pc->PCWaveEnd();
+		//_manager_reward->RewardWaveEnd();
+		WaveClearReward();
+		_pc->PCWaveClear();
 	}
+}
+void AHD_GM::WaveClearReward()
+{
+	_pc->PCWaveClearReward();
 }
 void AHD_GM::WaveOpenPortal()
 {
-	AHD_Portal* portal_open = _manager_pool->PoolGetPortal();
+	//AHD_Portal* portal_open = _manager_pool->PoolGetPortal();
 
-	/*
-	* 다음 웨이브가 보상이 제한된 웨이브인지 확인합니다. 다음 웨이브의 정보는 현재 웨이브가 끝날때 구해놨습니다
-	* 확인후 그에 맞는 포탈을 생성합니다
-	*/
-	if (_info_wave.wave_reward_type == ERewardType::NO)
-	{
-		/*보상이 제한되지 않았습니다. 랜덤한 보상의 포탈을 생성합니다*/
-		ERewardType e_reward_next = _manager_reward->GetRandomRewardType();
+	///*
+	//* 다음 웨이브가 보상이 제한된 웨이브인지 확인합니다. 다음 웨이브의 정보는 현재 웨이브가 끝날때 구해놨습니다
+	//* 확인후 그에 맞는 포탈을 생성합니다
+	//*/
+	//if (_info_wave.wave_reward_type == ERewardType::NO)
+	//{
+	//	/*보상이 제한되지 않았습니다. 랜덤한 보상의 포탈을 생성합니다*/
+	//	ERewardType e_reward_next = _manager_reward->GetRandomRewardType();
 
-		switch (e_reward_next)
-		{
-		case ERewardType::SPEC01:
-		case ERewardType::SPEC02:
-		case ERewardType::SPEC03:
-			_manager_power->PowerCalcRewardSPECInit(e_reward_next);
-			break;
-		default:
-			break;
-		}
+	//	switch (e_reward_next)
+	//	{
+	//	case ERewardType::SPEC01:
+	//	case ERewardType::SPEC02:
+	//	case ERewardType::SPEC03:
+	//		_manager_power->PowerCalcRewardSPECInit(e_reward_next);
+	//		break;
+	//	default:
+	//		break;
+	//	}
 
-		portal_open->PortalInit(e_reward_next, FVector(0.f));
-	}
-	else
-	{
-		/*보상이 제한되어 있습니다. 제한된 보상의 포탈을 1개만 생성합니다*/
-		portal_open->PortalInit(_info_wave.wave_reward_type, FVector(0.f));
-	}
+	//	portal_open->PortalInit(e_reward_next, FVector(0.f));
+	//}
+	//else
+	//{
+	//	/*보상이 제한되어 있습니다. 제한된 보상의 포탈을 1개만 생성합니다*/
+	//	portal_open->PortalInit(_info_wave.wave_reward_type, FVector(0.f));
+	//}
 
-	
-	_open_portals.Add(portal_open);
+	//
+	//_open_portals.Add(portal_open);
 }
 void AHD_GM::WaveReadNextWave()
 {
@@ -452,7 +460,7 @@ void AHD_GM::WaveReadNextWave()
 		_info_wld.round_stage = s_wave->GetStageRound();
 		_info_wld.round_wave = s_wave->GetWaveRound();
 		_info_wave.wave_type = s_wave->GetWaveType();
-		_info_wave.wave_reward_type = s_wave->GetWareRewardType();
+		//_info_wave.wave_reward_type = s_wave->GetWareRewardType();
 	}
 
 }
@@ -646,3 +654,4 @@ AHD_Hero* AHD_GM::GetHero() { return _hero; }
 AHD_Manager_Skill* AHD_GM::GetManagerSK() { return _manager_sk; }
 AHD_Manager_Reward* AHD_GM::GetManagerReward() { return _manager_reward; }
 const FInfoWave& AHD_GM::GetInfoWave() { return _info_wave; }
+const FInfoPlayer& AHD_GM::GetInfoPlayer() { return _info_player; }

@@ -64,7 +64,8 @@ public:
 #pragma region Stage,Wave
 public:
 	void PCWaveNextAndStart(const int32 i_round_stage, const int32 i_round_wave, const EWaveType e_wave_type);
-	void PCWaveEnd();
+	void PCWaveClear();
+	void PCWaveClearReward();
 #pragma endregion
 
 #pragma region Monster

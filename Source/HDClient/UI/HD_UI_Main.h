@@ -59,7 +59,8 @@ public:
 	void UIMainClearToHome();
 	
 	void UIMainWaveNextAndStart(const int32 i_round_stage, const int32 i_round_wave, const EWaveType e_wave_type);
-	void UIMainWaveEnd();
+	void UIMainWaveClear();
+	void UIMainWaveClearReward();
 
 	void UIMainUpdateBossHPRate(const float f_boss_hp_rate);
 

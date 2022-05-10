@@ -68,7 +68,7 @@ private:
 	void TickFriendReduceAS();
 	void TickFriendAttack();
 
-	void TickCheckWaveEnd();
+	void TickCheckWaveClear();
 #pragma endregion
 
 #pragma region Home
@@ -94,13 +94,31 @@ private:
 
 #pragma region Stage,Wave
 public:
-	void WaveNextAndStart(const ERewardType e_reward_type_select);
+	/*
+	* 웨이브 순서
+	* 웨이브.플레이
+	* 웨이브.클리어 및 기본보상 획득
+	* 웨이브.클리어.랜덤보상 
+	* 웨이브.클리어.랜덤보상 선택획득
+	* 웨이브.스탠바이
+	*/
+
+	//웨이브.플레이
+	void WaveNextAndStart();
+
+	//웨이브.클리어
+	void WaveClear();
+
+	//웨이브.클리어.랜덤보상
+	void WaveClearReward();
+
+public:
 
 	void WaveOpenPortal();
 
 	const FInfoWave& GetInfoWave();
 private:
-	void WaveEnd();
+	
 
 	void WaveReadNextWave();
 private:
@@ -139,6 +157,7 @@ private:
 #pragma region Player
 public:
 	void PlayerSetStat(const EPlayerStatType e_player_stat_type, const int32 i_value);
+	const FInfoPlayer& GetInfoPlayer();
 private:
 	UPROPERTY()
 		AHD_PC* _pc = nullptr;

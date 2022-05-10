@@ -36,7 +36,7 @@ enum class EWorldStatus : uint8
 	HOME, //타이틀
 	WAVE_STANDBY, //웨이브의 모든 준비를 마치고 플레이어의 웨이브 시작을 기다리는 중
 	WAVE_PLAY, //웨이브중 입니다
-	WAVE_END, //웨이브를 클리어했습니다
+	WAVE_CLEAR, //웨이브를 클리어했습니다
 
 	WORLD_GAME_OVER,//세계에서 영웅이 죽었습니다
 };
@@ -246,6 +246,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Reward")
 		TSubclassOf<AHD_Reward> reward_class;
+	//웨이브클리어시 등장하는 랜덤보상의 개수입니다
+	UPROPERTY(EditAnywhere, Category = "Reward")
+		uint8 _reward_random_count = 2;
 	/*선택보상확률에 대한 배열입니다*/
 	UPROPERTY(EditAnywhere, Category = "Reward")
 		TArray<FDataRewardSelectActive> rewards_select_active;
@@ -263,6 +266,7 @@ public:
 	FORCEINLINE const int32 GetPROJSpeed() { return _proj_speed; }
 	FORCEINLINE const int32 GetPROJDetectRange() { return _proj_detect_range; }
 	FORCEINLINE const TSubclassOf<AHD_Reward>& GetRewardClass() { return reward_class; }
+	FORCEINLINE const uint8 GetRewardRandomCount() { return _reward_random_count; }
 	FORCEINLINE const TArray<FDataRewardSelectActive>& GetRewardsSelectActive() { return rewards_select_active; }
 	FORCEINLINE const TArray<EPowerType>& GetSPECsActive() { return specs_active; }
 	FORCEINLINE const TSubclassOf<AHD_Portal>& GetPortalClass() { return portal_class; }
@@ -647,6 +651,30 @@ public:
 #pragma endregion
 
 USTRUCT()
+struct FInfoReward
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		ERewardType reward_type = ERewardType::GOLD;
+	UPROPERTY()
+		int32 value = 0;
+	UPROPERTY()
+		FString value_str = "0";
+
+	UPROPERTY()
+		UTexture2D* icon = nullptr;
+
+public:
+	//보상매니저에서 해당객체가 풀인 할때 호출
+	void InitInfoReward()
+	{
+
+	}
+};
+
+USTRUCT()
 struct FInfoWorld
 {
 	GENERATED_BODY()
@@ -697,16 +725,10 @@ public:
 	UPROPERTY()
 		uint8 spawn_enemy_interval_max = 0;
 
-	UPROPERTY()
-		TArray<ERewardType> rewards_base;
-	UPROPERTY()
-		ERewardType reward_select = ERewardType::NO;
-	UPROPERTY()
-		ERewardType wave_reward_type = ERewardType::NO;
 public:
 	void InitInfoWave()
 	{
-		reward_select = ERewardType::NO;
+		//reward_select = ERewardType::NO;
 	}
 };
 
@@ -717,14 +739,22 @@ struct FInfoPlayer
 
 public:
 	UPROPERTY()
-		int32 gold = 0;//금화
+		int32 gold = 0;//소지금
 	UPROPERTY()
 		TSet<FString> code_obtain_spec;//세계에서 얻은 특성코드들
+
+	//웨이브클리어시 등장하는 랜덤보상의 개수
+	UPROPERTY()
+		uint8 reward_random_count = 0;
+
 public:
+	//세계에 진입할 때 호출
 	void InitInfoPlayer()
 	{
 		gold = 0;
 		code_obtain_spec.Empty(10);
+
+		reward_random_count = 0;
 	}
 };
 
@@ -1094,23 +1124,6 @@ public:
 	//버프타이머가 타이머라면 남은틱, 카운트라면 남은횟수 등 달라집니다 한번에 여기서 관리합니다
 	UPROPERTY()
 		int32 life = 0;
-};
-
-USTRUCT()
-struct FInfoReward
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-		ERewardType reward_type = ERewardType::GOLD;
-	UPROPERTY()
-		int32 value = 0;
-	UPROPERTY()
-		FString value_str = "0";
-
-	UPROPERTY()
-		UTexture2D* icon = nullptr;
 };
 
 USTRUCT()

@@ -66,9 +66,13 @@ void AHD_PC::PCWaveNextAndStart(const int32 i_round_stage, const int32 i_round_w
 {
 	_ui_main->UIMainWaveNextAndStart(i_round_stage, i_round_wave, e_wave_type);
 }
-void AHD_PC::PCWaveEnd()
+void AHD_PC::PCWaveClear()
 {
-	_ui_main->UIMainWaveEnd();
+	_ui_main->UIMainWaveClear();
+}
+void AHD_PC::PCWaveClearReward()
+{
+	_ui_main->UIMainWaveClearReward();
 }
 
 void AHD_PC::PCUIUpdateBossHPRate(const float f_boss_hp_rate)

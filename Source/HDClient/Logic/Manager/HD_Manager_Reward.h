@@ -24,8 +24,9 @@ public:
 	void RewardPostInit(UHD_GI* gi, AHD_GM* gm, AHD_Manager_Pool* manager_pool);
 
 	FInfoReward* RewardFindByType(const ERewardType e_reward_type);
-	const TArray<FInfoReward*>& GetInfoRewardsBase();
-	const FInfoReward* GetInfoRewardSelect();
+private:
+	FInfoReward* PoolOutInfoReward();
+	void PoolInInfoReward(FInfoReward* s_info_reward);
 private:
 	UPROPERTY()
 		UHD_GI* _gi = nullptr;
@@ -34,23 +35,33 @@ private:
 	UPROPERTY()
 		AHD_Manager_Pool* _manager_pool = nullptr;
 
+	//모든 보상종류 캐싱
 	TMap<ERewardType, FInfoReward> _info_reward_all;
-
-	TArray<FInfoReward*> _info_rewards_base;
-	//주어진 기본보상의 갯수. 해당 변수값만큼 기본보상버튼을 누르고 받으면 선택보상을 받는 UI로 넘어갑니다
-	int8 _count_reward_base = 0;
 
 	//선택보상의 확률을 미리 저장한 배열입니다
 	UPROPERTY()
 		TArray<ERewardType> _rewards_select_rate;
-	FInfoReward* _info_reward_select = nullptr;
-	AHD_Reward* _reward_select = nullptr;
+
+	UPROPERTY()
+		TArray<FInfoReward> _reward_pool_origin;
+	TArray<FInfoReward*> _reward_pool_pointer;
 #pragma endregion
 
 public:
+	//세계에 진입하면 호출합니다
 	void RewardInit();
+	//다음 웨이브로 진입할 때 호출됩니다
+	void RewardWaveNext();
 	void RewardWaveEnd();
 
-	ERewardType GetRandomRewardType();
 	void RewardGetSelect(const ERewardType e_reward_type, const ERewardBy e_reward_by);
+
+	const TSet<FInfoReward*>& GetRewardsRandom();
+	const TArray<FInfoReward*>& GetRewardsBase();
+private:
+	void RewardCalcTypes(TSet<FInfoReward*>& arr_reward);
+
+private:
+	TSet<FInfoReward*> _rewards_random;
+	TArray<FInfoReward*> _rewards_base;
 };

@@ -9,10 +9,7 @@
 
 class AHD_GM;
 class UHD_UI_Main;
-//class UHD_UI_WaveClear_Reward_Base;
-//class UHD_UI_WaveClear_Reward_Select;
-//class UHD_UI_WaveClear_Reward_Next;
-//class UHD_UI_WaveClear_Reward_Slot;
+class UHD_UI_Wave_Clear_Reward;
 class UWidgetSwitcher;
 
 /**
@@ -26,39 +23,18 @@ class HDCLIENT_API UHD_UI_WaveClear : public UHD_UI_Master
 public:
 	void UIWaveClearPostInit(UHD_UI_Main* ui_main);
 
-//	UHD_UI_WaveClear_Reward_Slot* UIWaveClearGetSlot();
-//	void UIWaveClearAddSlot(UHD_UI_WaveClear_Reward_Slot* w_slot);
-//protected:
-//	UFUNCTION(BlueprintImplementableEvent)
-//		UHD_UI_WaveClear_Reward_Slot* UIWaveClearCreateWidgetSlot();
 private:
 	/*
 	* index 0 : empty
-	* index 1 : reward_base
-	* index 2 : reward_select
-	* index 3 : reward_next
+	* index 1 : ui_reward
 	*/
-	//UPROPERTY(Meta = (BindWidget))
-	//	UWidgetSwitcher* _switcher = nullptr;
-	//UPROPERTY(Meta = (BindWidget))
-	//	UHD_UI_WaveClear_Reward_Base* _ui_reward_base = nullptr;
-	//UPROPERTY(Meta = (BindWidget))
-	//	UHD_UI_WaveClear_Reward_Select* _ui_reward_select = nullptr;
-	//UPROPERTY(Meta = (BindWidget))
-	//	UHD_UI_WaveClear_Reward_Next* _ui_reward_next = nullptr;
+	UPROPERTY(Meta = (BindWidget))
+		UWidgetSwitcher* _switcher = nullptr;
 
-	//UPROPERTY()
-	//	TArray<UHD_UI_WaveClear_Reward_Slot*> _slots;
-
-	//UPROPERTY()
-	//	AHD_GM* _gm = nullptr;
-	//UPROPERTY()
-	//	UHD_UI_Main* _ui_main = nullptr;
-#pragma endregion
+	UPROPERTY(Meta = (BindWidget))
+		UHD_UI_Wave_Clear_Reward* _ui_reward = nullptr;
 
 public:
-	//void UIWaveClearInit();
-	//void UIWaveClearRewardToSelect();
+	void UIWaveClearReward();
 
-	//void UIWaveClearSelectReward(const ERewardType e_reward_type, const ERewardBy e_reward_by);
 };

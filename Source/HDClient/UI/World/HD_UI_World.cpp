@@ -46,7 +46,7 @@ void UHD_UI_World::UIWorldClearToHome()
 void UHD_UI_World::UIWorldWaveStart()
 {
 }
-void UHD_UI_World::UIWorldWaveEnd()
+void UHD_UI_World::UIWorldWaveClear()
 {
 	//_ui_wave_clear->UIWaveClearInit();
 }

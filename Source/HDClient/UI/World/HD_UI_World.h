@@ -55,7 +55,7 @@ public:
 	void UIWorldClearToHome();
 
 	void UIWorldWaveStart();
-	void UIWorldWaveEnd();
+	void UIWorldWaveClear();
 	void UIWorldWaveNext();
 
 };
