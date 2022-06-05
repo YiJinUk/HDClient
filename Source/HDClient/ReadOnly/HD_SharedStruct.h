@@ -197,12 +197,14 @@ enum class ESPECAttackType : uint8
 UENUM()
 enum class ESPECTier : uint8
 {
-	TIER_1,
-	TIER_2,
-	TIER_3,
-	TIER_5,
+	TIER_0 = 0,
+	TIER_1 = 1,
+	TIER_2 = 2,
+	TIER_3 = 3,
+	TIER_4 = 4,//아직 사용중이지 않습니다. 사용하지 마세요
+	TIER_5 = 5,
 
-	TIER_MAX,//듀오티어인 5티어를 제외한 모든 티어의 특성을 획득했습니다
+	TIER_MAX = 6,//듀오티어인 5티어를 제외한 모든 티어의 특성을 획득했습니다
 };
 
 

@@ -124,7 +124,7 @@ void AHD_Manager_Pool::PoolInMOB(AHD_Monster* mob)
 {
 	if (!mob) return;
 	mob->UnitSetActiveTick(false);
-	_pool_mob.FindOrAdd(mob->GetInfoMOB().code);
+	_pool_mob.FindOrAdd(mob->GetInfoMOB().code).Add(mob);
 }
 
 AHD_Companion* AHD_Manager_Pool::PoolGetCPAN(const FString& str_code_cpan)

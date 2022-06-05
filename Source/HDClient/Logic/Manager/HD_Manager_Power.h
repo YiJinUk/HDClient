@@ -17,6 +17,31 @@ class AHD_GM;
  * 5 티어(듀오) : 힘이 다른 2개의 특성을 필요로합니다. 필요로하는 특성은 3티어와 1티어를 필요로하며 이것은 5티어의 특성마다 다릅니다
  */
 
+USTRUCT()
+struct FInfoSPECCode
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		ESPECTier tier = ESPECTier::TIER_0;
+
+	UPROPERTY()
+		FString code = "0";
+
+	UPROPERTY()
+		FString code_spec_need_1 = "0";
+	UPROPERTY()
+		FString code_spec_need_2 = "0";
+	UPROPERTY()
+		bool can_active = false;
+public:
+	void InitSPECTier5()
+	{
+		can_active = false;
+	}
+};
+
 /*
 * 5티어 전용 구조체입니다
 * 5티어는 각 특성끼리 얽혀있기 때문에 유지보수를 위해 따로 관리합니다
@@ -33,12 +58,14 @@ public:
 		FString code_spec_need_1 = "0";
 	UPROPERTY()
 		FString code_spec_need_2 = "0";
-	UPROPERTY()
-		bool can_active = false;
 public:
-	void InitSPECTier5()
+	FORCEINLINE bool operator==(const FString& other_code) const
 	{
-		can_active = false;
+		return code == other_code;
+	}
+	FORCEINLINE bool operator==(const FInfoSPECTier5& other) const
+	{
+		return code == other.code;
 	}
 };
 
@@ -51,9 +78,7 @@ public:
 	UPROPERTY()
 		EPowerType power_type = EPowerType::SPEC01;
 
-	//특성을 획득할 때 해당티어까지 특성을 획득할 수 있습니다
-	UPROPERTY()
-		ESPECTier spec_tier_reward = ESPECTier::TIER_1;
+	
 
 	/*보상으로 받을 수 있는 특성 코드입니다*/
 	UPROPERTY()
@@ -74,11 +99,35 @@ public:
 		uint8 tier_5_count_max = 0;
 
 	/*5티어는 다른 특성과 겹치는 특성이 있기 때문에 따로 관리합니다*/
-	TArray<FInfoSPECTier5*> tier_5_info;
+	//TArray<FInfoSPECTier5*> tier_5_info;
+
+
+
+
+
 
 	/*보상으로 나올 3가지 특성코드 입니다*/
 	UPROPERTY()
 		TArray<FString> code_reward_spec;
+
+	//특성을 획득할 때 해당티어까지 특성을 획득할 수 있습니다. 티어0,티어5로 설정될 수 없습니다.
+	UPROPERTY()
+		ESPECTier spec_tier_reward = ESPECTier::TIER_1;
+
+	/*
+	* 플레이중 획득한 특성의 코드입니다
+	* key : 특성들의 티어
+	* value : 해당 티어의 특성코드들
+	*/
+	TMap<ESPECTier, TArray<FString>> codes_spec_own;
+
+	/*
+	* 아직 획득하지 못한 특성의 코드입니다
+	* key : 특성들의 티어
+	* value : 해당 티어의 특성코드들
+	*/
+	TMap<ESPECTier, TArray<FString>> codes_spec_not_own;
+
 public:
 	void InitPower()
 	{
@@ -143,6 +192,8 @@ UCLASS()
 class HDCLIENT_API AHD_Manager_Power : public AHD_Manager_Master
 {
 	GENERATED_BODY()
+
+		uint32 GetTypeHash(const FInfoSPECTier5& myStruct);
 #pragma region Init
 public:
 	void PowerPostInit(UHD_GI* gi, AHD_GM* gm);
@@ -154,7 +205,11 @@ public:
 	void SPECAdd(const FString& str_code_spec, FInfoPlayer& s_info_player);
 	void SPECRemove(const FString& str_code_spec, FInfoPlayer& s_info_player);
 private:
+	//PowerInit()에서 호출합니다
 	void PowerInitInfoSPEC(FInfoPower& s_info_spec);
+
+	//보상으로 등장할 특성을 계산합니다
+	void PowerCalcRewardSPEC(FInfoPower& s_info_power);
 
 	/*
 	* 해당특성의 획득티어를 계산합니다
@@ -180,8 +235,11 @@ private:
 	FInfoPower03* _info_spec_03 = nullptr;
 
 	/*5티어 특성정보는 따로 관리합니다*/
+	TArray<FInfoSPECTier5*> _info_specs_tier_5_disable;
+	TArray<FInfoSPECTier5*> _info_specs_tier_5_enable;
+	TArray<FInfoSPECTier5*> _info_specs_tier_5_own;
 	UPROPERTY()
-		TArray<FInfoSPECTier5> _info_tier_5_origin;
+		TArray<FInfoSPECTier5> _info_specs_tier_5_origin;
 
 	/*보상으로 획득할 수 있는 보상코드 입니다*/
 	UPROPERTY()

@@ -39,7 +39,7 @@ void UHD_UI_Wave_Clear_Reward::UIRewardInit()
 	{
 		w_slot = PoolOutSlot();
 		w_slot->UIRewardSlotInit(s_info_reward);
-		_reward_slot_box->AddChildWrapBox(w_slot);
+		_reward_slot_box->AddChild(w_slot);
 	}
 }
 
